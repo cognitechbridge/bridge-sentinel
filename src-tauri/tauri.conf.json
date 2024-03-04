@@ -17,9 +17,7 @@
       "deb": {
         "depends": []
       },
-      "externalBin": [
-        "binaries/storage"
-      ],
+      "externalBin": [],
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -73,48 +71,11 @@
         "title": "storage-ui",
         "center": true,
         "resizable": true,
-        "decorations": true,
+        "decorations": false,
         "transparent": true,
         "height": 900,
         "width": 1290
       }
-    ],
-    "allowlist": {
-      "dialog": {
-        "all": true
-      },
-      "window": {
-        "all": true
-      },
-      "path": {
-        "all": true
-      },
-      "shell": {
-        "sidecar": true,
-        "scope": [
-          {
-            "name": "binaries/storage",
-            "sidecar": true,
-            "args": true
-          }
-        ]
-      },
-      "os": {
-        "all": true
-      }
-    },
-    "cli": {
-      "description": "",
-      "longDescription": "",
-      "beforeHelp": "",
-      "afterHelp": "",
-      "args": [
-        {
-          "name": "secret",
-          "short": "s",
-          "takesValue": true
-        }
-      ]
-    }
+    ]
   }
 }

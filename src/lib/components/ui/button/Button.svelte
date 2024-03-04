@@ -1,25 +1,47 @@
 <script lang="ts">
-	import { Button as ButtonPrimitive } from "bits-ui";
-	import { cn } from "$lib/utils.js";
-	import { buttonVariants, type Props, type Events } from "./index.js";
+  import type { VariantProps } from 'class-variance-authority';
+  import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils';
+  import { buttonVariants } from '.';
 
-	type $$Props = Props;
-	type $$Events = Events;
+  let className: string | undefined | null = undefined;
+  export { className as class };
+  export let href: HTMLAnchorAttributes['href'] = undefined;
+  export let type: HTMLButtonAttributes['type'] = undefined;
+  export let variant: VariantProps<typeof buttonVariants>['variant'] = 'default';
+  export let size: VariantProps<typeof buttonVariants>['size'] = 'default';
 
-	let className: $$Props["class"] = undefined;
-	export let variant: $$Props["variant"] = "default";
-	export let size: $$Props["size"] = "default";
-	export let builders: $$Props["builders"] = [];
-	export { className as class };
+  type Props = {
+    class?: string | null;
+    variant?: VariantProps<typeof buttonVariants>['variant'];
+    size?: VariantProps<typeof buttonVariants>['size'];
+  };
+
+  interface AnchorElement extends Props, HTMLAnchorAttributes {
+    href?: HTMLAnchorAttributes['href'];
+    type?: never;
+  }
+
+  interface ButtonElement extends Props, HTMLButtonAttributes {
+    type?: HTMLButtonAttributes['type'];
+    href?: never;
+  }
+
+  type $$Props = AnchorElement | ButtonElement;
 </script>
 
-<ButtonPrimitive.Root
-	{builders}
-	class={cn(buttonVariants({ variant, size, className }))}
-	type="button"
-	{...$$restProps}
-	on:click
-	on:keydown
+<svelte:element
+  this={href ? 'a' : 'button'}
+  type={href ? undefined : type}
+  {href}
+  class={cn(buttonVariants({ variant, size, className }))}
+  {...$$restProps}
+  on:click
+  on:change
+  on:keydown
+  on:keyup
+  on:mouseenter
+  on:mouseleave
 >
-	<slot />
-</ButtonPrimitive.Root>
+  <slot />
+</svelte:element>

@@ -322,13 +322,35 @@ export const examples: Example[] = [
     code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/lib/components/docs/dashboard'
   },
   {
+    name: 'Cards',
+    href: '/cards',
+    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/cards'
+  },
+  // {
+  // 	name: "Tasks",
+  // 	href: "/tasks",
+  // 	label: "New",
+  // 	code: "https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/apps/www/app/examples/tasks"
+  // },
+  // {
+  // 	name: "Playground",
+  // 	href: "/playground",
+  // 	code: "https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/apps/www/app/examples/playground"
+  // },
+  // {
+  // 	name: "Music",
+  // 	href: "/music",
+  // 	code: "https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/apps/www/app/examples/music"
+  // },
+  {
     name: 'Authentication',
     href: '/authentication',
     code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
-  },
-  {
-    name: 'Login',
-    href: '/login',
-    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
   }
+  // {
+  // 	name: "Forms",
+  // 	href: "#",
+  // 	label: "Soon",
+  // 	code: "https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/forms"
+  // }
 ];

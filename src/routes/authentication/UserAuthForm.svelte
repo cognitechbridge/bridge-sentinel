@@ -3,33 +3,28 @@
   import { Button } from '$components/ui/button';
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
-  import InputPassword from './InputPassword.svelte';
-  import { app } from '$api/app';
-  import GenerateKeyDialog from '$components/docs/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
 
   let isLoading = false;
-  let email = '';
   let password = '';
   let password2 = '';
-  let key = '';
   let isStrong = false;
   let strength = 0;
   let passwordsMatch = false;
   let passwordError = '';
   let barColor = 'bg-gray-400'; // Default color
 
-  let openGenerateKeyDialog = false;
-
   async function onSubmit() {
     isLoading = true;
-    await app.saveUserData(email, password, key);
-    isLoading = false;
+
+    setTimeout(() => {
+      isLoading = false;
+    }, 3000);
   }
 
   function calculateStrength(password: string) {
@@ -60,7 +55,7 @@
 </script>
 
 <div class={cn('grid gap-6', className)} {...$$restProps}>
-  <form>
+  <form on:submit|preventDefault={onSubmit}>
     <div class="grid gap-2">
       <div class="grid gap-1">
         <Label class="mb-1" for="email">Email:</Label>
@@ -72,18 +67,31 @@
           autoComplete="email"
           autoCorrect="off"
           disabled={isLoading}
-          bind:value={email}
         />
       </div>
       <div class="grid gap-1 mt-2">
-        <Label class="mb-1" for="password">Secret:</Label>
-        <InputPassword bind:value={password} />
+        <Label class="mb-1" for="password">Password:</Label>
+        <Input
+          id="password"
+          placeholder="Your strong password"
+          type="password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          disabled={isLoading}
+          bind:value={password}
+        />
+        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-1">
+          <div class={barColor + ' h-2.5 rounded-full'} style="width: {strength}%;"></div>
+        </div>
+        {#if passwordError && password.length > 0}
+          <p transition:slide class="text-red-500 text-sm">{passwordError}</p>
+        {/if}
       </div>
       <div class="grid gap-1">
-        <Label class="sr-only" for="password-2">Secret repeat</Label>
+        <Label class="sr-only" for="password-2">Password repeat</Label>
         <Input
           id="password-2"
-          placeholder="Repeat your strong secret"
+          placeholder="Repeat your strong password"
           type="password"
           autoCapitalize="none"
           autoCorrect="off"
@@ -94,29 +102,7 @@
           <p transition:slide class="text-red-500 text-sm">Passwords do not match</p>
         {/if}
       </div>
-      <div class="grid gap-1 mt-1">
-        <Label class="mb-1" for="key">Private Key:</Label>
-        <div class="flex">
-          <Input
-            id="key"
-            class="flex-1"
-            placeholder="Your private key"
-            type="password"
-            autoCorrect="off"
-            disabled={isLoading}
-            bind:value={key}
-          />
-          <Button
-            type="button"
-            class="ml-2"
-            disabled={isLoading}
-            on:click={() => (openGenerateKeyDialog = true)}
-          >
-            Generate
-          </Button>
-        </div>
-      </div>
-      <Button disabled={isLoading || !passwordsMatch || !isStrong} on:click={onSubmit}>
+      <Button disabled={isLoading || !passwordsMatch || !isStrong}>
         {#if isLoading}
           <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
         {/if}
@@ -124,5 +110,21 @@
       </Button>
     </div>
   </form>
+  <div class="relative">
+    <div class="absolute inset-0 flex items-center">
+      <span class="w-full border-t" />
+    </div>
+    <div class="relative flex justify-center text-xs uppercase">
+      <span class="bg-background px-2 text-muted-foreground"> Or continue with </span>
+    </div>
+  </div>
+  <Button variant="outline" type="button" disabled={isLoading}>
+    {#if isLoading}
+      <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
+    {:else}
+      <Icons.gitHub class="mr-2 h-4 w-4" />
+    {/if}
+    {' '}
+    Github
+  </Button>
 </div>
-<GenerateKeyDialog bind:open={openGenerateKeyDialog} bind:key />

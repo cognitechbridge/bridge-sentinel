@@ -1,5 +1,5 @@
 [package]
-name = "ui"
+name = "storage-ui"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -7,25 +7,19 @@ license = "MIT"
 repository = ""
 edition = "2021"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-alpha.6", features = [] }
+
 [dependencies]
+tauri = { version = "2.0.0-alpha.10", features = [] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tauri = { version = "1.6.1", features = [ "cli",
-    "dialog-all",
-    "path-all",
-    "os-all",
-    "shell-sidecar",
-    "window-all",
-] }
-tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-argon2 = "0.5.3"
-rand = "0.8"
-anyhow = "1.0.81"
-bs58 = "0.5.1"
-chacha20poly1305 = "0.10.1"
-hkdf = "0.12.4"
-sha2 = "0.10.8"
+tauri-plugin-app = "2.0.0-alpha.0"
+tauri-plugin-os = "2.0.0-alpha.0"
+tauri-plugin-shell = "2.0.0-alpha.0"
+tauri-plugin-window = "2.0.0-alpha.0"
 
 [features]
 # by default Tauri runs in production mode
@@ -33,7 +27,7 @@ sha2 = "0.10.8"
 default = ["custom-protocol"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
-custom-protocol = []
+custom-protocol = ["tauri/custom-protocol"]
 
 # Optimized for bundle size. If you want faster builds comment out/delete this section.
 [profile.release]
@@ -43,6 +37,3 @@ codegen-units = 1 # Reduce number of codegen units to increase optimizations.
 panic = "abort"   # Abort on panic
 strip = true      # Automatically strip symbols from the binary.
 debug = false
-
-[build-dependencies]
-tauri-build = { version = "1.5.1", features = [] }
