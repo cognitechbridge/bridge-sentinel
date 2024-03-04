@@ -3,12 +3,22 @@
   import { Button } from '$components/ui/button';
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
+  import { fade, slide } from 'svelte/transition';
+  import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
 
   let className: string | undefined | null = undefined;
   export { className as class };
 
   let isLoading = false;
+  let password = '';
+  let password2 = '';
+  let isStrong = false;
+  let strength = 0;
+  let passwordsMatch = false;
+  let passwordError = '';
+  let barColor = 'bg-gray-400'; // Default color
+
   async function onSubmit() {
     isLoading = true;
 
@@ -16,16 +26,42 @@
       isLoading = false;
     }, 3000);
   }
+
+  function calculateStrength(password: string) {
+    var result = owasp.test(password);
+    passwordError = result.errors.length > 0 ? result.errors[0] : '';
+    strength = Math.max(
+      Math.min(password.length * 5 + result.passedTests.length * 10, 100) -
+        result.errors.length * 30,
+      0
+    );
+    if (strength < 20 || result.errors.length > 0) {
+      barColor = 'bg-red-500';
+    } else if (strength < 40) {
+      barColor = 'bg-yellow-500';
+    } else if (strength < 60) {
+      barColor = 'bg-blue-500';
+    } else if (strength < 80) {
+      barColor = 'bg-green-500';
+    } else {
+      barColor = 'bg-green-500';
+    }
+    isStrong = result.strong;
+    strength = password.length > 0 ? strength : 0;
+  }
+
+  $: calculateStrength(password);
+  $: passwordsMatch = password === password2;
 </script>
 
 <div class={cn('grid gap-6', className)} {...$$restProps}>
   <form on:submit|preventDefault={onSubmit}>
     <div class="grid gap-2">
       <div class="grid gap-1">
-        <Label class="sr-only" for="email">Email</Label>
+        <Label class="mb-1" for="email">Email:</Label>
         <Input
           id="email"
-          placeholder="name@example.com"
+          placeholder="Your email"
           type="email"
           autoCapitalize="none"
           autoComplete="email"
@@ -33,11 +69,44 @@
           disabled={isLoading}
         />
       </div>
-      <Button disabled={isLoading}>
+      <div class="grid gap-1 mt-2">
+        <Label class="mb-1" for="password">Password:</Label>
+        <Input
+          id="password"
+          placeholder="Your strong password"
+          type="password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          disabled={isLoading}
+          bind:value={password}
+        />
+        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-1">
+          <div class={barColor + ' h-2.5 rounded-full'} style="width: {strength}%;"></div>
+        </div>
+        {#if passwordError && password.length > 0}
+          <p transition:slide class="text-red-500 text-sm">{passwordError}</p>
+        {/if}
+      </div>
+      <div class="grid gap-1">
+        <Label class="sr-only" for="password-2">Password repeat</Label>
+        <Input
+          id="password-2"
+          placeholder="Repeat your strong password"
+          type="password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          disabled={isLoading}
+          bind:value={password2}
+        />
+        {#if !passwordsMatch && password2.length > 0}
+          <p transition:slide class="text-red-500 text-sm">Passwords do not match</p>
+        {/if}
+      </div>
+      <Button disabled={isLoading || !passwordsMatch || !isStrong}>
         {#if isLoading}
           <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
         {/if}
-        Sign In with Email
+        Join
       </Button>
     </div>
   </form>
