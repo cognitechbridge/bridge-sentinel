@@ -6,6 +6,7 @@
   import { fade, slide } from 'svelte/transition';
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
+  import InputPassword from './InputPassword.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -71,21 +72,7 @@
       </div>
       <div class="grid gap-1 mt-2">
         <Label class="mb-1" for="password">Password:</Label>
-        <Input
-          id="password"
-          placeholder="Your strong password"
-          type="password"
-          autoCapitalize="none"
-          autoCorrect="off"
-          disabled={isLoading}
-          bind:value={password}
-        />
-        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-1">
-          <div class={barColor + ' h-2.5 rounded-full'} style="width: {strength}%;"></div>
-        </div>
-        {#if passwordError && password.length > 0}
-          <p transition:slide class="text-red-500 text-sm">{passwordError}</p>
-        {/if}
+        <InputPassword bind:value={password}/>
       </div>
       <div class="grid gap-1">
         <Label class="sr-only" for="password-2">Password repeat</Label>
