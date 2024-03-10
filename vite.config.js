@@ -8,5 +8,8 @@ export default defineConfig({
     port: 1420,
     strictPort: true
   },
+  optimizeDeps: {
+    exclude: ['js-big-decimal']
+  },
   envPrefix: ['VITE_', 'TAURI_']
 });

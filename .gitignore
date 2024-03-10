@@ -29,7 +29,7 @@ coverage
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+build/
 
 # Dependency directories
 node_modules/
@@ -89,3 +89,6 @@ test_video.mp4
 # old cli directories
 /tooling/cli.js
 /tooling/cli.rs
+
+/src-tarui/binaries/
+/src-tauri/binaries/storage-x86_64-pc-windows-msvc.exe
