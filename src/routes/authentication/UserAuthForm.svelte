@@ -7,6 +7,7 @@
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
+  import { Command } from '@tauri-apps/api/shell';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -22,6 +23,11 @@
 
   async function onSubmit() {
     isLoading = true;
+
+    const command = Command.sidecar('binaries/storage', ['help'])
+    console.log(command)
+    const output = await command.execute()  
+    console.log(output.stdout)
 
     setTimeout(() => {
       isLoading = false;
