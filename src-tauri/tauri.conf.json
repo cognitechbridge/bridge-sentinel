@@ -83,6 +83,9 @@
       "window": {
         "all": true
       },
+      "path": {
+        "all": true
+      },
       "shell": {
         "sidecar": true,
         "scope": [
