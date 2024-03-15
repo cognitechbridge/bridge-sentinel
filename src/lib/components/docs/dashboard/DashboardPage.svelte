@@ -4,25 +4,11 @@
   import { Button } from '$components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
-  import MainNav from './MainNav.svelte';
-  import Overview from './Overview.svelte';
   import RecentSales from './RecentSales.svelte';
   import Search from './Search.svelte';
 </script>
 
 <div class="flex-col md:flex">
-  <div class="border-b">
-    <div class="flex h-16 items-center px-4">
-      <MainNav class="mx-6" />
-      <div class="ml-auto flex items-center space-x-4">
-        <Search />
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-          <AvatarFallback>SC</AvatarFallback>
-        </Avatar>
-      </div>
-    </div>
-  </div>
   <div class="flex-1 space-y-4 p-8 pt-6">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -33,76 +19,37 @@
         </Button>
       </div>
     </div>
-    <Tabs value="overview" class="space-y-4">
-      <TabsList>
-        <TabsTrigger value="overview">Overview ZZ</TabsTrigger>
-        <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
-        <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
-        <TabsTrigger value="notifications" disabled>Notifications</TabsTrigger>
-      </TabsList>
-      <TabsContent value="overview" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">$45,231.89</div>
-              <p class="text-xs text-muted-foreground">+20.1% from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Subscriptions</CardTitle>
-              <Users class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">+2350</div>
-              <p class="text-xs text-muted-foreground">+180.1% from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Sales</CardTitle>
-              <CreditCard class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">+12,234</div>
-              <p class="text-xs text-muted-foreground">+19% from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Active Now</CardTitle>
-              <Activity class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">+573</div>
-              <p class="text-xs text-muted-foreground">+201 since last hour</p>
-            </CardContent>
-          </Card>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+      <div class="col-span-2 space-y-2">
+        <div class="rounded-md border px-4 py-3 font-mono text-sm">@melt-ui/melt-ui</div>
+        <div class="rounded-md border px-4 py-3 font-mono text-sm">@sveltejs/svelte</div>
+        <div
+          class="rounded-md border px-4 py-3 font-mono text-sm text-center bg-gray-200 hover:bg-gray-300"
+        >
+          Add new card
         </div>
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card class="col-span-4">
-            <CardHeader>
-              <CardTitle>Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Overview />
-            </CardContent>
+      </div>
+      <div class="col-span-6">
+        <Tabs value="overview" class="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
+            <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
+            <TabsTrigger value="notifications" disabled>Notifications</TabsTrigger>
+          </TabsList>
+          <Card>
+            <TabsContent value="overview" class="space-y-4">
+              <CardHeader>
+                <CardTitle>Recent Sales</CardTitle>
+                <CardDescription>You made 265 sales this month.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RecentSales />
+              </CardContent>
+            </TabsContent>
           </Card>
-          <Card class="col-span-3">
-            <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
-              <CardDescription>You made 265 sales this month.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RecentSales />
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-    </Tabs>
+        </Tabs>
+      </div>
+    </div>
   </div>
 </div>
