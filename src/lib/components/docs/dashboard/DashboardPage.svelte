@@ -6,6 +6,58 @@
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
   import RecentSales from './RecentSales.svelte';
   import Search from './Search.svelte';
+  import { open } from '@tauri-apps/api/dialog';
+
+  const openDirectory = async () => {
+    const result = await open({ directory: true });
+    console.log(result);
+    if (result === null || Array.isArray(result)) return;
+    repositories = [...repositories, result];
+  };
+
+  function shortenFilePath(filePath: string, maxLength: number = 45): string {
+    if (filePath.length <= maxLength) {
+      return filePath;
+    }
+    const separator = filePath.includes('/') ? '/' : '\\';
+    const segments = filePath.split(separator);
+
+    // Handle cases where path length is too short to be meaningfully shortened
+    if (segments.length < 3) {
+      return filePath.slice(0, maxLength - 3) + separator + '...';
+    }
+
+    let start = segments[0];
+    let end = segments[segments.length - 1];
+
+    // Include the leading separator for absolute paths
+    if (filePath.startsWith(separator)) {
+      start = separator + start;
+    }
+
+    let middle = '...';
+
+    // Adjust according to the maximum length allowed
+    const startMaxLength = Math.ceil((maxLength - middle.length - end.length) / 2);
+    const endMaxLength = Math.floor((maxLength - middle.length - start.length) / 2);
+
+    console.log(startMaxLength, endMaxLength);
+
+    if (start.length > startMaxLength) {
+      start = start.slice(0, startMaxLength - 1) + '…';
+    }
+
+    if (end.length > endMaxLength) {
+      end = '…' + end.slice(-endMaxLength + 1);
+    }
+
+    // Reassemble the path using the determined separator
+    return start + separator + middle + separator + end;
+  }
+
+  let repositories = ['@melt-ui/melt-ui', '@sveltejs/svelte'];
+
+  $: shortenRepositories = repositories.map((repository) => shortenFilePath(repository));
 </script>
 
 <div class="flex-col md:flex">
@@ -21,10 +73,17 @@
     </div>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
       <div class="col-span-2 space-y-2">
-        <div class="rounded-md border px-4 py-3 font-mono text-sm">@melt-ui/melt-ui</div>
-        <div class="rounded-md border px-4 py-3 font-mono text-sm">@sveltejs/svelte</div>
+        {#each shortenRepositories as repository}
+          <div class="rounded-md border px-4 py-3 font-mono text-sm">{repository}</div>
+        {/each}
         <div
-          class="rounded-md border px-4 py-3 font-mono text-sm text-center bg-gray-200 hover:bg-gray-300"
+          class="rounded-md border px-4 py-3 font-mono text-sm text-center bg-muted hover:bg-muted/60"
+          on:click={openDirectory}
+          on:keydown={(event) => {
+            if (event.key === 'Enter') openDirectory();
+          }}
+          role="button"
+          tabindex="0"
         >
           Add new card
         </div>
