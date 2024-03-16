@@ -4,15 +4,22 @@
   import { Button } from '$components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
-  import RecentSales from './RecentSales.svelte';
   import Search from './Search.svelte';
   import { open } from '@tauri-apps/api/dialog';
+  import RepositoryDashboard from './RepositoryDashboard.svelte';
+
+  let repositories = ['@melt-ui/melt-ui', '@sveltejs/svelte'];
+  let selectedRepository: string = '';
 
   const openDirectory = async () => {
     const result = await open({ directory: true });
     console.log(result);
     if (result === null || Array.isArray(result)) return;
     repositories = [...repositories, result];
+  };
+
+  const selectRepository = (repository: string) => {
+    selectedRepository = repository;
   };
 
   function shortenFilePath(filePath: string, maxLength: number = 45): string {
@@ -55,8 +62,6 @@
     return start + separator + middle + separator + end;
   }
 
-  let repositories = ['@melt-ui/melt-ui', '@sveltejs/svelte'];
-
   $: shortenRepositories = repositories.map((repository) => shortenFilePath(repository));
 </script>
 
@@ -74,7 +79,17 @@
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
       <div class="col-span-2 space-y-2">
         {#each shortenRepositories as repository}
-          <div class="rounded-md border px-4 py-3 font-mono text-sm">{repository}</div>
+          <div
+            class="rounded-md border px-4 py-3 font-mono text-sm"
+            on:click={() => selectRepository(repository)}
+            on:keydown={(event) => {
+              if (event.key === 'Enter') selectRepository(repository);
+            }}
+            role="button"
+            tabindex="0"
+          >
+            {repository}
+          </div>
         {/each}
         <div
           class="rounded-md border px-4 py-3 font-mono text-sm text-center bg-muted hover:bg-muted/60"
@@ -98,13 +113,7 @@
           </TabsList>
           <Card>
             <TabsContent value="overview" class="space-y-4">
-              <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>You made 265 sales this month.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentSales />
-              </CardContent>
+              <RepositoryDashboard repository={selectedRepository} />
             </TabsContent>
           </Card>
         </Tabs>
