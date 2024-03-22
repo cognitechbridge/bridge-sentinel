@@ -14,7 +14,7 @@
       <CardDescription>{repository}</CardDescription>
     </div>
     <div class="col-span-2 text-end">
-      <Button variant="default">
+      <Button variant="default" class="bg-green-600">
         <HardDriveDownload class="mr-2 h-4 w-4" />
         Mount
       </Button>
