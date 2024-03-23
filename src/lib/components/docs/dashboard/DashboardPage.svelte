@@ -7,18 +7,34 @@
   import Search from './Search.svelte';
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
+  import type { Repository } from '$api/app';
+  import { saveRepositories, loadRepositories, generateRandomString } from '$api/app';
+  import { onMount } from 'svelte';
+  import RepositorySettings from './RepositorySettings.svelte';
 
-  let repositories = ['@melt-ui/melt-ui', '@sveltejs/svelte'];
-  let selectedRepository: string = '';
+  let repositories: Repository[] = [];
+  let selectedRepository: Repository | null = null;
+
+  onMount(async () => {
+    repositories = await loadRepositories();
+  });
 
   const openDirectory = async () => {
     const result = await open({ directory: true });
     console.log(result);
     if (result === null || Array.isArray(result)) return;
-    repositories = [...repositories, result];
+    let repo = {
+      path: result,
+      shortenPath: shortenFilePath(result),
+      name: result.split('/').pop() || '',
+      salt: generateRandomString(32)
+    };
+    repositories = [...repositories, repo];
+    console.log(repositories);
+    saveRepositories(repositories);
   };
 
-  const selectRepository = (repository: string) => {
+  const selectRepository = (repository: Repository) => {
     selectedRepository = repository;
   };
 
@@ -62,7 +78,12 @@
     return start + separator + middle + separator + end;
   }
 
-  $: shortenRepositories = repositories.map((repository) => shortenFilePath(repository));
+  function handleRemove(event: CustomEvent<Repository>) {
+    const repository = event.detail;
+    repositories = repositories.filter((repo) => repo !== repository);
+    saveRepositories(repositories);
+    selectedRepository = repositories[0] || null;
+  }
 </script>
 
 <div class="flex-col md:flex">
@@ -72,7 +93,7 @@
     </div>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
       <div class="col-span-2 space-y-2">
-        {#each shortenRepositories as repository}
+        {#each repositories as repository}
           <div
             class="rounded-md border px-4 py-3 font-mono text-sm"
             on:click={() => selectRepository(repository)}
@@ -82,7 +103,7 @@
             role="button"
             tabindex="0"
           >
-            {repository}
+            {repository.shortenPath}
           </div>
         {/each}
         <div
@@ -103,11 +124,14 @@
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
             <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
-            <TabsTrigger value="notifications" disabled>Notifications</TabsTrigger>
+            <TabsTrigger value="setting">Settings</TabsTrigger>
           </TabsList>
           <Card>
             <TabsContent value="overview" class="space-y-4">
               <RepositoryDashboard repository={selectedRepository} />
+            </TabsContent>
+            <TabsContent value="setting" class="space-y-4">
+              <RepositorySettings repository={selectedRepository} on:remove={handleRemove} />
             </TabsContent>
           </Card>
         </Tabs>

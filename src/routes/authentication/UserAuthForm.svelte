@@ -8,7 +8,7 @@
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
   import { Command } from '@tauri-apps/api/shell';
-  import { Store } from "tauri-plugin-store-api";
+  import { Store } from 'tauri-plugin-store-api';
   import { appDataDir } from '@tauri-apps/api/path';
 
   let className: string | undefined | null = undefined;
@@ -23,28 +23,23 @@
   let passwordError = '';
   let barColor = 'bg-gray-400'; // Default color
 
-console.log(appDataDir())
-console.log("AAAX")
-
   async function onSubmit() {
     isLoading = true;
 
-
-    const store = new Store("config.json");
+    const store = new Store('config.json');
 
     //await store.set("some-key", { value: 5 });
 
-    const val = await store.get("some-key");
+    const val = await store.get('some-key');
     console.log(val);
-    console.log("ss");
+    console.log('ss');
 
     await store.save();
 
-
-    const command = Command.sidecar('binaries/storage', ['help'])
-    console.log(command)
-    const output = await command.execute()  
-    console.log(output.stdout)
+    const command = Command.sidecar('binaries/storage', ['help']);
+    console.log(command);
+    const output = await command.execute();
+    console.log(output.stdout);
 
     setTimeout(() => {
       isLoading = false;
@@ -95,7 +90,7 @@ console.log("AAAX")
       </div>
       <div class="grid gap-1 mt-2">
         <Label class="mb-1" for="password">Password:</Label>
-        <InputPassword bind:value={password}/>
+        <InputPassword bind:value={password} />
       </div>
       <div class="grid gap-1">
         <Label class="sr-only" for="password-2">Password repeat</Label>
