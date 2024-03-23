@@ -3,15 +3,16 @@
   import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
+  import type { Repository } from '$api/app';
 
-  export let repository: string = '';
+  export let repository: Repository | null = null;
 </script>
 
 <CardHeader>
   <div class="grid grid-cols-6">
     <div class="col-span-4">
       <CardTitle>Repository Dashboard</CardTitle>
-      <CardDescription>{repository}</CardDescription>
+      <CardDescription>{repository?.path}</CardDescription>
     </div>
     <div class="col-span-2 text-end">
       <Button variant="default" class="bg-green-600">
