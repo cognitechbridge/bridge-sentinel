@@ -6,6 +6,7 @@ interface Repository {
     path: string;
     salt: string;
     shortenPath: string;
+    public: string;
 }
 
 const store = new Store("config.json");
