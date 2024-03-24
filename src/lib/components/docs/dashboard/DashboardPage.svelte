@@ -8,7 +8,12 @@
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import { saveRepositories, loadRepositories, generateRandomString } from '$api/app';
+  import {
+    saveRepositories,
+    loadRepositories,
+    generateRandomString,
+    addFolderToRepositories
+  } from '$api/app';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import { shortenFilePath } from '$api/utils';
@@ -24,21 +29,17 @@
     const result = await open({ directory: true });
     console.log(result);
     if (result === null || Array.isArray(result)) return;
-    let repo = {
-      path: result,
-      shortenPath: shortenFilePath(result),
-      name: result.split('/').pop() || '',
-      salt: generateRandomString(32),
-      public: generateRandomString(16)
-    };
-    repositories = [...repositories, repo];
-    console.log(repositories);
-    saveRepositories(repositories);
+    await addFolderToRepositories(result);
+    loadRepositoriesUsingApp();
   };
 
   const selectRepository = (repository: Repository) => {
     selectedRepository = repository;
   };
+
+  async function loadRepositoriesUsingApp() {
+    repositories = await loadRepositories();
+  }
 
   function handleRemove(event: CustomEvent<Repository>) {
     const repository = event.detail;
@@ -81,22 +82,42 @@
         </div>
       </div>
       <div class="col-span-6">
-        <Tabs value="overview" class="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
-            <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
-            <TabsTrigger value="setting">Settings</TabsTrigger>
-          </TabsList>
+        {#if selectedRepository === null}
           <Card>
-            <TabsContent value="overview" class="space-y-4">
-              <RepositoryDashboard repository={selectedRepository} />
-            </TabsContent>
-            <TabsContent value="setting" class="space-y-4">
-              <RepositorySettings repository={selectedRepository} on:remove={handleRemove} />
-            </TabsContent>
+            <CardHeader>
+              <CardTitle>No repository selected</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Select a repository from the list to view its details.</p>
+            </CardContent>
           </Card>
-        </Tabs>
+        {:else if selectedRepository?.status.is_valid === false}
+          <Card>
+            <CardHeader>
+              <CardTitle>Invalid repository</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>The selected repository is invalid. Please select another repository.</p>
+            </CardContent>
+          </Card>
+        {:else}
+          <Tabs value="overview" class="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
+              <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
+              <TabsTrigger value="setting">Settings</TabsTrigger>
+            </TabsList>
+            <Card>
+              <TabsContent value="overview" class="space-y-4">
+                <RepositoryDashboard repository={selectedRepository} />
+              </TabsContent>
+              <TabsContent value="setting" class="space-y-4">
+                <RepositorySettings repository={selectedRepository} on:remove={handleRemove} />
+              </TabsContent>
+            </Card>
+          </Tabs>
+        {/if}
       </div>
     </div>
   </div>
