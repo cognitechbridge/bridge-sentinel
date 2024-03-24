@@ -22,7 +22,7 @@
 <div class="flex items-center space-x-2 p-4 rounded-lg border">
   <div class="flex-1 text-lg font-medium">{shareCode}</div>
   <button
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    class="bg-blue-500 hover:bg-blue-700 text-whit py-2 px-4 rounded"
     on:click={copyCodeToClipboard}
   >
     {buttonLabel}
