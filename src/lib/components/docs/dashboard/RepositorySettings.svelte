@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Trash2 } from 'lucide-svelte';
-  import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
   import { createEventDispatcher } from 'svelte';
