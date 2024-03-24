@@ -1,23 +1,14 @@
 <script lang="ts">
-  import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-svelte';
-  import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
-  import { Button } from '$components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
   import Search from './Search.svelte';
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import {
-    saveRepositories,
-    loadRepositories,
-    generateRandomString,
-    addFolderToRepositories
-  } from '$api/app';
+  import { saveRepositories, loadRepositories, addFolderToRepositories } from '$api/app';
   import InvalidRepository from './InvalidRepository.svelte';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
-  import { shortenFilePath } from '$api/utils';
 
   let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
@@ -59,7 +50,9 @@
       <div class="col-span-2 space-y-2">
         {#each repositories as repository}
           <div
-            class="rounded-md border px-4 py-3 font-mono text-sm"
+            class="rounded-md border px-4 py-3 font-mono text-sm {selectedRepository === repository
+              ? 'bg-muted/50'
+              : ''}"
             on:click={() => selectRepository(repository)}
             on:keydown={(event) => {
               if (event.key === 'Enter') selectRepository(repository);
@@ -71,7 +64,7 @@
           </div>
         {/each}
         <div
-          class="rounded-md border px-4 py-3 font-mono text-sm text-center bg-muted hover:bg-muted/60"
+          class="rounded-md border-dashed border px-4 py-3 font-mono text-sm text-center hover:bg-muted/25"
           on:click={openDirectory}
           on:keydown={(event) => {
             if (event.key === 'Enter') openDirectory();
