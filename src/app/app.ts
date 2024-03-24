@@ -1,5 +1,5 @@
 import { Store } from "tauri-plugin-store-api";
-import { Command } from '@tauri-apps/api/shell';
+import { Command, Child } from '@tauri-apps/api/shell';
 import { shortenFilePath } from "./utils";
 
 // Define the interface for a repository
@@ -13,6 +13,8 @@ interface RepositoryCore {
 interface Repository extends RepositoryCore {
     status: RepositoryStatus;
     shortenPath: string;
+    mounted: boolean;
+    mountPid?: number;
 }
 
 interface AppResult<T> {
@@ -37,10 +39,18 @@ async function getRepositoryStatus(repositoryPath: string): Promise<RepositorySt
 }
 
 // Function to mount a repository using App CLI
-async function mountRepository(repositoryPath: string): Promise<void> {
+async function mountRepository(repositoryPath: string): Promise<number> {
     const command = Command.sidecar('binaries/storage', ['mount', "-p", repositoryPath, "-k", "79dvjtK2jcPpfXi1HsKa2S9GV5qjhbKgJHQyoWevg6ZQ", "-o", "json"]);
-    await command.execute();
+    let process = await command.spawn();
+    return process.pid;
 }
+
+// Function to unmount a repository using termination child process
+async function unmountRepository(pid: number): Promise<void> {
+    let ch = new Child(pid);
+    ch.kill();
+}
+
 
 // Function to extend a repository object with additional properties
 async function extendRepository(repo: RepositoryCore): Promise<Repository> {
@@ -49,7 +59,8 @@ async function extendRepository(repo: RepositoryCore): Promise<Repository> {
     let rep = {
         ...repo,
         status,
-        shortenPath
+        shortenPath,
+        mounted: false,
     }
     return rep;
 }
@@ -98,4 +109,4 @@ async function addFolderToRepositories(folderPath: string) {
 }
 
 export type { Repository };
-export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository };
+export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository, unmountRepository };
