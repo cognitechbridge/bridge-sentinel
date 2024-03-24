@@ -4,7 +4,13 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
   import type { Repository } from '$api/app';
+  import { mountRepository } from '$api/app';
   import ShareKey from './ShareKey.svelte';
+
+  // Mount the repository
+  async function mount() {
+    mountRepository(repository?.path || ('' as string));
+  }
 
   export let repository: Repository | null = null;
 </script>
@@ -16,7 +22,7 @@
       <CardDescription>{repository?.path}</CardDescription>
     </div>
     <div class="col-span-2 text-end">
-      <Button variant="default" class="bg-green-600">
+      <Button variant="default" class="bg-green-600" on:click={mount}>
         <HardDriveDownload class="mr-2 h-4 w-4" />
         Mount
       </Button>

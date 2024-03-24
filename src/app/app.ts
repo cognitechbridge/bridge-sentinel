@@ -36,6 +36,12 @@ async function getRepositoryStatus(repositoryPath: string): Promise<RepositorySt
     return jsonOutput.result;
 }
 
+// Function to mount a repository using App CLI
+async function mountRepository(repositoryPath: string): Promise<void> {
+    const command = Command.sidecar('binaries/storage', ['mount', "-p", repositoryPath, "-k", "79dvjtK2jcPpfXi1HsKa2S9GV5qjhbKgJHQyoWevg6ZQ", "-o", "json"]);
+    await command.execute();
+}
+
 // Function to extend a repository object with additional properties
 async function extendRepository(repo: RepositoryCore): Promise<Repository> {
     let shortenPath = shortenFilePath(repo.path);
@@ -92,4 +98,4 @@ async function addFolderToRepositories(folderPath: string) {
 }
 
 export type { Repository };
-export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories };
+export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository };
