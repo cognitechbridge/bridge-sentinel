@@ -14,6 +14,7 @@
     generateRandomString,
     addFolderToRepositories
   } from '$api/app';
+  import InvalidRepository from './InvalidRepository.svelte';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import { shortenFilePath } from '$api/utils';
@@ -92,14 +93,7 @@
             </CardContent>
           </Card>
         {:else if selectedRepository?.status.is_valid === false}
-          <Card>
-            <CardHeader>
-              <CardTitle>Invalid repository</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>The selected repository is invalid. Please select another repository.</p>
-            </CardContent>
-          </Card>
+          <InvalidRepository repository={selectedRepository} on:remove={handleRemove} />
         {:else}
           <Tabs value="overview" class="space-y-4">
             <TabsList>
