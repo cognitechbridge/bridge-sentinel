@@ -28,7 +28,8 @@
       path: result,
       shortenPath: shortenFilePath(result),
       name: result.split('/').pop() || '',
-      salt: generateRandomString(32)
+      salt: generateRandomString(32),
+      public: generateRandomString(16)
     };
     repositories = [...repositories, repo];
     console.log(repositories);
