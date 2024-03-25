@@ -98,7 +98,7 @@ async function saveUserData(email: string, secret: string): Promise<void> {
     };
     await store.set('user_data', userData);
     await store.save();
-    let res = await invoke('set_secret', { secret: secret }) as boolean;
+    let res = await invoke('set_secret', { secret: secret, salt: userData.salt }) as boolean;
     if (!res) {
         console.error("Failed to set secret");
     }
