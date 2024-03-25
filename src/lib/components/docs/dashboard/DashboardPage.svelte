@@ -91,8 +91,6 @@
           <Tabs value="overview" class="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
-              <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
               <TabsTrigger value="setting">Settings</TabsTrigger>
             </TabsList>
             <Card>

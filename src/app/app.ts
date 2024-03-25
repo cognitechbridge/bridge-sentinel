@@ -1,6 +1,7 @@
 import { Store } from "tauri-plugin-store-api";
 import { Command, Child } from '@tauri-apps/api/shell';
 import { shortenFilePath } from "./utils";
+import { invoke } from '@tauri-apps/api/tauri';
 
 // Define the interface for a repository
 interface RepositoryCore {
@@ -8,6 +9,11 @@ interface RepositoryCore {
     path: string;
     salt: string;
     public: string;
+}
+
+interface UserData {
+    email: string;
+    salt: string;
 }
 
 interface Repository extends RepositoryCore {
@@ -72,6 +78,7 @@ async function saveRepositories(repositories: RepositoryCore[]): Promise<void> {
     await store.save();
 }
 
+// Function to load the list of repositories from the store
 async function loadCoreRepositories(): Promise<RepositoryCore[]> {
     return (await store.get('repositories') || []) as RepositoryCore[];
 }
@@ -83,6 +90,24 @@ async function loadRepositories(): Promise<Repository[]> {
     return repositories;
 }
 
+// Function to save the user data
+async function saveUserData(email: string, secret: string): Promise<void> {
+    let userData = {
+        email: email,
+        salt: generateRandomString(32)
+    };
+    await store.set('user_data', userData);
+    await store.save();
+    let res = await invoke('set_secret', { secret: secret }) as boolean;
+    if (!res) {
+        console.error("Failed to set secret");
+    }
+}
+
+// Function to load the user data
+async function loadUserData(): Promise<UserData|null> {
+    return (await store.get('user_data') as UserData || null);
+}
 
 // Function to generate a random string with a given length
 function generateRandomString(length: number): string {
@@ -109,4 +134,4 @@ async function addFolderToRepositories(folderPath: string) {
 }
 
 export type { Repository };
-export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository, unmountRepository };
+export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository, unmountRepository, loadUserData, saveUserData};

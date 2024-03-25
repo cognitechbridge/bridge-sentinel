@@ -7,14 +7,13 @@
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
-  import { Command } from '@tauri-apps/api/shell';
-  import { Store } from 'tauri-plugin-store-api';
-  import { appDataDir } from '@tauri-apps/api/path';
+  import { saveUserData } from '$api/app';
 
   let className: string | undefined | null = undefined;
   export { className as class };
 
   let isLoading = false;
+  let email = '';
   let password = '';
   let password2 = '';
   let isStrong = false;
@@ -25,25 +24,8 @@
 
   async function onSubmit() {
     isLoading = true;
-
-    const store = new Store('config.json');
-
-    //await store.set("some-key", { value: 5 });
-
-    const val = await store.get('some-key');
-    console.log(val);
-    console.log('ss');
-
-    await store.save();
-
-    const command = Command.sidecar('binaries/storage', ['help']);
-    console.log(command);
-    const output = await command.execute();
-    console.log(output.stdout);
-
-    setTimeout(() => {
-      isLoading = false;
-    }, 3000);
+    await saveUserData(email, password);
+    isLoading = false;
   }
 
   function calculateStrength(password: string) {
@@ -86,6 +68,7 @@
           autoComplete="email"
           autoCorrect="off"
           disabled={isLoading}
+          bind:value={email}
         />
       </div>
       <div class="grid gap-1 mt-2">
@@ -115,21 +98,4 @@
       </Button>
     </div>
   </form>
-  <div class="relative">
-    <div class="absolute inset-0 flex items-center">
-      <span class="w-full border-t" />
-    </div>
-    <div class="relative flex justify-center text-xs uppercase">
-      <span class="bg-background px-2 text-muted-foreground"> Or continue with </span>
-    </div>
-  </div>
-  <Button variant="outline" type="button" disabled={isLoading}>
-    {#if isLoading}
-      <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
-    {:else}
-      <Icons.gitHub class="mr-2 h-4 w-4" />
-    {/if}
-    {' '}
-    Github
-  </Button>
 </div>

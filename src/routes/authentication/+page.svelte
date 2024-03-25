@@ -6,13 +6,6 @@
 <div
   class="container relative h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0"
 >
-  <Button
-    href="/examples/authentication"
-    variant="ghost"
-    class="absolute right-4 top-4 md:right-8 md:top-8"
-  >
-    Login
-  </Button>
   <div class="relative h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
     <div
       class="absolute inset-0 bg-cover"
@@ -22,35 +15,29 @@
     />
     <div class="relative z-20 flex items-center text-lg font-medium">
       <!-- <Command class="mr-2 h-6 w-6" /> -->
-      Acme Inc
+      Cognitech Bridge AI
     </div>
     <div class="relative z-20 mt-auto">
       <blockquote class="space-y-2">
         <p class="text-lg">
-          &ldquo;This library has saved me countless hours of work and helped me deliver stunning
-          designs to my clients faster than ever before. Highly recommended!&rdquo;
+          &ldquo;Security and privacy in the medical field are not just about protecting data, but
+          about safeguarding the very essence of human dignity and trust in healthcare.&rdquo;
         </p>
-        <footer class="text-sm">Sofia Davis</footer>
+        <footer class="text-sm">Chat GPT</footer>
       </blockquote>
     </div>
   </div>
   <div class="lg:p-8">
     <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-      <div class="flex flex-col space-y-2 text-center">
-        <h1 class="text-2xl font-semibold tracking-tight">Join the repository</h1>
-        <p class="text-sm text-muted-foreground">Enter your email and secret (password) below to join</p>
+      <div class="flex flex-col space-y-2">
+        <h1 class="text-2xl font-semibold tracking-tight text-center">First Setup</h1>
+        <p class="text-sm text-muted-foreground">
+          Enter your email and secret (password) below to setup the application.
+        </p>
       </div>
       <UserAuthForm />
       <p class="px-8 text-center text-sm text-muted-foreground">
-        By clicking continue, you agree to our{' '}
-        <a href="/terms" class="underline underline-offset-4 hover:text-primary">
-          Terms of Service
-        </a>{' '}
-        and{' '}
-        <a href="/privacy" class="underline underline-offset-4 hover:text-primary">
-          Privacy Policy
-        </a>
-        .
+        By clicking continue, you agree to our Terms of Service and Privacy Policy.
       </p>
     </div>
   </div>
