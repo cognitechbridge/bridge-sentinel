@@ -17,9 +17,9 @@
   }
 
   async function unmount() {
-    if (!repository || !repository.mountPid) return;
+    if (!repository) return;
     repository.mounted = false;
-    await unmountRepository(repository.mountPid);
+    await unmountRepository(repository.path);
     console.log('Unmounted Pid:', repository.mountPid);
   }
 
