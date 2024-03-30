@@ -92,16 +92,18 @@ async function loadRepositories(): Promise<Repository[]> {
 
 // Function to save the user data
 async function saveUserData(email: string, secret: string): Promise<void> {
+    let salt = generateRandomString(32);
+    let hahsed_secret = await invoke('set_new_secret', { secret: secret, salt: salt }) as string;
+    if (hahsed_secret.length === 0) {
+        console.error("Failed to set secret");
+    }
     let userData = {
         email: email,
-        salt: generateRandomString(32)
+        salt: salt,
+        hahsed_secret: hahsed_secret
     };
     await store.set('user_data', userData);
     await store.save();
-    let res = await invoke('set_secret', { secret: secret, salt: userData.salt }) as boolean;
-    if (!res) {
-        console.error("Failed to set secret");
-    }
 }
 
 // Function to load the user data
