@@ -56,7 +56,7 @@
 </script>
 
 <div class={cn('grid gap-6', className)} {...$$restProps}>
-  <form on:submit|preventDefault={onSubmit}>
+  <form>
     <div class="grid gap-2">
       <div class="grid gap-1">
         <Label class="mb-1" for="email">Email:</Label>
@@ -90,7 +90,7 @@
           <p transition:slide class="text-red-500 text-sm">Passwords do not match</p>
         {/if}
       </div>
-      <Button disabled={isLoading || !passwordsMatch || !isStrong}>
+      <Button disabled={isLoading || !passwordsMatch || !isStrong} on:click={onSubmit}>
         {#if isLoading}
           <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
         {/if}
