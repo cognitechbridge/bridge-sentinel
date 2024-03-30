@@ -346,6 +346,11 @@ export const examples: Example[] = [
     name: 'Authentication',
     href: '/authentication',
     code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
+  },
+  {
+    name: 'Login',
+    href: '/login',
+    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
   }
   // {
   // 	name: "Forms",

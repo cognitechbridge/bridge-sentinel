@@ -11,6 +11,7 @@
   let passwordError = '';
   let barColor = 'bg-gray-400';
 
+
   function calculateStrength(password: string) {
     var result = owasp.test(password);
     passwordError = result.errors.length > 0 ? result.errors[0] : '';
@@ -40,12 +41,12 @@
 <template>
   <Input
     id="password"
-    placeholder="Your strong secret"
+    placeholder="Your strong password"
     type="password"
     autoCapitalize="none"
     autoCorrect="off"
     disabled={isLoading}
-    bind:value
+    bind:value={value}
   />
   <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-1">
     <div class={barColor + ' h-2.5 rounded-full'} style="width: {strength}%;"></div>

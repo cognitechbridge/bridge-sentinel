@@ -72,14 +72,14 @@
         />
       </div>
       <div class="grid gap-1 mt-2">
-        <Label class="mb-1" for="password">Password:</Label>
+        <Label class="mb-1" for="password">Secret:</Label>
         <InputPassword bind:value={password} />
       </div>
       <div class="grid gap-1">
-        <Label class="sr-only" for="password-2">Password repeat</Label>
+        <Label class="sr-only" for="password-2">Secret repeat</Label>
         <Input
           id="password-2"
-          placeholder="Repeat your strong password"
+          placeholder="Repeat your strong secret"
           type="password"
           autoCapitalize="none"
           autoCorrect="off"

@@ -14,6 +14,7 @@ interface RepositoryCore {
 interface UserData {
     email: string;
     salt: string;
+    hahsed_secret: string;
 }
 
 interface Repository extends RepositoryCore {
@@ -97,13 +98,22 @@ async function saveUserData(email: string, secret: string): Promise<void> {
     if (hahsed_secret.length === 0) {
         console.error("Failed to set secret");
     }
-    let userData = {
+    let userData: UserData = {
         email: email,
         salt: salt,
         hahsed_secret: hahsed_secret
     };
     await store.set('user_data', userData);
     await store.save();
+}
+
+// Function to save the user data
+async function login(secret: string): Promise<boolean> {
+    let user_data = await store.get('user_data') as UserData;
+    let salt = user_data.salt;
+    let hash = user_data.hahsed_secret;
+    let res = await invoke('check_set_secret', {hash: hash, secret: secret, salt: salt}) as boolean;
+    return res; 
 }
 
 // Function to load the user data
@@ -136,4 +146,14 @@ async function addFolderToRepositories(folderPath: string) {
 }
 
 export type { Repository };
-export { saveRepositories, loadRepositories, generateRandomString, addFolderToRepositories, mountRepository, unmountRepository, loadUserData, saveUserData};
+export { 
+    saveRepositories, 
+    loadRepositories, 
+    generateRandomString, 
+    addFolderToRepositories, 
+    mountRepository, 
+    unmountRepository, 
+    loadUserData,
+    saveUserData,
+    login
+};
