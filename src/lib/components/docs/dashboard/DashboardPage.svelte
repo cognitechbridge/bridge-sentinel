@@ -6,12 +6,13 @@
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
   import { saveRepositories, loadRepositories, addFolderToRepositories } from '$api/app';
-  import InvalidRepository from './InvalidRepository.svelte';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
+  import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
 
   let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
+  let openInvalidRepositoryDialog = false;
 
   onMount(async () => {
     repositories = await loadRepositories();
@@ -19,9 +20,13 @@
 
   const openDirectory = async () => {
     const result = await open({ directory: true });
-    console.log(result);
     if (result === null || Array.isArray(result)) return;
-    await addFolderToRepositories(result);
+    let isValid = await addFolderToRepositories(result);
+    if (!isValid) {
+      console.log('Invalid');
+      openInvalidRepositoryDialog = true;
+      return;
+    }
     loadRepositoriesUsingApp();
   };
 
@@ -85,8 +90,6 @@
               <p>Select a repository from the list to view its details.</p>
             </CardContent>
           </Card>
-        {:else if selectedRepository?.status.is_valid === false}
-          <InvalidRepository repository={selectedRepository} on:remove={handleRemove} />
         {:else}
           <Tabs value="overview" class="space-y-4">
             <TabsList>
@@ -107,3 +110,5 @@
     </div>
   </div>
 </div>
+
+<InvalidRepositoryDialog bind:open={openInvalidRepositoryDialog} />

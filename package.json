@@ -26,6 +26,7 @@
   "dependencies": {
     "@tanstack/svelte-table": "^8.9.4",
     "@tauri-apps/api": "^1.5.3",
+    "bits-ui": "^0.21.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "d3-scale": "^4.0.2",

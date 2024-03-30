@@ -132,7 +132,7 @@ function generateRandomString(length: number): string {
     return result;
 }
 
-async function addFolderToRepositories(folderPath: string) {
+async function addFolderToRepositories(folderPath: string): Promise<boolean> {
     console.log("Adding folder to repositories: ", folderPath);
     let newRepo = {
         path: folderPath,
@@ -140,9 +140,14 @@ async function addFolderToRepositories(folderPath: string) {
         salt: generateRandomString(32),
         public: generateRandomString(16)
     };
+    let extendedNewRepo = await extendRepository(newRepo);
+    if (extendedNewRepo.status.is_valid  === false) {
+        return false;
+    }
     let repositories = await loadCoreRepositories();
     repositories.push(newRepo);
     await saveRepositories(repositories);
+    return true;
 }
 
 export type { Repository };
