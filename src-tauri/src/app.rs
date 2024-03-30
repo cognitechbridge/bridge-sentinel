@@ -31,18 +31,21 @@ impl UiApp {
 
     /// Derives a key from the secret and sets it.
     pub fn set_new_secret(&mut self, secret: &str, salt: &str) -> Result<String> {
-        self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
         let hash_secret = Self::hash_secret(secret)?;
+        self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
         Ok(hash_secret)
     }
 
-    /// Checks if the secret matches the stored hash.
-    pub fn check_secret(&self, secret: &str, hash: &str) -> Result<bool> {
+    /// Checks if the secret is valid and sets the key.
+    pub fn check_set_secret(&mut self, secret: &str, hash: &str, salt: &str) -> Result<bool> {
         let argon2 = Argon2::default();
         let password_hash = PasswordHash::new(hash).unwrap();
         let is_valid = argon2
             .verify_password(secret.as_bytes(), &password_hash)
             .is_ok();
+        if is_valid {
+            self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
+        }
         Ok(is_valid)
     }
 
