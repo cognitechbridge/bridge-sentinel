@@ -47,15 +47,23 @@ async function getRepositoryStatus(repositoryPath: string): Promise<RepositorySt
 
 // Function to mount a repository using App CLI
 async function mountRepository(repositoryPath: string): Promise<number> {
+    let r = await invoke('mount', { path: repositoryPath }) as number;
+    console.log(r);
+    return r;
+
     const command = Command.sidecar('binaries/storage', ['mount', "-p", repositoryPath, "-k", "79dvjtK2jcPpfXi1HsKa2S9GV5qjhbKgJHQyoWevg6ZQ", "-o", "json"]);
     let process = await command.spawn();
     return process.pid;
 }
 
 // Function to unmount a repository using termination child process
-async function unmountRepository(pid: number): Promise<void> {
-    let ch = new Child(pid);
-    ch.kill();
+async function unmountRepository(repositoryPath: string): Promise<void> {
+    let r = await invoke('unmount', { path: repositoryPath });
+    console.log(r);
+    return;
+    // let ch = new Child(pid);
+    // console.log(ch);
+    // ch.kill();
 }
 
 

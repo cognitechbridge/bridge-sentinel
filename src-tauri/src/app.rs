@@ -3,7 +3,10 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2, Params,
 };
-use std::sync::Once;
+use bs58;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex, Once};
+use tauri::{api::process::CommandChild, command};
 
 static mut UI_APP: Option<UiApp> = None;
 static INIT: Once = Once::new();
@@ -21,12 +24,17 @@ pub fn get_ui_app() -> &'static mut UiApp {
 /// Represents the UI application.
 pub struct UiApp {
     key: Vec<u8>,
-}
+    //mounted_paths: HashMap<String, CommandChild>,
+    mounted_paths: HashMap<String, Option<CommandChild>>,
+} //
 
 impl UiApp {
     /// Creates a new `UiApp` instance with an empty secret.
     fn new() -> Self {
-        Self { key: vec![0, 32] }
+        Self {
+            key: vec![0, 32],
+            mounted_paths: HashMap::new(),
+        }
     }
 
     /// Derives a key from the secret and sets it.
@@ -47,6 +55,23 @@ impl UiApp {
             self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
         }
         Ok(is_valid)
+    }
+
+    /// Returns the secret key as a base58-encoded string.
+    pub fn get_secret_base58(&self) -> String {
+        let key = self.key.clone();
+        bs58::encode(key).into_string()
+    }
+
+    /// Adds a mounted path to the list of mounted paths.
+    pub fn add_mounted_path(&mut self, path: &str, command_child: CommandChild) {
+        let v = Some(command_child);
+        self.mounted_paths.insert(path.to_string(), v);
+    }
+
+    /// Returns a mounted child process by path.
+    pub fn get_mounted_child(&mut self, path: &str) -> Option<&mut Option<CommandChild>> {
+        self.mounted_paths.get_mut(path)
     }
 
     /// Hashes a secret using Argon2id.
