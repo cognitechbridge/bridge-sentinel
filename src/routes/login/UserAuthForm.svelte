@@ -5,6 +5,7 @@
   import { Label } from '$components/ui/label';
   import { cn } from '$lib/utils';
   import { login } from '$api/app';
+  import { toast } from 'svelte-sonner';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -15,7 +16,11 @@
   async function onSubmit() {
     isLoading = true;
     let res = await login(secret);
-    console.log(res);
+    if (res === false) {
+      toast.error('Invlid secret', {
+        description: 'Please try again'
+      });
+    }
     isLoading = false;
   }
 </script>
