@@ -1,25 +1,16 @@
-use std::path::PathBuf;
-use tauri::Manager;
-
-use serde_json::json;
-use tauri::Wry;
-use tauri_plugin_store::with_store;
-use tauri_plugin_store::StoreCollection;
-
 pub mod app;
 
 #[tauri::command]
 fn set_new_secret(secret: &str, salt: &str) -> String {
     let app = app::get_ui_app();
-
     let hashed_secret = app.set_new_secret(secret, salt).unwrap();
     hashed_secret.to_string()
 }
 
 #[tauri::command]
-fn check_secret(secret: &str, hash: &str) -> bool {
+fn check_set_secret(secret: &str, hash: &str, salt: &str) -> bool {
     let app = app::get_ui_app();
-    app.check_secret(secret, hash).unwrap()
+    app.check_set_secret(secret, hash, salt).unwrap()
 }
 
 // #[tauri::command]
@@ -36,7 +27,7 @@ fn check_secret(secret: &str, hash: &str) -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![set_new_secret, check_secret])
+        .invoke_handler(tauri::generate_handler![set_new_secret, check_set_secret])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
