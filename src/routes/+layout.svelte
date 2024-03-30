@@ -6,8 +6,10 @@
   import { cn } from '$lib/utils';
   import { Sailboat } from 'lucide-svelte';
   import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
+  import { Toaster } from '$components/ui/sonner';
 </script>
 
+<Toaster />
 <div class="h-screen overflow-clip">
   <div class="ml-2">
     <div class="pl-2 flex items-center p-1">
