@@ -4,9 +4,8 @@
     windows_subsystem = "windows"
 )]
 
-use ui::get_ui_app;
+use ui::run;
 
 fn main() {
-    let ui_app = get_ui_app();
-    ui_app.run();
+    run();
 }
