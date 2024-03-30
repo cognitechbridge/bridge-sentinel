@@ -5,11 +5,26 @@
 )]
 
 use argon2::{password_hash::rand_core::Error, Argon2, Params};
-use std::sync::Once;
+use std::{path::PathBuf, sync::Once};
+use tauri::Manager;
+
+use serde_json::json;
+use tauri::Wry;
+use tauri_plugin_store::with_store;
+use tauri_plugin_store::StoreCollection;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn set_secret(secret: &str, salt: &str) -> bool {
+fn set_secret(secret: &str, salt: &str, app_handle: tauri::AppHandle) -> bool {
+    let stores = app_handle.state::<StoreCollection<Wry>>();
+    let path = PathBuf::from("config.json");
+    println!("path: {:?}", path);
+
+    with_store(app_handle.clone(), stores, path, |store| {
+        store.insert("a".to_string(), json!("b"));
+        store.save()
+    });
+
     let app = get_ui_app();
     app.set_secret(secret.to_string(), salt);
     true
