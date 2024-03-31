@@ -39,9 +39,8 @@ const store = new Store("config.json");
 
 // Function to get the status of a repository using App CLI
 async function getRepositoryStatus(repositoryPath: string): Promise<RepositoryStatus> {
-    const command = Command.sidecar('binaries/storage', ['status', "-p", repositoryPath ,"-o", "json"]);
-    const output = await command.execute();
-    const jsonOutput = JSON.parse(output.stdout) as AppResult<RepositoryStatus>;
+    const output = await invoke('get_status', { path: repositoryPath }) as string;
+    const jsonOutput = JSON.parse(output) as AppResult<RepositoryStatus>;
     return jsonOutput.result;
 }
 
