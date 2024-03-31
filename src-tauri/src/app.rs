@@ -5,8 +5,8 @@ use argon2::{
 };
 use bs58;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, Once};
-use tauri::{api::process::CommandChild, command};
+use std::sync::Once;
+use tauri::api::process::CommandChild;
 
 static mut UI_APP: Option<UiApp> = None;
 static INIT: Once = Once::new();
@@ -25,7 +25,7 @@ pub fn get_ui_app() -> &'static mut UiApp {
 pub struct UiApp {
     key: Vec<u8>,
     //mounted_paths: HashMap<String, CommandChild>,
-    mounted_paths: HashMap<String, Option<CommandChild>>,
+    mounted_paths: HashMap<String, CommandChild>,
 } //
 
 impl UiApp {
@@ -65,13 +65,17 @@ impl UiApp {
 
     /// Adds a mounted path to the list of mounted paths.
     pub fn add_mounted_path(&mut self, path: &str, command_child: CommandChild) {
-        let v = Some(command_child);
-        self.mounted_paths.insert(path.to_string(), v);
+        self.mounted_paths.insert(path.to_string(), command_child);
     }
 
     /// Returns a mounted child process by path.
-    pub fn get_mounted_child(&mut self, path: &str) -> Option<&mut Option<CommandChild>> {
+    pub fn get_mounted_child(&mut self, path: &str) -> Option<&mut CommandChild> {
         self.mounted_paths.get_mut(path)
+    }
+
+    /// Removes a mounted child process by path and returns it.
+    pub fn remove_mounted_child(&mut self, path: &str) -> Option<CommandChild> {
+        self.mounted_paths.remove(path)
     }
 
     /// Hashes a secret using Argon2id.

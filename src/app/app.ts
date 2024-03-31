@@ -1,5 +1,5 @@
 import { Store } from "tauri-plugin-store-api";
-import { Command, Child } from '@tauri-apps/api/shell';
+import { Command } from '@tauri-apps/api/shell';
 import { shortenFilePath } from "./utils";
 import { invoke } from '@tauri-apps/api/tauri';
 
@@ -48,12 +48,7 @@ async function getRepositoryStatus(repositoryPath: string): Promise<RepositorySt
 // Function to mount a repository using App CLI
 async function mountRepository(repositoryPath: string): Promise<number> {
     let r = await invoke('mount', { path: repositoryPath }) as number;
-    console.log(r);
     return r;
-
-    const command = Command.sidecar('binaries/storage', ['mount', "-p", repositoryPath, "-k", "79dvjtK2jcPpfXi1HsKa2S9GV5qjhbKgJHQyoWevg6ZQ", "-o", "json"]);
-    let process = await command.spawn();
-    return process.pid;
 }
 
 // Function to unmount a repository using termination child process
@@ -61,11 +56,7 @@ async function unmountRepository(repositoryPath: string): Promise<void> {
     let r = await invoke('unmount', { path: repositoryPath });
     console.log(r);
     return;
-    // let ch = new Child(pid);
-    // console.log(ch);
-    // ch.kill();
 }
-
 
 // Function to extend a repository object with additional properties
 async function extendRepository(repo: RepositoryCore): Promise<Repository> {

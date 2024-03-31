@@ -1,9 +1,4 @@
-use argon2::password_hash::rand_core::le;
-use std::sync::{Arc, Mutex};
-use tauri::{
-    api::process::kill_children,
-    api::process::{Command, CommandChild, CommandEvent},
-};
+use tauri::api::process::Command;
 
 pub mod app;
 
@@ -24,7 +19,7 @@ fn check_set_secret(secret: &str, hash: &str, salt: &str) -> bool {
 async fn mount(path: String) -> u32 {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
-    let (mut rx, child) = Command::new_sidecar("storage")
+    let (_, child) = Command::new_sidecar("storage")
         .expect("failed to create sidecar")
         .args(["mount", "-p", &path, "-k", &key, "-o", "json"])
         .spawn()
@@ -36,9 +31,11 @@ async fn mount(path: String) -> u32 {
 
 #[tauri::command]
 async fn unmount(path: String) {
-    let child = app::get_ui_app().get_mounted_child(&path).unwrap();
-    println!("child: {:?}", child);
-    child.take().unwrap().kill();
+    let child = app::get_ui_app()
+        .remove_mounted_child(&path)
+        .expect("No child process found for path");
+    let res = child.kill();
+    res.expect("Error killing child process");
 }
 
 // #[tauri::command]
