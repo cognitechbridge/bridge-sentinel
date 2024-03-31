@@ -7,12 +7,19 @@
   import { login } from '$api/app';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
+  import { loadUserData } from '$api/app';
+  import { onMount } from 'svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
 
   let isLoading = false;
   let secret = '';
+
+  onMount(async () => {
+    let userData = await loadUserData();
+    !userData && goto('/authentication');
+  });
 
   async function onSubmit() {
     console.log('submit');
