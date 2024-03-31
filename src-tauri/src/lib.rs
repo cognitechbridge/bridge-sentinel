@@ -45,6 +45,21 @@ fn unmount(path: String) {
     res.expect("Error killing child process");
 }
 
+/// Initializes the specified `path` asynchronously.
+#[tauri::command]
+async fn init(path: String) -> u32 {
+    let app = app::get_ui_app();
+    let key = app.get_secret_base58();
+    let (_, child) = Command::new_sidecar("storage")
+        .expect("failed to create sidecar")
+        .args(["init", "-p", &path, "-k", &key, "-o", "json"])
+        .spawn()
+        .expect("msg");
+    let pid = child.pid();
+    app.add_mounted_path(&path, child);
+    pid
+}
+
 /// Gets the status of the specified `path` asynchronously.
 /// Returns the status as a `String`.
 #[tauri::command]
@@ -92,6 +107,7 @@ pub fn run() {
             check_set_secret,
             mount,
             unmount,
+            init,
             get_status
         ])
         .run(tauri::generate_context!())

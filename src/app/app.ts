@@ -31,6 +31,7 @@ interface AppResult<T> {
 
 interface RepositoryStatus {
     is_valid: boolean;
+    is_empty: boolean;
     is_joined: boolean;
     repoid: string;
 }
@@ -52,8 +53,13 @@ async function mountRepository(repositoryPath: string): Promise<number> {
 
 // Function to unmount a repository using termination child process
 async function unmountRepository(repositoryPath: string): Promise<void> {
-    let r = await invoke('unmount', { path: repositoryPath });
-    console.log(r);
+    await invoke('unmount', { path: repositoryPath });
+    return;
+}
+
+// Function to initialize an empty repository using App CLI
+async function initRepository(repositoryPath: string): Promise<void> {
+    invoke('init', { path: repositoryPath });
     return;
 }
 
@@ -130,7 +136,7 @@ function generateRandomString(length: number): string {
     return result;
 }
 
-async function addFolderToRepositories(folderPath: string): Promise<boolean> {
+async function addFolderToRepositories(folderPath: string): Promise<Repository> {
     console.log("Adding folder to repositories: ", folderPath);
     let newRepo = {
         path: folderPath,
@@ -140,12 +146,12 @@ async function addFolderToRepositories(folderPath: string): Promise<boolean> {
     };
     let extendedNewRepo = await extendRepository(newRepo);
     if (extendedNewRepo.status.is_valid  === false) {
-        return false;
+        return extendedNewRepo;
     }
     let repositories = await loadCoreRepositories();
     repositories.push(newRepo);
     await saveRepositories(repositories);
-    return true;
+    return extendedNewRepo;
 }
 
 export type { Repository };
@@ -156,6 +162,7 @@ export {
     addFolderToRepositories, 
     mountRepository, 
     unmountRepository, 
+    initRepository,
     loadUserData,
     saveUserData,
     login
