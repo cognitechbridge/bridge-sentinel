@@ -1,4 +1,4 @@
-use tauri::api::process::Command;
+use tauri::api::process::{Command, CommandEvent};
 
 pub mod app;
 
@@ -38,28 +38,39 @@ async fn unmount(path: String) {
     res.expect("Error killing child process");
 }
 
-// #[tauri::command]
-// async fn mount(path: String) -> String {
-//     let app = app::get_ui_app();
-//     let key = app.get_secret_base58();
-//     let (mut rx, mut child) = Command::new_sidecar("storage")
-//         .expect("failed to create sidecar")
-//         .args(["mount", "-p", &path, "-k", &key, "-o", "json"])
-//         .spawn()
-//         .expect("msg");
-//     let stdout = tauri::async_runtime::spawn(async move {
-//         let mut stdout: String = "".to_string();
-//         while let Some(event) = rx.recv().await {
-//             if let CommandEvent::Stdout(line) = event {
-//                 println!("line: {:?}", line);
-//                 stdout = format!("{}{}", stdout, line);
-//             }
-//         }
-//         stdout
-//     });
-//     let res = stdout.await;
-//     res.unwrap()
-// }
+#[tauri::command]
+async fn get_status(path: String) -> String {
+    let app = app::get_ui_app();
+    let key = app.get_secret_base58();
+    let (res, _) = spawn_sidecar(["status", "-p", &path, "-k", &key, "-o", "json"]).await;
+    res
+}
+
+async fn spawn_sidecar<I, S>(args: I) -> (String, String)
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    let (mut rx, _) = Command::new_sidecar("storage")
+        .expect("failed to create sidecar")
+        .args(args)
+        .spawn()
+        .expect("msg");
+    let stdout = tauri::async_runtime::spawn(async move {
+        let mut stdout: String = "".to_string();
+        let mut stderr: String = "".to_string();
+        while let Some(event) = rx.recv().await {
+            if let CommandEvent::Stdout(line) = event {
+                stdout = format!("{}{}", stdout, line);
+            } else if let CommandEvent::Stderr(line) = event {
+                stderr = format!("{}{}", stdout, line);
+            }
+        }
+        (stdout, stderr)
+    });
+    let res = stdout.await;
+    res.unwrap()
+}
 
 // #[tauri::command]
 // fn sample(secret: &str, salt: &str, app_handle: tauri::AppHandle) {
@@ -79,7 +90,8 @@ pub fn run() {
             set_new_secret,
             check_set_secret,
             mount,
-            unmount
+            unmount,
+            get_status
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
