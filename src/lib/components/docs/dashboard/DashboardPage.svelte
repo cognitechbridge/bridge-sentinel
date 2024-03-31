@@ -5,7 +5,7 @@
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import { saveRepositories, loadRepositories, addFolderToRepositories } from '$api/app';
+  import { loadRepositories, addFolderToRepositories, remove_repository } from '$api/app';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
@@ -30,13 +30,13 @@
   const initRepo = async () => {
     if (!selectedRepository) return;
     await initRepository(selectedRepository.path);
-    addRepository(selectedRepository.path);
+    await addRepository(selectedRepository.path);
   };
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
     let repository = await addFolderToRepositories(repositoryPath);
-    console.log(repository);
+    console.log('Repository status: ', repository.status);
     if (repository.status.is_empty === true) {
       console.log('Empty');
       openEmptyRepositoryDialog = true;
@@ -47,7 +47,7 @@
       openInvalidRepositoryDialog = true;
       return;
     }
-    loadRepositoriesUsingApp();
+    await loadRepositoriesUsingApp();
   }
 
   const selectRepository = (repository: Repository) => {
@@ -58,10 +58,9 @@
     repositories = await loadRepositories();
   }
 
-  function handleRemove(event: CustomEvent<Repository>) {
-    const repository = event.detail;
-    repositories = repositories.filter((repo) => repo !== repository);
-    saveRepositories(repositories);
+  async function handleRemove(event: CustomEvent<Repository>) {
+    await remove_repository(event.detail.path);
+    await loadRepositoriesUsingApp();
     selectedRepository = repositories[0] || null;
   }
 </script>

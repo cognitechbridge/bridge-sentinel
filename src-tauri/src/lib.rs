@@ -47,17 +47,11 @@ fn unmount(path: String) {
 
 /// Initializes the specified `path` asynchronously.
 #[tauri::command]
-async fn init(path: String) -> u32 {
+async fn init(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
-    let (_, child) = Command::new_sidecar("storage")
-        .expect("failed to create sidecar")
-        .args(["init", "-p", &path, "-k", &key, "-o", "json"])
-        .spawn()
-        .expect("msg");
-    let pid = child.pid();
-    app.add_mounted_path(&path, child);
-    pid
+    let (res, _) = spawn_sidecar(["init", "-p", &path, "-k", &key, "-o", "json"]).await;
+    res
 }
 
 /// Gets the status of the specified `path` asynchronously.
