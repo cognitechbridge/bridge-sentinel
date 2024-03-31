@@ -59,7 +59,8 @@ async function unmountRepository(repositoryPath: string): Promise<void> {
 
 // Function to initialize an empty repository using App CLI
 async function initRepository(repositoryPath: string): Promise<void> {
-    invoke('init', { path: repositoryPath });
+    let res = await invoke('init', { path: repositoryPath });
+    console.log("Init repository result: ", res);
     return;
 }
 
@@ -93,6 +94,13 @@ async function loadRepositories(): Promise<Repository[]> {
     let list = await loadCoreRepositories();
     const repositories = await Promise.all(list.map(repo => extendRepository(repo)));
     return repositories;
+}
+
+async function remove_repository(path:string) {
+    let core_repositories = (await loadCoreRepositories()).filter(
+        (repo) => repo.path !== path
+    );
+    saveRepositories(core_repositories);
 }
 
 // Function to save the user data
@@ -158,6 +166,7 @@ export type { Repository };
 export { 
     saveRepositories, 
     loadRepositories, 
+    remove_repository,
     generateRandomString, 
     addFolderToRepositories, 
     mountRepository, 
