@@ -2,6 +2,8 @@ use tauri::api::process::{Command, CommandEvent};
 
 pub mod app;
 
+/// Sets a new secret using the provided `secret` and `salt`.
+/// Returns the hashed secret as a `String`.
 #[tauri::command]
 fn set_new_secret(secret: &str, salt: &str) -> String {
     let app = app::get_ui_app();
@@ -9,12 +11,16 @@ fn set_new_secret(secret: &str, salt: &str) -> String {
     hashed_secret.to_string()
 }
 
+/// Checks if the provided `secret` matches the `hash` and `salt`.
+/// Returns `true` if the secret matches, `false` otherwise.
 #[tauri::command]
 fn check_set_secret(secret: &str, hash: &str, salt: &str) -> bool {
     let app = app::get_ui_app();
     app.check_set_secret(secret, hash, salt).unwrap()
 }
 
+/// Mounts the specified `path` asynchronously.
+/// Returns the process ID of the mounted path as a `u32`.
 #[tauri::command]
 async fn mount(path: String) -> u32 {
     let app = app::get_ui_app();
@@ -29,8 +35,9 @@ async fn mount(path: String) -> u32 {
     pid
 }
 
+/// Unmounts the specified `path`
 #[tauri::command]
-async fn unmount(path: String) {
+fn unmount(path: String) {
     let child = app::get_ui_app()
         .remove_mounted_child(&path)
         .expect("No child process found for path");
@@ -38,6 +45,8 @@ async fn unmount(path: String) {
     res.expect("Error killing child process");
 }
 
+/// Gets the status of the specified `path` asynchronously.
+/// Returns the status as a `String`.
 #[tauri::command]
 async fn get_status(path: String) -> String {
     let app = app::get_ui_app();
@@ -46,6 +55,8 @@ async fn get_status(path: String) -> String {
     res
 }
 
+/// Spawns a sidecar process with the provided arguments asynchronously.
+/// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
 where
     I: IntoIterator<Item = S>,
@@ -55,7 +66,7 @@ where
         .expect("failed to create sidecar")
         .args(args)
         .spawn()
-        .expect("msg");
+        .expect("error while spawning sidecar process");
     let stdout = tauri::async_runtime::spawn(async move {
         let mut stdout: String = "".to_string();
         let mut stderr: String = "".to_string();
@@ -72,17 +83,7 @@ where
     res.unwrap()
 }
 
-// #[tauri::command]
-// fn sample(secret: &str, salt: &str, app_handle: tauri::AppHandle) {
-//     let stores = app_handle.state::<StoreCollection<Wry>>();
-//     let path = PathBuf::from("config.json");
-//     with_store(app_handle.clone(), stores, path, |store| {
-//         store.insert("a".to_string(), json!("b")).unwrap();
-//         store.save()
-//     })
-//     .unwrap();
-// }
-
+/// Runs the Tauri application.
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
