@@ -13,14 +13,12 @@
     repository.mounted = true;
     let pid = await mountRepository(repository?.path || ('' as string));
     repository.mountPid = pid;
-    console.log('Mounted Pid:', pid);
   }
 
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
     await unmountRepository(repository.path);
-    console.log('Unmounted Pid:', repository.mountPid);
   }
 
   export let repository: Repository | null = null;

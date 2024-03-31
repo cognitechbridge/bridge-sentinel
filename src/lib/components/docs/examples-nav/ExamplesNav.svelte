@@ -2,7 +2,6 @@
   import { page } from '$app/stores';
   import { examples } from '$lib/config/docs';
   import { cn } from '$lib/utils';
-  import ExampleCodeLink from './ExampleCodeLink.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
