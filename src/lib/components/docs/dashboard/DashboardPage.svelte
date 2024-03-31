@@ -9,10 +9,13 @@
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
+  import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
+  import { initRepository } from '$api/app';
 
   let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
+  let openEmptyRepositoryDialog = false;
 
   onMount(async () => {
     repositories = await loadRepositories();
@@ -21,14 +24,31 @@
   const openDirectory = async () => {
     const result = await open({ directory: true });
     if (result === null || Array.isArray(result)) return;
-    let isValid = await addFolderToRepositories(result);
-    if (!isValid) {
+    addRepository(result);
+  };
+
+  const initRepo = async () => {
+    if (!selectedRepository) return;
+    await initRepository(selectedRepository.path);
+    addRepository(selectedRepository.path);
+  };
+
+  // Check if the repository is valid and add it to the repositories list if it is valid
+  async function addRepository(repositoryPath: string) {
+    let repository = await addFolderToRepositories(repositoryPath);
+    console.log(repository);
+    if (repository.status.is_empty === true) {
+      console.log('Empty');
+      openEmptyRepositoryDialog = true;
+      selectedRepository = repository;
+      return;
+    } else if (repository.status.is_valid === false) {
       console.log('Invalid');
       openInvalidRepositoryDialog = true;
       return;
     }
     loadRepositoriesUsingApp();
-  };
+  }
 
   const selectRepository = (repository: Repository) => {
     selectedRepository = repository;
@@ -112,3 +132,4 @@
 </div>
 
 <InvalidRepositoryDialog bind:open={openInvalidRepositoryDialog} />
+<EmptyRepositoryDialog bind:open={openEmptyRepositoryDialog} on:init={initRepo} />
