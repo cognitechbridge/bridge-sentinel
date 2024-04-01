@@ -47,7 +47,7 @@
 </CardHeader>
 <CardContent>
   <div class="space-y-8">
-    <ShareKey shareCode={repository?.public} />
+    <ShareKey shareCode={repository?.status.public_key} />
 
     <div class="flex items-center">
       <Avatar class="h-9 w-9">
