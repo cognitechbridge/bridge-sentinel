@@ -8,7 +8,6 @@ interface RepositoryCore {
     name: string;
     path: string;
     salt: string;
-    public: string;
 }
 
 interface UserData {
@@ -33,6 +32,7 @@ interface RepositoryStatus {
     is_valid: boolean;
     is_empty: boolean;
     is_joined: boolean;
+    public_key: string;
     repoid: string;
 }
 
@@ -150,7 +150,6 @@ async function addFolderToRepositories(folderPath: string): Promise<Repository> 
         path: folderPath,
         name: folderPath.split('/').pop() || '',
         salt: generateRandomString(32),
-        public: generateRandomString(16)
     };
     let extendedNewRepo = await extendRepository(newRepo);
     if (extendedNewRepo.status.is_valid  === false) {
