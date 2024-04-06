@@ -7,6 +7,15 @@
   import { Sailboat } from 'lucide-svelte';
   import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
   import { Toaster } from '$components/ui/sonner';
+
+  import { listen } from '@tauri-apps/api/event';
+  import { onMount } from 'svelte';
+
+  onMount(async () => {
+    await listen('new-instance', (event) => {
+      console.log(event);
+    });
+  });
 </script>
 
 <Toaster />
