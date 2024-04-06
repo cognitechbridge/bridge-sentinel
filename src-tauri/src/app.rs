@@ -11,6 +11,20 @@ use tauri::api::process::CommandChild;
 static mut UI_APP: Option<UiApp> = None;
 static INIT: Once = Once::new();
 
+/// Represents the payload for creating a new instance.
+#[derive(Clone, serde::Serialize)]
+pub struct NewInstancePayload {
+    args: Vec<String>,
+    cwd: String,
+}
+
+impl NewInstancePayload {
+    /// Creates a new `NewInstancePayload` instance.
+    pub fn new(args: Vec<String>, cwd: String) -> Self {
+        Self { args, cwd }
+    }
+}
+
 /// Returns a mutable reference to the `UiApp` instance, initializing it if necessary.
 pub fn get_ui_app() -> &'static mut UiApp {
     unsafe {
