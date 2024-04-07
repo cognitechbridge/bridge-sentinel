@@ -92,12 +92,29 @@
       "shell": {
         "sidecar": true,
         "scope": [
-          { "name": "binaries/storage", "sidecar": true, "args": true }
+          {
+            "name": "binaries/storage",
+            "sidecar": true,
+            "args": true
+          }
         ]
       },
       "os": {
         "all": true
       }
+    },
+    "cli": {
+      "description": "",
+      "longDescription": "",
+      "beforeHelp": "",
+      "afterHelp": "",
+      "args": [
+        {
+          "name": "secret",
+          "short": "s",
+          "takesValue": true
+        }
+      ]
     }
   }
 }
