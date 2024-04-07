@@ -7,14 +7,36 @@
   import { Sailboat } from 'lucide-svelte';
   import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
   import { Toaster } from '$components/ui/sonner';
+  import { toast } from 'svelte-sonner';
+  import { goto } from '$app/navigation';
 
   import { listen } from '@tauri-apps/api/event';
   import { onMount } from 'svelte';
+  import { login } from '$api/app';
+
+  import { getMatches } from '@tauri-apps/api/cli';
 
   onMount(async () => {
     await listen('new-instance', (event) => {
       console.log(event);
     });
+  });
+
+  onMount(async () => {
+    const matches = await getMatches();
+    console.log(matches);
+    if (matches.args.secret?.value) {
+      let secret = matches.args.secret.value as string;
+      let res = await login(secret);
+      console.log(res);
+      if (res === false) {
+        toast.error('Invlid secret', {
+          description: 'Please try again'
+        });
+      } else {
+        goto('/dashboard');
+      }
+    }
   });
 </script>
 
