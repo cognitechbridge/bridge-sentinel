@@ -11,8 +11,8 @@
   async function mount() {
     if (!repository) return;
     repository.mounted = true;
-    let pid = await mountRepository(repository?.path || ('' as string));
-    repository.mountPid = pid;
+    let point = await mountRepository(repository?.path || ('' as string));
+    repository.mountPoint = point;
   }
 
   async function unmount() {
