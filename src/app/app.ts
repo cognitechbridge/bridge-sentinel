@@ -1,7 +1,7 @@
-import { Store } from "tauri-plugin-store-api";
 import { Command } from '@tauri-apps/api/shell';
-import { shortenFilePath } from "./utils";
+import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
+import { shortenFilePath } from "./utils";
 
 // Define the interface for a repository
 interface RepositoryCore {
@@ -20,7 +20,7 @@ interface Repository extends RepositoryCore {
     status: RepositoryStatus;
     shortenPath: string;
     mounted: boolean;
-    mountPid?: number;
+    mountPoint?: string;
 }
 
 interface AppResult<T> {
@@ -36,6 +36,8 @@ interface RepositoryStatus {
     repoid: string;
 }
 
+type MountResult = string;
+
 const store = new Store("config.json");
 
 // Function to get the status of a repository using App CLI
@@ -46,9 +48,11 @@ async function getRepositoryStatus(repositoryPath: string): Promise<RepositorySt
 }
 
 // Function to mount a repository using App CLI
-async function mountRepository(repositoryPath: string): Promise<number> {
-    let r = await invoke('mount', { path: repositoryPath }) as number;
-    return r;
+async function mountRepository(repositoryPath: string): Promise<MountResult> {
+    let output = await invoke('mount', { path: repositoryPath }) as string;
+    console.log("output: ", output);
+    const jsonOutput = JSON.parse(output) as AppResult<MountResult>;
+    return jsonOutput.result;
 }
 
 // Function to unmount a repository using termination child process
