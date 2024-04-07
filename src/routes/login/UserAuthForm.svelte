@@ -4,10 +4,9 @@
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
   import { cn } from '$lib/utils';
-  import { login } from '$api/app';
+  import { app } from '$api/app';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
-  import { loadUserData } from '$api/app';
   import { onMount } from 'svelte';
 
   let className: string | undefined | null = undefined;
@@ -17,14 +16,14 @@
   let secret = '';
 
   onMount(async () => {
-    let userData = await loadUserData();
+    let userData = await app.loadUserData();
     !userData && goto('/authentication');
   });
 
   async function onSubmit() {
     console.log('submit');
     isLoading = true;
-    let res = await login(secret);
+    let res = await app.login(secret);
     console.log(res);
     if (res === false) {
       toast.error('Invlid secret', {
