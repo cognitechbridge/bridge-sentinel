@@ -5,12 +5,11 @@
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import { loadRepositories, addFolderToRepositories, remove_repository } from '$api/app';
+  import { app } from '$api/app';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
-  import { initRepository } from '$api/app';
 
   let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
@@ -18,7 +17,7 @@
   let openEmptyRepositoryDialog = false;
 
   onMount(async () => {
-    repositories = await loadRepositories();
+    repositories = await app.loadRepositories();
   });
 
   const openDirectory = async () => {
@@ -29,13 +28,13 @@
 
   const initRepo = async () => {
     if (!selectedRepository) return;
-    await initRepository(selectedRepository.path);
+    await app.initRepository(selectedRepository.path);
     await addRepository(selectedRepository.path);
   };
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
-    let repository = await addFolderToRepositories(repositoryPath);
+    let repository = await app.addFolderToRepositories(repositoryPath);
     console.log('Repository status: ', repository.status);
     if (repository.status.is_empty === true) {
       console.log('Empty');
@@ -55,11 +54,11 @@
   };
 
   async function loadRepositoriesUsingApp() {
-    repositories = await loadRepositories();
+    repositories = await app.loadRepositories();
   }
 
   async function handleRemove(event: CustomEvent<Repository>) {
-    await remove_repository(event.detail.path);
+    await app.remove_repository(event.detail.path);
     await loadRepositoriesUsingApp();
     selectedRepository = repositories[0] || null;
   }

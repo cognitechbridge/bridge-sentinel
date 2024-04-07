@@ -4,21 +4,21 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
   import type { Repository } from '$api/app';
-  import { mountRepository, unmountRepository } from '$api/app';
+  import { app } from '$api/app';
   import ShareKey from './ShareKey.svelte';
 
   // Mount the repository
   async function mount() {
     if (!repository) return;
     repository.mounted = true;
-    let point = await mountRepository(repository?.path || ('' as string));
+    let point = await app.mountRepository(repository?.path || ('' as string));
     repository.mountPoint = point;
   }
 
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
-    await unmountRepository(repository.path);
+    await app.unmountRepository(repository.path);
   }
 
   export let repository: Repository | null = null;

@@ -12,7 +12,7 @@
 
   import { listen } from '@tauri-apps/api/event';
   import { onMount } from 'svelte';
-  import { login } from '$api/app';
+  import { app } from '$api/app';
 
   import { getMatches } from '@tauri-apps/api/cli';
 
@@ -27,7 +27,7 @@
     console.log(matches);
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
-      let res = await login(secret);
+      let res = await app.login(secret);
       console.log(res);
       if (res === false) {
         toast.error('Invlid secret', {

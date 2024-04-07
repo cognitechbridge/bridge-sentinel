@@ -7,7 +7,7 @@
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
-  import { saveUserData } from '$api/app';
+  import { app } from '$api/app';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -24,7 +24,7 @@
 
   async function onSubmit() {
     isLoading = true;
-    await saveUserData(email, password);
+    await app.saveUserData(email, password);
     isLoading = false;
   }
 
