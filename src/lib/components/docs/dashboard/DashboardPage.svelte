@@ -11,13 +11,14 @@
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
 
-  let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
   let openEmptyRepositoryDialog = false;
 
+  let _app = app;
+
   onMount(async () => {
-    repositories = await app.loadRepositories();
+    await loadRepositories();
   });
 
   const openDirectory = async () => {
@@ -30,7 +31,13 @@
     if (!selectedRepository) return;
     await app.initRepository(selectedRepository.path);
     await addRepository(selectedRepository.path);
+    _app = app;
   };
+
+  async function loadRepositories() {
+    await app.loadRepositories();
+    _app = app;
+  }
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
@@ -46,22 +53,20 @@
       openInvalidRepositoryDialog = true;
       return;
     }
-    await loadRepositoriesUsingApp();
+    await loadRepositories();
   }
 
   const selectRepository = (repository: Repository) => {
     selectedRepository = repository;
   };
 
-  async function loadRepositoriesUsingApp() {
-    repositories = await app.loadRepositories();
-  }
-
   async function handleRemove(event: CustomEvent<Repository>) {
     await app.remove_repository(event.detail.path);
-    await loadRepositoriesUsingApp();
-    selectedRepository = repositories[0] || null;
+    loadRepositories();
+    selectedRepository = app.repositories[0] || null;
   }
+
+  $: repositories = _app.repositories;
 </script>
 
 <div class="flex-col md:flex">

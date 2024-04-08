@@ -83,6 +83,18 @@ fn unmount(path: String) {
 
 /// Initializes the specified `path` asynchronously.
 #[tauri::command]
+async fn share(repoPath: String, recipient: String, path: String) -> String {
+    let app = app::get_ui_app();
+    let key = app.get_secret_base58();
+    let (res, _) = spawn_sidecar([
+        "share", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
+    ])
+    .await;
+    res
+}
+
+/// Initializes the specified `path` asynchronously.
+#[tauri::command]
 async fn init(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
@@ -139,7 +151,8 @@ pub fn run() {
             mount,
             unmount,
             init,
-            get_status
+            get_status,
+            share
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

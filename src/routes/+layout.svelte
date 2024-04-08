@@ -15,10 +15,21 @@
   import { app } from '$api/app';
 
   import { getMatches } from '@tauri-apps/api/cli';
+  import ShareDialog from '$components/docs/dialogs/share-dialog/ShareDialog.svelte';
 
+  type instanceEvent = {
+    args: string[];
+    cwd: string;
+  };
+
+  let openShare = false;
+  let sharePath = '';
   onMount(async () => {
-    await listen('new-instance', (event) => {
-      console.log(event);
+    await listen<instanceEvent>('new-instance', (event) => {
+      if (event.payload.args.length == 3 && event.payload.args[1] == 'share') {
+        sharePath = event.payload.args[2];
+        openShare = true;
+      }
     });
   });
 
@@ -28,7 +39,6 @@
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
       let res = await app.login(secret);
-      console.log(res);
       if (res === false) {
         toast.error('Invlid secret', {
           description: 'Please try again'
@@ -64,3 +74,5 @@
     <TailwindIndicator />
   {/if}
 </div>
+
+<ShareDialog bind:open={openShare} path={sharePath} />
