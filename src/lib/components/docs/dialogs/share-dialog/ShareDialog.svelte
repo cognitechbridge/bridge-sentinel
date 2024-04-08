@@ -28,12 +28,18 @@
     }
 
     let itemPath = path.slice(repo.mountPoint?.length);
-    app.sharePath(repo?.path, itemPath, publicKey);
 
-    open = false;
-    toast.success('Path shared successfully', {
-      description: 'The path has been shared with the user'
-    });
+    let res = await app.sharePath(repo?.path, itemPath, publicKey);
+    if (res.ok) {
+      open = false;
+      toast.success('Path shared successfully', {
+        description: 'The path has been shared with the user'
+      });
+    } else {
+      toast.error('Failed to share path', {
+        description: 'Please try again'
+      });
+    }
   }
 
   export let open = false;

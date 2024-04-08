@@ -35,7 +35,6 @@
 
   onMount(async () => {
     const matches = await getMatches();
-    console.log(matches);
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
       let res = await app.login(secret);

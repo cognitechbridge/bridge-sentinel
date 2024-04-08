@@ -50,9 +50,8 @@ class App {
 
     // Function to get the status of a repository using App CLI
     async getRepositoryStatus(repositoryPath: string): Promise<RepositoryStatus> {
-        const output = await invoke('get_status', { path: repositoryPath }) as string;
-        const jsonOutput = JSON.parse(output) as AppResult<RepositoryStatus>;
-        return jsonOutput.result;
+        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath });
+        return output.result;
     }
 
     // Function to mount a repository using App CLI
@@ -61,11 +60,10 @@ class App {
         if (!repo) {
             throw new Error("Repository not found");
         }
-        let output = await invoke('mount', { path: repositoryPath }) as string;
-        const jsonOutput = JSON.parse(output) as AppResult<MountResult>;
+        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath });
         repo.mounted = true;
-        repo.mountPoint = jsonOutput.result;
-        return jsonOutput.result;
+        repo.mountPoint = output.result;
+        return output.result;
     }
 
     // Function to unmount a repository using termination child process
@@ -77,16 +75,14 @@ class App {
     // Function to initialize an empty repository using App CLI
     async initRepository(repositoryPath: string): Promise<void> {
         let res = await invoke('init', { path: repositoryPath });
-        console.log("Init repository result: ", res);
         return;
     }
 
 
     // Function to share a path with a user
-    async sharePath(repositoryPath: string, path: string, recipient: string): Promise<void> {
-        console.log("Sharing path: ", repositoryPath, path, recipient)
-        let res = await invoke('share', { repoPath: repositoryPath, recipient: recipient, path: path });
-        return;
+    async sharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path });
+        return res;
     }
 
     // Function to extend a repository object with additional properties
@@ -118,7 +114,12 @@ class App {
     async loadRepositories(): Promise<void> {
         let list = await this.loadCoreRepositories();
         this.repositories = await Promise.all(list.map(repo => this.extendRepository(repo)));
-        console.log("Loaded repositories: ", this.repositories);
+    }
+
+    // Function to invoke a the ctb-cli with a given command and arguments
+    async invokeCli<T>(command: string, args: any): Promise<AppResult<T>> {
+        let res = await invoke(command, args) as string;
+        return JSON.parse(res) as AppResult<T>;
     }
 
     // Function to remove a repository from the list
@@ -171,7 +172,6 @@ class App {
     }
 
     async addFolderToRepositories(folderPath: string): Promise<Repository> {
-        console.log("Adding folder to repositories: ", folderPath);
         let newRepo = {
             path: folderPath,
             name: folderPath.split('/').pop() || '',

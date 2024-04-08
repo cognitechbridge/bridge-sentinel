@@ -42,14 +42,11 @@
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
     let repository = await app.addFolderToRepositories(repositoryPath);
-    console.log('Repository status: ', repository.status);
     if (repository.status.is_empty === true) {
-      console.log('Empty');
       openEmptyRepositoryDialog = true;
       selectedRepository = repository;
       return;
     } else if (repository.status.is_valid === false) {
-      console.log('Invalid');
       openInvalidRepositoryDialog = true;
       return;
     }
