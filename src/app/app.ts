@@ -43,6 +43,8 @@ class App {
     // Store object to save and load data
     store = new Store("config.json");
 
+    repositories = [] as Repository[];
+
     constructor() {
     }
 
@@ -55,9 +57,14 @@ class App {
 
     // Function to mount a repository using App CLI
     async mountRepository(repositoryPath: string): Promise<MountResult> {
+        let repo = this.repositories.find((repo) => repo.path === repositoryPath);
+        if (!repo) {
+            throw new Error("Repository not found");
+        }
         let output = await invoke('mount', { path: repositoryPath }) as string;
-        console.log("output: ", output);
         const jsonOutput = JSON.parse(output) as AppResult<MountResult>;
+        repo.mounted = true;
+        repo.mountPoint = jsonOutput.result;
         return jsonOutput.result;
     }
 
@@ -71,6 +78,14 @@ class App {
     async initRepository(repositoryPath: string): Promise<void> {
         let res = await invoke('init', { path: repositoryPath });
         console.log("Init repository result: ", res);
+        return;
+    }
+
+
+    // Function to share a path with a user
+    async sharePath(repositoryPath: string, path: string, recipient: string): Promise<void> {
+        console.log("Sharing path: ", repositoryPath, path, recipient)
+        let res = await invoke('share', { repoPath: repositoryPath, recipient: recipient, path: path });
         return;
     }
 
@@ -100,12 +115,13 @@ class App {
     }
 
     // Function to retrieve the list of repositories
-    async loadRepositories(): Promise<Repository[]> {
+    async loadRepositories(): Promise<void> {
         let list = await this.loadCoreRepositories();
-        const repositories = await Promise.all(list.map(repo => this.extendRepository(repo)));
-        return repositories;
+        this.repositories = await Promise.all(list.map(repo => this.extendRepository(repo)));
+        console.log("Loaded repositories: ", this.repositories);
     }
 
+    // Function to remove a repository from the list
     async remove_repository(path: string) {
         let core_repositories = (await this.loadCoreRepositories()).filter(
             (repo) => repo.path !== path
@@ -172,7 +188,7 @@ class App {
     }
 }
 
-const app = new App();
+let app = new App();
 
 export type { Repository };
 export {
