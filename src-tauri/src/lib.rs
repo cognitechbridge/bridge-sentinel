@@ -87,7 +87,8 @@ async fn share(repoPath: String, recipient: String, path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
     let (res, _) = spawn_sidecar([
-        "share", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
+        // -j: join if not already joined, -r: recipient
+        "share", "-j", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
     ])
     .await;
     res
