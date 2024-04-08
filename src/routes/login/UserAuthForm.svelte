@@ -21,10 +21,8 @@
   });
 
   async function onSubmit() {
-    console.log('submit');
     isLoading = true;
     let res = await app.login(secret);
-    console.log(res);
     if (res === false) {
       toast.error('Invlid secret', {
         description: 'Please try again'
