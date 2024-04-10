@@ -1,11 +1,19 @@
 <script lang="ts">
-  import { HardDriveDownload } from 'lucide-svelte';
+  import { HardDriveDownload, Share } from 'lucide-svelte';
   import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
   import type { Repository } from '$api/app';
   import { app } from '$api/app';
   import ShareKey from './ShareKey.svelte';
+  import ShareDialog from '../dialogs/share-dialog/ShareDialog.svelte';
+
+  let shareDialogOpen = false;
+  let shareDialogPath = '';
+  async function openShareDialog() {
+    shareDialogPath = repository?.mountPoint || '';
+    shareDialogOpen = true;
+  }
 
   // Mount the repository
   async function mount() {
@@ -31,6 +39,12 @@
       <CardDescription>{repository?.path}</CardDescription>
     </div>
     <div class="col-span-2 text-end">
+      {#if repository?.mounted}
+        <Button variant="default" on:click={openShareDialog}>
+          <Share class="mr-2 h-4 w-4" />
+          Share
+        </Button>
+      {/if}
       {#if repository?.mounted}
         <Button variant="default" class="bg-red-600" on:click={unmount}>
           <HardDriveDownload class="mr-2 h-4 w-4" />
@@ -62,3 +76,4 @@
     </div>
   </div>
 </CardContent>
+<ShareDialog bind:open={shareDialogOpen} path={shareDialogPath} />
