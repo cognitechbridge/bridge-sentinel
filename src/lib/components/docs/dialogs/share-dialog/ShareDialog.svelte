@@ -1,5 +1,6 @@
 <script lang="ts">
   import { app, type Repository } from '$api/app';
+  import ValidatedInput from '$components/ui/input/ValidatedInput.svelte';
   import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
   import {
     Dialog,
@@ -13,23 +14,26 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
 
-  let publicKey = '';
+  async function list_access(path: string) {
+    if (!repository) return;
+    let accessList = await app.listAccess(repository.path, path);
+    return accessList;
+  }
 
   async function share() {
-    let repo = app.repositories.find(
-      (repo) => repo.mountPoint && repo.mountPoint === path.slice(0, repo.mountPoint.length)
-    );
+    repository =
+      app.repositories.find(
+        (repo) => repo.mountPoint && repo.mountPoint === path.slice(0, repo.mountPoint.length)
+      ) || null;
 
-    if (!repo) {
-      toast.error('Invlid Path', {
+    if (!repository) {
+      toast.error('Invalid Path', {
         description: 'The path not found in the mounted repositories'
       });
       return;
     }
 
-    let itemPath = path.slice(repo.mountPoint?.length);
-
-    let res = await app.sharePath(repo?.path, itemPath, publicKey);
+    let res = await app.sharePath(repository?.path, itemPath, publicKey);
     if (res.ok) {
       open = false;
       toast.success('Path shared successfully', {
@@ -42,8 +46,36 @@
     }
   }
 
+  let publicKey = '';
+  let itemPath = '';
+  let pathErr = '';
+  let accessList: any = {};
+
+  export let repository: Repository | null = null;
   export let open = false;
   export let path = '';
+
+  $: repository =
+    app.repositories.find(
+      (repo) => repo.mountPoint && repo.mountPoint === path.slice(0, repo.mountPoint.length)
+    ) || null;
+  $: if (repository) {
+    itemPath = path.slice(repository.mountPoint?.length);
+    if (itemPath == '') {
+      itemPath = '/';
+    }
+  }
+  $: {
+    list_access(itemPath).then((res) => (accessList = res));
+  }
+  $: {
+    if (!accessList || accessList.err) {
+      pathErr = 'The path is not valid';
+    } else {
+      pathErr = '';
+    }
+  }
+  $: isValid = !pathErr && publicKey.length > 0;
 </script>
 
 <Dialog bind:open>
@@ -54,18 +86,18 @@
         Share the path with the user to give them access to the selected file or folder.
       </DialogDescription>
     </DialogHeader>
-    <div class="grid gap-4 py-4">
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="name" class="text-right">Path</Label>
-        <Input id="name" class="col-span-3" bind:value={path} />
+    <div class="grid gap-1 py-4 mt-2">
+      <div class="grid gap-1">
+        <Label for="path">Path:</Label>
+        <ValidatedInput id="path" bind:value={path} error={pathErr} />
       </div>
-      <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="username" class="text-right">Recipient</Label>
-        <Input id="username" class="col-span-3" bind:value={publicKey} />
+      <div class="grid gap-1 mt-2">
+        <Label for="recipient">Recipient:</Label>
+        <ValidatedInput id="recipient" bind:value={publicKey} />
       </div>
     </div>
     <DialogFooter>
-      <Button type="submit" on:click={share}>Share</Button>
+      <Button type="submit" on:click={share} disabled={!isValid}>Share</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
