@@ -60,7 +60,7 @@
         <Input id="name" class="col-span-3" bind:value={path} />
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="username" class="text-right">Public Key</Label>
+        <Label for="username" class="text-right">Recipient</Label>
         <Input id="username" class="col-span-3" bind:value={publicKey} />
       </div>
     </div>
