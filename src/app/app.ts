@@ -85,6 +85,12 @@ class App {
         return res;
     }
 
+    // Function to list the access of a path
+    async listAccess(repositoryPath: string, path: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('list_access', { repoPath: repositoryPath, path: path });
+        return res;
+    }
+
     // Function to extend a repository object with additional properties
     async extendRepository(repo: RepositoryCore): Promise<Repository> {
         let shortenPath = shortenFilePath(repo.path);

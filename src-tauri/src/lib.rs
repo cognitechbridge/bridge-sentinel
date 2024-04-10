@@ -113,6 +113,14 @@ async fn get_status(path: String) -> String {
     res
 }
 
+/// Lists the access of the specified `path` asynchronously.
+#[tauri::command]
+async fn list_access(repoPath: String, path: String) -> String {
+    let app = app::get_ui_app();
+    let (res, _) = spawn_sidecar(["list-access", &path, "-p", &repoPath, "-o", "json"]).await;
+    res
+}
+
 /// Spawns a sidecar process with the provided arguments asynchronously.
 /// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
@@ -153,7 +161,8 @@ pub fn run() {
             unmount,
             init,
             get_status,
-            share
+            share,
+            list_access
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

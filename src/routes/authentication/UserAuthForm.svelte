@@ -3,7 +3,7 @@
   import { Button } from '$components/ui/button';
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
-  import { fade, slide } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
