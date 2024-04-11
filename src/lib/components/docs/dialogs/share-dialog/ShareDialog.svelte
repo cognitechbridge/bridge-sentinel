@@ -10,7 +10,6 @@
     DialogDescription,
     DialogFooter
   } from '$lib/components/ui/dialog/index.js';
-  import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
 
@@ -33,7 +32,7 @@
       return;
     }
 
-    let res = await app.sharePath(repository?.path, itemPath, publicKey);
+    let res = await app.sharePath(repository?.path, path, publicKey);
     if (res.ok) {
       open = false;
       toast.success('Path shared successfully', {
@@ -48,7 +47,6 @@
 
   let mountPoint = '';
   let publicKey = '';
-  let itemPath = '';
   let pathErr = '';
   let accessList: any = {};
 
@@ -56,21 +54,9 @@
   export let open = false;
   export let path = '';
 
-  $: repository =
-    app.repositories.find(
-      (repo) => repo.mountPoint && repo.mountPoint === path.slice(0, repo.mountPoint.length)
-    ) || null;
-  $: if (repository) {
-    itemPath = path.slice(repository.mountPoint?.length);
-    if (itemPath == '') {
-      itemPath = '/';
-    }
-    mountPoint = repository.mountPoint || '';
-  }
+  $: mountPoint = repository?.mountPoint || '';
   $: {
-    list_access(itemPath).then((res) => (accessList = res));
-  }
-  $: {
+    list_access(path).then((res) => (accessList = res));
     if (!accessList || accessList.err) {
       pathErr = 'The path is not valid';
     } else {
