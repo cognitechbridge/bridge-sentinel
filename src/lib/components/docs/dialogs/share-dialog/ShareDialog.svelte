@@ -46,6 +46,7 @@
     }
   }
 
+  let mountPoint = '';
   let publicKey = '';
   let itemPath = '';
   let pathErr = '';
@@ -64,6 +65,7 @@
     if (itemPath == '') {
       itemPath = '/';
     }
+    mountPoint = repository.mountPoint || '';
   }
   $: {
     list_access(itemPath).then((res) => (accessList = res));
@@ -89,7 +91,7 @@
     <div class="grid gap-1 py-4 mt-2">
       <div class="grid gap-1">
         <Label for="path">Path:</Label>
-        <ValidatedInput id="path" bind:value={path} error={pathErr} />
+        <ValidatedInput id="path" bind:value={path} error={pathErr} prefix={mountPoint} />
       </div>
       <div class="grid gap-1 mt-2">
         <Label for="recipient">Recipient:</Label>
