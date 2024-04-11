@@ -12,7 +12,7 @@
 
   import { listen } from '@tauri-apps/api/event';
   import { onMount } from 'svelte';
-  import { app } from '$api/app';
+  import { app, type Repository } from '$api/app';
 
   import { getMatches } from '@tauri-apps/api/cli';
   import ShareDialog from '$components/docs/dialogs/share-dialog/ShareDialog.svelte';
@@ -23,11 +23,25 @@
   };
 
   let openShare = false;
+
+  let shareRepository: Repository | null = null;
   let sharePath = '';
   onMount(async () => {
     await listen<instanceEvent>('new-instance', (event) => {
       if (event.payload.args.length == 3 && event.payload.args[1] == 'share') {
-        sharePath = event.payload.args[2];
+        let fullPath = event.payload.args[2];
+        shareRepository =
+          app.repositories.find(
+            (repo) =>
+              repo.mountPoint && repo.mountPoint === fullPath.slice(0, repo.mountPoint.length)
+          ) || null;
+        if (!shareRepository) {
+          toast.error('Invalid Path', {
+            description: 'The path not found in the mounted repositories'
+          });
+          return;
+        }
+        sharePath = fullPath.replace(shareRepository.mountPoint || '', '');
         openShare = true;
       }
     });
@@ -74,4 +88,4 @@
   {/if}
 </div>
 
-<ShareDialog bind:open={openShare} path={sharePath} />
+<ShareDialog bind:open={openShare} path={sharePath} repository={shareRepository} />

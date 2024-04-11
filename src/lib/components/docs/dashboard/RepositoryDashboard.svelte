@@ -9,9 +9,9 @@
   import ShareDialog from '../dialogs/share-dialog/ShareDialog.svelte';
 
   let shareDialogOpen = false;
-  let shareDialogPath = '';
+
+  // Open the share dialog
   async function openShareDialog() {
-    shareDialogPath = repository?.mountPoint || '';
     shareDialogOpen = true;
   }
 
@@ -23,6 +23,7 @@
     repository.mountPoint = point;
   }
 
+  // Unmount the repository
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
@@ -76,4 +77,4 @@
     </div>
   </div>
 </CardContent>
-<ShareDialog bind:open={shareDialogOpen} path={shareDialogPath} />
+<ShareDialog bind:open={shareDialogOpen} path="/" {repository} />
