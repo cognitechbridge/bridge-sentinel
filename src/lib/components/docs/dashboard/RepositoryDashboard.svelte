@@ -77,4 +77,4 @@
     </div>
   </div>
 </CardContent>
-<ShareDialog bind:open={shareDialogOpen} path="/" {repository} />
+<ShareDialog bind:open={shareDialogOpen} path="" {repository} />
