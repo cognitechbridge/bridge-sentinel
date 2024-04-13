@@ -3,20 +3,19 @@ import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from "./utils";
 
-// Define the interface for a repository
-interface RepositoryCore {
+type RepositoryCore = {
     name: string;
     path: string;
     salt: string;
 }
 
-interface UserData {
+type UserData = {
     email: string;
     salt: string;
     hahsed_secret: string;
 }
 
-interface Repository extends RepositoryCore {
+export type Repository = RepositoryCore & {
     status: RepositoryStatus;
     shortenPath: string;
     mounted: boolean;
@@ -29,7 +28,7 @@ export type AppResult<T> = {
     err: string;
 }
 
-interface RepositoryStatus {
+type RepositoryStatus = {
     is_valid: boolean;
     is_empty: boolean;
     is_joined: boolean;
@@ -37,12 +36,10 @@ interface RepositoryStatus {
     repoid: string;
 }
 
-export interface AccessListItem {
+export type AccessList = {
     PublicKey: string;
     Inherited: boolean;
-}
-
-export type AccessList = AccessListItem[];
+}[]
 
 type MountResult = string;
 
@@ -204,7 +201,6 @@ class App {
 
 let app = new App();
 
-export type { Repository };
 export {
     app
 };
