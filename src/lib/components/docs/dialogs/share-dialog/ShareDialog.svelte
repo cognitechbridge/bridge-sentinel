@@ -32,11 +32,6 @@
   }
 
   async function share() {
-    repository =
-      app.repositories.find(
-        (repo) => repo.mountPoint && repo.mountPoint === path.slice(0, repo.mountPoint.length)
-      ) || null;
-
     if (!repository) {
       toast.error('Invalid Path', {
         description: 'The path not found in the mounted repositories'
@@ -131,7 +126,7 @@
           <TableRow>
             <TableCell>{i + 1}</TableCell>
             <TableCell>{access.PublicKey}</TableCell>
-            <TableCell>{access.Inherited ? 'Yes' : 'No'}</TableCell>
+            <TableCell>{access.Inherited}</TableCell>
           </TableRow>
         {/each}
       </TableBody>
