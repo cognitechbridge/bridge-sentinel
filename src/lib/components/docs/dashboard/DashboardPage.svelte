@@ -28,8 +28,12 @@
 
   onMount(async () => {
     await loadRepositories();
+    const appWindow = (await import('@tauri-apps/api/window')).appWindow;
     await listen<instanceEvent>('new-instance', (event) => {
+      console.log('x');
       if (event.payload.args.length == 3 && event.payload.args[1] == 'share') {
+        appWindow.unminimize();
+        appWindow.setFocus();
         let fullPath = event.payload.args[2];
         let shareRepository =
           _app.repositories.find(
