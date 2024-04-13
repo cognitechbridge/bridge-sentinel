@@ -7,14 +7,59 @@
   import { Sailboat } from 'lucide-svelte';
   import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
   import { Toaster } from '$components/ui/sonner';
+  import { toast } from 'svelte-sonner';
+  import { goto } from '$app/navigation';
 
   import { listen } from '@tauri-apps/api/event';
   import { onMount } from 'svelte';
+  import { app, type Repository } from '$api/app';
+
+  import { getMatches } from '@tauri-apps/api/cli';
+  import ShareDialog from '$components/docs/dialogs/share-dialog/ShareDialog.svelte';
+
+  type instanceEvent = {
+    args: string[];
+    cwd: string;
+  };
+
+  let openShare = false;
+
+  let shareRepository: Repository | null = null;
+  let sharePath = '';
+  onMount(async () => {
+    await listen<instanceEvent>('new-instance', (event) => {
+      if (event.payload.args.length == 3 && event.payload.args[1] == 'share') {
+        let fullPath = event.payload.args[2];
+        shareRepository =
+          app.repositories.find(
+            (repo) =>
+              repo.mountPoint && repo.mountPoint === fullPath.slice(0, repo.mountPoint.length)
+          ) || null;
+        if (!shareRepository) {
+          toast.error('Invalid Path', {
+            description: 'The path not found in the mounted repositories'
+          });
+          return;
+        }
+        sharePath = fullPath.replace(shareRepository.mountPoint || '', '');
+        openShare = true;
+      }
+    });
+  });
 
   onMount(async () => {
-    await listen('new-instance', (event) => {
-      console.log(event);
-    });
+    const matches = await getMatches();
+    if (matches.args.secret?.value) {
+      let secret = matches.args.secret.value as string;
+      let res = await app.login(secret);
+      if (res === false) {
+        toast.error('Invlid secret', {
+          description: 'Please try again'
+        });
+      } else {
+        goto('/dashboard');
+      }
+    }
   });
 </script>
 
@@ -42,3 +87,5 @@
     <TailwindIndicator />
   {/if}
 </div>
+
+<ShareDialog bind:open={openShare} path={sharePath} repository={shareRepository} />

@@ -83,6 +83,19 @@ fn unmount(path: String) {
 
 /// Initializes the specified `path` asynchronously.
 #[tauri::command]
+async fn share(repoPath: String, recipient: String, path: String) -> String {
+    let app = app::get_ui_app();
+    let key = app.get_secret_base58();
+    let (res, _) = spawn_sidecar([
+        // -j: join if not already joined, -r: recipient
+        "share", "-j", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
+    ])
+    .await;
+    res
+}
+
+/// Initializes the specified `path` asynchronously.
+#[tauri::command]
 async fn init(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
@@ -97,6 +110,14 @@ async fn get_status(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_secret_base58();
     let (res, _) = spawn_sidecar(["status", "-p", &path, "-k", &key, "-o", "json"]).await;
+    res
+}
+
+/// Lists the access of the specified `path` asynchronously.
+#[tauri::command]
+async fn list_access(repoPath: String, path: String) -> String {
+    let app = app::get_ui_app();
+    let (res, _) = spawn_sidecar(["list-access", &path, "-p", &repoPath, "-o", "json"]).await;
     res
 }
 
@@ -119,6 +140,15 @@ where
 /// Runs the Tauri application.
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+                window.close_devtools();
+            }
+            Ok(())
+        })
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             app.emit_all("new-instance", app::NewInstancePayload::new(argv, cwd))
@@ -130,7 +160,9 @@ pub fn run() {
             mount,
             unmount,
             init,
-            get_status
+            get_status,
+            share,
+            list_access
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

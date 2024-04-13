@@ -5,20 +5,20 @@
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import { loadRepositories, addFolderToRepositories, remove_repository } from '$api/app';
+  import { app } from '$api/app';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
-  import { initRepository } from '$api/app';
 
-  let repositories: Repository[] = [];
   let selectedRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
   let openEmptyRepositoryDialog = false;
 
+  let _app = app;
+
   onMount(async () => {
-    repositories = await loadRepositories();
+    await loadRepositories();
   });
 
   const openDirectory = async () => {
@@ -29,40 +29,41 @@
 
   const initRepo = async () => {
     if (!selectedRepository) return;
-    await initRepository(selectedRepository.path);
+    await app.initRepository(selectedRepository.path);
     await addRepository(selectedRepository.path);
+    _app = app;
   };
+
+  async function loadRepositories() {
+    await app.loadRepositories();
+    _app = app;
+  }
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
-    let repository = await addFolderToRepositories(repositoryPath);
-    console.log('Repository status: ', repository.status);
+    let repository = await app.addFolderToRepositories(repositoryPath);
     if (repository.status.is_empty === true) {
-      console.log('Empty');
       openEmptyRepositoryDialog = true;
       selectedRepository = repository;
       return;
     } else if (repository.status.is_valid === false) {
-      console.log('Invalid');
       openInvalidRepositoryDialog = true;
       return;
     }
-    await loadRepositoriesUsingApp();
+    await loadRepositories();
   }
 
   const selectRepository = (repository: Repository) => {
     selectedRepository = repository;
   };
 
-  async function loadRepositoriesUsingApp() {
-    repositories = await loadRepositories();
+  async function handleRemove(event: CustomEvent<Repository>) {
+    await app.remove_repository(event.detail.path);
+    loadRepositories();
+    selectedRepository = app.repositories[0] || null;
   }
 
-  async function handleRemove(event: CustomEvent<Repository>) {
-    await remove_repository(event.detail.path);
-    await loadRepositoriesUsingApp();
-    selectedRepository = repositories[0] || null;
-  }
+  $: repositories = _app.repositories;
 </script>
 
 <div class="flex-col md:flex">

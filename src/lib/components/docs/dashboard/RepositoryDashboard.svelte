@@ -1,24 +1,33 @@
 <script lang="ts">
-  import { HardDriveDownload } from 'lucide-svelte';
+  import { HardDriveDownload, Share } from 'lucide-svelte';
   import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
   import type { Repository } from '$api/app';
-  import { mountRepository, unmountRepository } from '$api/app';
+  import { app } from '$api/app';
   import ShareKey from './ShareKey.svelte';
+  import ShareDialog from '../dialogs/share-dialog/ShareDialog.svelte';
+
+  let shareDialogOpen = false;
+
+  // Open the share dialog
+  async function openShareDialog() {
+    shareDialogOpen = true;
+  }
 
   // Mount the repository
   async function mount() {
     if (!repository) return;
     repository.mounted = true;
-    let point = await mountRepository(repository?.path || ('' as string));
+    let point = await app.mountRepository(repository?.path || ('' as string));
     repository.mountPoint = point;
   }
 
+  // Unmount the repository
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
-    await unmountRepository(repository.path);
+    await app.unmountRepository(repository.path);
   }
 
   export let repository: Repository | null = null;
@@ -31,6 +40,12 @@
       <CardDescription>{repository?.path}</CardDescription>
     </div>
     <div class="col-span-2 text-end">
+      {#if repository?.mounted}
+        <Button variant="default" on:click={openShareDialog}>
+          <Share class="mr-2 h-4 w-4" />
+          Share
+        </Button>
+      {/if}
       {#if repository?.mounted}
         <Button variant="default" class="bg-red-600" on:click={unmount}>
           <HardDriveDownload class="mr-2 h-4 w-4" />
@@ -62,3 +77,4 @@
     </div>
   </div>
 </CardContent>
+<ShareDialog bind:open={shareDialogOpen} path="" {repository} />
