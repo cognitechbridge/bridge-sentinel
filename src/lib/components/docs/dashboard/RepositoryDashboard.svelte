@@ -8,7 +8,8 @@
   import ShareKey from './ShareKey.svelte';
   import ShareDialog from '../dialogs/share-dialog/ShareDialog.svelte';
 
-  let shareDialogOpen = false;
+  export let shareDialogOpen = false;
+  export let sharePath = '';
 
   // Open the share dialog
   async function openShareDialog() {
@@ -65,4 +66,4 @@
     <ShareKey shareCode={repository?.status.public_key} />
   </div>
 </CardContent>
-<ShareDialog bind:open={shareDialogOpen} path="" {repository} />
+<ShareDialog bind:open={shareDialogOpen} bind:path={sharePath} {repository} />
