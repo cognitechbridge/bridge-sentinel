@@ -1,13 +1,6 @@
 <script lang="ts">
-  import { app, type AccessList, type Repository, type AppResult } from '$api/app';
+  import { app, type Repository } from '$api/app';
   import ValidatedInput from '$components/ui/input/ValidatedInput.svelte';
-  import Separator from '$components/ui/separator/Separator.svelte';
-  import Table from '$components/ui/table/Table.svelte';
-  import TableBody from '$components/ui/table/TableBody.svelte';
-  import TableCell from '$components/ui/table/TableCell.svelte';
-  import TableHead from '$components/ui/table/TableHead.svelte';
-  import TableHeader from '$components/ui/table/TableHeader.svelte';
-  import TableRow from '$components/ui/table/TableRow.svelte';
   import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
   import {
     Dialog,
@@ -19,11 +12,6 @@
   } from '$lib/components/ui/dialog/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
-
-  type RenderedAccessList = {
-    PublicKey: string;
-    Inherited: string;
-  }[];
 
   async function list_access(path: string) {
     if (!repository) return;
@@ -57,21 +45,10 @@
     }
   }
 
-  function render_access_list(accessList: AccessList): RenderedAccessList {
-    let res = accessList.map((access) => {
-      let publickey = repository?.status.public_key == access.PublicKey ? 'You' : access.PublicKey;
-      return {
-        PublicKey: publickey,
-        Inherited: access.Inherited ? 'Yes' : 'No'
-      };
-    });
-    return res;
-  }
-
   let mountPoint = '';
   let publicKey = '';
   let pathErr = '';
-  let accessList: RenderedAccessList = [];
+  let accessList: any = {};
 
   export let repository: Repository | null = null;
   export let open = false;
@@ -79,24 +56,18 @@
 
   $: mountPoint = repository?.mountPoint || '';
   $: {
-    open &&
-      repository &&
-      list_access(path).then((res) => {
-        console.log('res', res);
-        if (!res || res.err) {
-          pathErr = 'The path is not valid';
-          accessList = [];
-        } else {
-          pathErr = '';
-          accessList = render_access_list(res.result);
-        }
-      });
+    list_access(path).then((res) => (accessList = res));
+    if (!accessList || accessList.err) {
+      pathErr = 'The path is not valid';
+    } else {
+      pathErr = '';
+    }
   }
   $: isValid = !pathErr && publicKey.length > 0;
 </script>
 
 <Dialog bind:open>
-  <DialogContent class="sm:max-w-[800px]">
+  <DialogContent class="sm:max-w-[425px]">
     <DialogHeader>
       <DialogTitle>Share path</DialogTitle>
       <DialogDescription>
@@ -116,25 +87,5 @@
     <DialogFooter>
       <Button type="submit" on:click={share} disabled={!isValid}>Share</Button>
     </DialogFooter>
-    <Separator class="my-1" />
-    <!-- ------------------------ Table ---------------------------- -->
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>#</TableHead>
-          <TableHead>Public Key</TableHead>
-          <TableHead>Inherited</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {#each accessList as access, i (i)}
-          <TableRow>
-            <TableCell>{i + 1}</TableCell>
-            <TableCell>{access.PublicKey}</TableCell>
-            <TableCell>{access.Inherited ? 'Yes' : 'No'}</TableCell>
-          </TableRow>
-        {/each}
-      </TableBody>
-    </Table>
   </DialogContent>
 </Dialog>
