@@ -77,7 +77,6 @@
     open &&
       repository &&
       list_access(path).then((res) => {
-        console.log('res', res);
         if (!res || res.err) {
           pathErr = 'The path is not valid';
           accessList = [];
