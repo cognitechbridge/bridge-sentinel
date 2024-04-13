@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
+  import { Card, CardContent, CardHeader, CardTitle } from '$components/ui/card';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
-  import Search from './Search.svelte';
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
