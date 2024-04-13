@@ -23,9 +23,10 @@ interface Repository extends RepositoryCore {
     mountPoint?: string;
 }
 
-interface AppResult<T> {
+export type AppResult<T> = {
     ok: boolean;
     result: T;
+    err: string;
 }
 
 interface RepositoryStatus {
@@ -35,6 +36,13 @@ interface RepositoryStatus {
     public_key: string;
     repoid: string;
 }
+
+export interface AccessListItem {
+    PublicKey: string;
+    Inherited: boolean;
+}
+
+export type AccessList = AccessListItem[];
 
 type MountResult = string;
 
@@ -86,8 +94,8 @@ class App {
     }
 
     // Function to list the access of a path
-    async listAccess(repositoryPath: string, path: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('list_access', { repoPath: repositoryPath, path: path });
+    async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
+        let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });
         return res;
     }
 
