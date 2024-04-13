@@ -40,8 +40,8 @@
       on:input
       {...$$restProps}
     />
-    {#if error}
-      <p transition:slide class="text-red-500 text-sm">{error}</p>
-    {/if}
   </div>
+  {#if error}
+    <p transition:slide class="text-red-500 text-sm">{error}</p>
+  {/if}
 </template>
