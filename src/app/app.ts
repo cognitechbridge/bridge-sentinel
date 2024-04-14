@@ -90,6 +90,12 @@ class App {
         return res;
     }
 
+    // Function to unshare a path with a user
+    async unsharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('unshare', { repoPath: repositoryPath, recipient: recipient, path: path });
+        return res;
+    }
+
     // Function to list the access of a path
     async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
         let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });

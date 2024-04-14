@@ -8,6 +8,7 @@
   import TableHead from '$components/ui/table/TableHead.svelte';
   import TableHeader from '$components/ui/table/TableHeader.svelte';
   import TableRow from '$components/ui/table/TableRow.svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
   import {
     Dialog,
@@ -19,10 +20,12 @@
   } from '$lib/components/ui/dialog/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
+  import UnshareDialog from '../unshare-dialog/UnshareDialog.svelte';
 
   type RenderedAccessList = {
     PublicKey: string;
     Inherited: string;
+    Removable: boolean;
   }[];
 
   async function list_access(path: string) {
@@ -32,13 +35,7 @@
   }
 
   async function share() {
-    if (!repository) {
-      toast.error('Invalid Path', {
-        description: 'The path not found in the mounted repositories'
-      });
-      return;
-    }
-
+    if (!repository) return;
     let res = await app.sharePath(repository?.path, path, publicKey);
     if (res.ok) {
       open = false;
@@ -52,12 +49,40 @@
     }
   }
 
+  let openUnshare = false;
+  let unsharePublicKey = '';
+  async function openUnshareDialog(public_key: string) {
+    unsharePublicKey = public_key;
+    openUnshare = true;
+    open = false;
+  }
+
+  async function unshare() {
+    if (!repository) return;
+    let res = await app.unsharePath(repository?.path, path, unsharePublicKey);
+    if (res.ok) {
+      toast.success('Path unshared successfully', {
+        description: 'The path has been unshared with the user'
+      });
+    } else {
+      toast.error('Failed to unshare path', {
+        description: 'Please try again'
+      });
+    }
+  }
+
+  function cancelUnshare() {
+    open = true;
+  }
+
   function render_access_list(accessList: AccessList): RenderedAccessList {
     let res = accessList.map((access) => {
       let publickey = repository?.status.public_key == access.PublicKey ? 'You' : access.PublicKey;
+      let removable = access.PublicKey != repository?.status.public_key;
       return {
         PublicKey: publickey,
-        Inherited: access.Inherited ? 'Yes' : 'No'
+        Inherited: access.Inherited ? 'Yes' : 'No',
+        Removable: removable
       };
     });
     return res;
@@ -118,6 +143,7 @@
           <TableHead>#</TableHead>
           <TableHead>Public Key</TableHead>
           <TableHead>Inherited</TableHead>
+          <TableHead>Remove</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -126,9 +152,21 @@
             <TableCell>{i + 1}</TableCell>
             <TableCell>{access.PublicKey}</TableCell>
             <TableCell>{access.Inherited}</TableCell>
+            <TableCell>
+              {#if access.Removable}
+                <Button
+                  variant="outline"
+                  class="border-none bg-transparent hover:bg-transparent h-0"
+                  on:click={() => openUnshareDialog(access.PublicKey)}
+                >
+                  <Trash2 class="h-4 w-4 text-red-600" />
+                </Button>
+              {/if}
+            </TableCell>
           </TableRow>
         {/each}
       </TableBody>
     </Table>
   </DialogContent>
 </Dialog>
+<UnshareDialog bind:open={openUnshare} on:unshare={unshare} on:cancel={cancelUnshare} />
