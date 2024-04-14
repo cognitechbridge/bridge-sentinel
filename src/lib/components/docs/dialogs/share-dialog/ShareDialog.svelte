@@ -54,7 +54,6 @@
   async function openUnshareDialog(public_key: string) {
     unsharePublicKey = public_key;
     openUnshare = true;
-    open = false;
   }
 
   async function unshare() {
