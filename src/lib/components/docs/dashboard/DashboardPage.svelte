@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Card, CardContent, CardHeader, CardTitle } from '$components/ui/card';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
+  import Search from './Search.svelte';
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
@@ -9,47 +10,15 @@
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
-  import { listen } from '@tauri-apps/api/event';
-  import { toast } from 'svelte-sonner';
 
   let selectedRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
   let openEmptyRepositoryDialog = false;
 
-  let shareDialogOpen = false;
-  let sharePath = '';
-
   let _app = app;
-
-  type instanceEvent = {
-    args: string[];
-    cwd: string;
-  };
 
   onMount(async () => {
     await loadRepositories();
-    const appWindow = (await import('@tauri-apps/api/window')).appWindow;
-    await listen<instanceEvent>('new-instance', (event) => {
-      if (event.payload.args.length == 3 && event.payload.args[1] == 'share') {
-        appWindow.unminimize();
-        appWindow.setFocus();
-        let fullPath = event.payload.args[2];
-        let shareRepository =
-          _app.repositories.find(
-            (repo) =>
-              repo.mountPoint && repo.mountPoint === fullPath.slice(0, repo.mountPoint.length)
-          ) || null;
-        if (!shareRepository) {
-          toast.error('Invalid Path', {
-            description: 'The path not found in the mounted repositories'
-          });
-          return;
-        }
-        selectedRepository = shareRepository;
-        sharePath = fullPath.replace(shareRepository.mountPoint || '', '');
-        shareDialogOpen = true;
-      }
-    });
   });
 
   const openDirectory = async () => {
@@ -149,11 +118,7 @@
             </TabsList>
             <Card>
               <TabsContent value="overview" class="space-y-4">
-                <RepositoryDashboard
-                  repository={selectedRepository}
-                  bind:shareDialogOpen
-                  bind:sharePath
-                />
+                <RepositoryDashboard repository={selectedRepository} />
               </TabsContent>
               <TabsContent value="setting" class="space-y-4">
                 <RepositorySettings repository={selectedRepository} on:remove={handleRemove} />
