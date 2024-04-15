@@ -3,38 +3,43 @@ import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from "./utils";
 
-// Define the interface for a repository
-interface RepositoryCore {
+type RepositoryCore = {
     name: string;
     path: string;
     salt: string;
 }
 
-interface UserData {
+type UserData = {
     email: string;
     salt: string;
     hahsed_secret: string;
 }
 
-interface Repository extends RepositoryCore {
+export type Repository = RepositoryCore & {
     status: RepositoryStatus;
     shortenPath: string;
     mounted: boolean;
     mountPoint?: string;
 }
 
-interface AppResult<T> {
+export type AppResult<T> = {
     ok: boolean;
     result: T;
+    err: string;
 }
 
-interface RepositoryStatus {
+type RepositoryStatus = {
     is_valid: boolean;
     is_empty: boolean;
     is_joined: boolean;
     public_key: string;
     repoid: string;
 }
+
+export type AccessList = {
+    PublicKey: string;
+    Inherited: boolean;
+}[]
 
 type MountResult = string;
 
@@ -85,9 +90,15 @@ class App {
         return res;
     }
 
+    // Function to unshare a path with a user
+    async unsharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('unshare', { repoPath: repositoryPath, recipient: recipient, path: path });
+        return res;
+    }
+
     // Function to list the access of a path
-    async listAccess(repositoryPath: string, path: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('list_access', { repoPath: repositoryPath, path: path });
+    async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
+        let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });
         return res;
     }
 
@@ -202,7 +213,6 @@ class App {
 
 let app = new App();
 
-export type { Repository };
 export {
     app
 };
