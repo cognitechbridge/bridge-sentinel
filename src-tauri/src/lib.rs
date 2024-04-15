@@ -121,6 +121,16 @@ async fn list_access(repoPath: String, path: String) -> String {
     res
 }
 
+/// Encrypts the provided `encoded_key`.
+#[tauri::command]
+fn encrypt_repo_key(encoded_key: String) -> String {
+    let app = app::get_ui_app();
+    let res = app
+        .encrypt_repo_key(&encoded_key)
+        .expect("Error encrypting repo key");
+    res
+}
+
 /// Spawns a sidecar process with the provided arguments asynchronously.
 /// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
@@ -162,7 +172,9 @@ pub fn run() {
             init,
             get_status,
             share,
-            list_access
+            unshare,
+            list_access,
+            encrypt_repo_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

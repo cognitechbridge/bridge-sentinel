@@ -161,6 +161,12 @@ class App {
         return res;
     }
 
+    // Function to save the user data
+    async encrypt_repo_key(repositoryPath: string, encoded_key: string): Promise<String> {
+        let res = await invoke('encrypt_repo_key', { encodedKey: encoded_key }) as string;
+        return res;
+    }
+
     // Function to load the user data
     async loadUserData(): Promise<UserData | null> {
         return (await this.store.get('user_data') as UserData || null);

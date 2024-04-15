@@ -4,6 +4,14 @@ use argon2::{
     Argon2, Params,
 };
 use bs58;
+use chacha20poly1305::aead::generic_array::GenericArray;
+use chacha20poly1305::{
+    aead::{Aead, KeyInit},
+    ChaCha20Poly1305, Key, Nonce,
+};
+use hkdf::Hkdf;
+use rand::RngCore;
+use sha2::Sha256;
 use std::collections::HashMap;
 use std::sync::Once;
 use tauri::api::process::CommandChild;
@@ -38,9 +46,11 @@ pub fn get_ui_app() -> &'static mut UiApp {
 /// Represents the UI application.
 pub struct UiApp {
     key: Vec<u8>,
-    //mounted_paths: HashMap<String, CommandChild>,
     mounted_paths: HashMap<String, CommandChild>,
-} //
+    repo_keys: HashMap<String, Vec<u8>>,
+}
+
+const CHA_CHA20_POLY1350_V1_INFO: &str = "cognitechbridge.com/v1/ChaCha20Poly1350";
 
 impl UiApp {
     /// Creates a new `UiApp` instance with an empty secret.
@@ -48,6 +58,7 @@ impl UiApp {
         Self {
             key: vec![0, 32],
             mounted_paths: HashMap::new(),
+            repo_keys: HashMap::new(),
         }
     }
 
@@ -119,5 +130,47 @@ impl UiApp {
         let params = Params::new(64 * 1024, 2, 8, Some(32)).unwrap();
         let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, params);
         Ok(argon2)
+    }
+
+    /// Gets the key for a repository.
+    fn get_repo_key(&self, repo: &str) -> Option<&Vec<u8>> {
+        self.repo_keys.get(repo)
+    }
+
+    /// Encrypts a repository key using ChaCha20Poly1305.
+    pub fn encrypt_repo_key(&self, encoded_key: &str) -> Result<String> {
+        // Decode the base58-encoded key
+        let key = bs58::decode(encoded_key).into_vec().unwrap();
+        // Generate a random salt
+        let mut salt = [0u8; 32];
+        let mut rng = rand::thread_rng();
+        rng.fill_bytes(&mut salt);
+        // Derive a key from the root key, salt, and repo name
+        let derived_key = Self::derive_key(&self.key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
+        // Encrypt the key using ChaCha20Poly1305
+        let cipher = ChaCha20Poly1305::new(&derived_key);
+        let nonce = Nonce::from_slice(&[0u8; 12]); // 96-bit zroed nonce
+        let ciphertext = cipher
+            .encrypt(nonce, key.as_ref())
+            .expect("encryption failure!");
+        // Encode the salt and ciphertext as base58
+        let salt_string = bs58::encode(salt).into_string();
+        let ciphertext_string = bs58::encode(ciphertext).into_string();
+        // Combine the salt and ciphertext
+        let encrypted_key = format!("{}:{}", salt_string, ciphertext_string);
+        Ok(encrypted_key)
+    }
+
+    /// Derives a key from the root key, salt, and info using HKDF and SHA-256.
+    fn derive_key(root_key: &[u8], salt: &[u8], info: &str) -> Result<Key> {
+        // Derive a key from the root key, salt, and info using HKDF and SHA-256
+        let hk = Hkdf::<Sha256>::new(Some(salt), root_key);
+        let mut derived_key = GenericArray::default();
+
+        // Extract and expand the key
+        hk.expand(info.as_bytes(), &mut derived_key)
+            .expect("Error deriving key from root key, salt, and info");
+
+        Ok(derived_key)
     }
 }
