@@ -3,43 +3,38 @@ import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from "./utils";
 
-type RepositoryCore = {
+// Define the interface for a repository
+interface RepositoryCore {
     name: string;
     path: string;
     salt: string;
 }
 
-type UserData = {
+interface UserData {
     email: string;
     salt: string;
     hahsed_secret: string;
 }
 
-export type Repository = RepositoryCore & {
+interface Repository extends RepositoryCore {
     status: RepositoryStatus;
     shortenPath: string;
     mounted: boolean;
     mountPoint?: string;
 }
 
-export type AppResult<T> = {
+interface AppResult<T> {
     ok: boolean;
     result: T;
-    err: string;
 }
 
-type RepositoryStatus = {
+interface RepositoryStatus {
     is_valid: boolean;
     is_empty: boolean;
     is_joined: boolean;
     public_key: string;
     repoid: string;
 }
-
-export type AccessList = {
-    PublicKey: string;
-    Inherited: boolean;
-}[]
 
 type MountResult = string;
 
@@ -90,15 +85,9 @@ class App {
         return res;
     }
 
-    // Function to unshare a path with a user
-    async unsharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('unshare', { repoPath: repositoryPath, recipient: recipient, path: path });
-        return res;
-    }
-
     // Function to list the access of a path
-    async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
-        let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });
+    async listAccess(repositoryPath: string, path: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('list_access', { repoPath: repositoryPath, path: path });
         return res;
     }
 
@@ -172,6 +161,12 @@ class App {
         return res;
     }
 
+    // Function to save the user data
+    async encrypt_repo_key(repositoryPath: string, encoded_key: string): Promise<String> {
+        let res = await invoke('encrypt_repo_key', { encodedKey: encoded_key }) as string;
+        return res;
+    }
+
     // Function to load the user data
     async loadUserData(): Promise<UserData | null> {
         return (await this.store.get('user_data') as UserData || null);
@@ -207,6 +202,7 @@ class App {
 
 let app = new App();
 
+export type { Repository };
 export {
     app
 };

@@ -81,7 +81,7 @@ fn unmount(path: String) {
     res.expect("Error killing child process");
 }
 
-/// Shares the specified `path` with the specified `recipient` asynchronously.
+/// Initializes the specified `path` asynchronously.
 #[tauri::command]
 async fn share(repoPath: String, recipient: String, path: String) -> String {
     let app = app::get_ui_app();
@@ -89,18 +89,6 @@ async fn share(repoPath: String, recipient: String, path: String) -> String {
     let (res, _) = spawn_sidecar([
         // -j: join if not already joined, -r: recipient
         "share", "-j", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
-    ])
-    .await;
-    res
-}
-
-/// Unshares the specified `path` with the specified `recipient` asynchronously.
-#[tauri::command]
-async fn unshare(repoPath: String, recipient: String, path: String) -> String {
-    let app = app::get_ui_app();
-    let (res, _) = spawn_sidecar([
-        // -j: join if not already joined, -r: recipient
-        "unshare", &path, "-p", &repoPath, "-r", &recipient, "-o", "json",
     ])
     .await;
     res
@@ -130,6 +118,16 @@ async fn get_status(path: String) -> String {
 async fn list_access(repoPath: String, path: String) -> String {
     let app = app::get_ui_app();
     let (res, _) = spawn_sidecar(["list-access", &path, "-p", &repoPath, "-o", "json"]).await;
+    res
+}
+
+/// Encrypts the provided `encoded_key`.
+#[tauri::command]
+fn encrypt_repo_key(encoded_key: String) -> String {
+    let app = app::get_ui_app();
+    let res = app
+        .encrypt_repo_key(&encoded_key)
+        .expect("Error encrypting repo key");
     res
 }
 
@@ -175,7 +173,8 @@ pub fn run() {
             get_status,
             share,
             unshare,
-            list_access
+            list_access,
+            encrypt_repo_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
