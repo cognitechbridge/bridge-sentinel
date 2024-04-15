@@ -81,7 +81,7 @@ fn unmount(path: String) {
     res.expect("Error killing child process");
 }
 
-/// Initializes the specified `path` asynchronously.
+/// Shares the specified `path` with the specified `recipient` asynchronously.
 #[tauri::command]
 async fn share(repoPath: String, recipient: String, path: String) -> String {
     let app = app::get_ui_app();
@@ -89,6 +89,18 @@ async fn share(repoPath: String, recipient: String, path: String) -> String {
     let (res, _) = spawn_sidecar([
         // -j: join if not already joined, -r: recipient
         "share", "-j", &path, "-p", &repoPath, "-r", &recipient, "-k", &key, "-o", "json",
+    ])
+    .await;
+    res
+}
+
+/// Unshares the specified `path` with the specified `recipient` asynchronously.
+#[tauri::command]
+async fn unshare(repoPath: String, recipient: String, path: String) -> String {
+    let app = app::get_ui_app();
+    let (res, _) = spawn_sidecar([
+        // -j: join if not already joined, -r: recipient
+        "unshare", &path, "-p", &repoPath, "-r", &recipient, "-o", "json",
     ])
     .await;
     res
