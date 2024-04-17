@@ -7,6 +7,7 @@ type RepositoryCore = {
     name: string;
     path: string;
     salt: string;
+    key: string;
 }
 
 type UserData = {
@@ -78,8 +79,9 @@ class App {
     }
 
     // Function to initialize an empty repository using App CLI
-    async initRepository(repositoryPath: string): Promise<void> {
-        let res = await invoke('init', { path: repositoryPath });
+    async initRepository(repositoryPath: string, repositoryKey: string): Promise<void> {
+        this.set_repo_key(repositoryPath, repositoryKey);
+        await invoke('init', { path: repositoryPath });
         return;
     }
 
@@ -105,7 +107,9 @@ class App {
     // Function to extend a repository object with additional properties
     async extendRepository(repo: RepositoryCore): Promise<Repository> {
         let shortenPath = shortenFilePath(repo.path);
+        this.set_repo_key(repo.path, repo.key);
         let status = await this.getRepositoryStatus(repo.path);
+        console.log(status);
         let rep = {
             ...repo,
             status,
@@ -113,6 +117,11 @@ class App {
             mounted: false,
         }
         return rep;
+    }
+
+    // Function to set the repository key
+    async set_repo_key(repoPath: string, encryptedKey: string): Promise<void> {
+        await invoke('set_repo_key', { repoPath: repoPath, encryptedKey: encryptedKey }) as boolean;
     }
 
 
@@ -173,7 +182,7 @@ class App {
     }
 
     // Function to save the user data
-    async encrypt_repo_key(repositoryPath: string, encoded_key: string): Promise<String> {
+    async encrypt_repo_key(encoded_key: string): Promise<string> {
         let res = await invoke('encrypt_repo_key', { encodedKey: encoded_key }) as string;
         return res;
     }
@@ -195,10 +204,13 @@ class App {
     }
 
     async addFolderToRepositories(folderPath: string): Promise<Repository> {
+        let encrypted_repo_key = await this.encrypt_repo_key('6uSDHJXcUsM3tJfyoSYfZLnY6uBHgM7hyyyhej6LdCLC');
+
         let newRepo = {
             path: folderPath,
             name: folderPath.split('/').pop() || '',
             salt: this.generateRandomString(32),
+            key: encrypted_repo_key
         };
         let extendedNewRepo = await this.extendRepository(newRepo);
         if (extendedNewRepo.status.is_valid === false) {
