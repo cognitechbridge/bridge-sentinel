@@ -16,6 +16,7 @@
   let email = '';
   let password = '';
   let password2 = '';
+  let key = '';
   let isStrong = false;
   let strength = 0;
   let passwordsMatch = false;
@@ -24,7 +25,7 @@
 
   async function onSubmit() {
     isLoading = true;
-    await app.saveUserData(email, password);
+    await app.saveUserData(email, password, key);
     isLoading = false;
   }
 
@@ -89,6 +90,17 @@
         {#if !passwordsMatch && password2.length > 0}
           <p transition:slide class="text-red-500 text-sm">Passwords do not match</p>
         {/if}
+      </div>
+      <div class="grid gap-1 mt-1">
+        <Label class="mb-1" for="key">Private Key:</Label>
+        <Input
+          id="key"
+          placeholder="Your private key"
+          type="password"
+          autoCorrect="off"
+          disabled={isLoading}
+          bind:value={key}
+        />
       </div>
       <Button disabled={isLoading || !passwordsMatch || !isStrong} on:click={onSubmit}>
         {#if isLoading}
