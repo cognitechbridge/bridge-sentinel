@@ -11,12 +11,10 @@
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
   import { listen } from '@tauri-apps/api/event';
   import { toast } from 'svelte-sonner';
-  import { AddRepositoryDialog } from '../dialogs/add-repository';
 
   let selectedRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
   let openEmptyRepositoryDialog = false;
-  let openAddRepositoryDialog = false;
 
   let shareDialogOpen = false;
   let sharePath = '';
@@ -170,4 +168,3 @@
 
 <InvalidRepositoryDialog bind:open={openInvalidRepositoryDialog} />
 <EmptyRepositoryDialog bind:open={openEmptyRepositoryDialog} on:init={initRepo} />
-<AddRepositoryDialog bind:open={openAddRepositoryDialog} />
