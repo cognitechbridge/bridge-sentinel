@@ -8,6 +8,7 @@
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
   import { app } from '$api/app';
+  import GenerateKeyDialog from '$components/docs/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -22,6 +23,8 @@
   let passwordsMatch = false;
   let passwordError = '';
   let barColor = 'bg-gray-400'; // Default color
+
+  let openGenerateKeyDialog = false;
 
   async function onSubmit() {
     isLoading = true;
@@ -93,14 +96,25 @@
       </div>
       <div class="grid gap-1 mt-1">
         <Label class="mb-1" for="key">Private Key:</Label>
-        <Input
-          id="key"
-          placeholder="Your private key"
-          type="password"
-          autoCorrect="off"
-          disabled={isLoading}
-          bind:value={key}
-        />
+        <div class="flex">
+          <Input
+            id="key"
+            class="flex-1"
+            placeholder="Your private key"
+            type="password"
+            autoCorrect="off"
+            disabled={isLoading}
+            bind:value={key}
+          />
+          <Button
+            type="button"
+            class="ml-2"
+            disabled={isLoading}
+            on:click={() => (openGenerateKeyDialog = true)}
+          >
+            Generate
+          </Button>
+        </div>
       </div>
       <Button disabled={isLoading || !passwordsMatch || !isStrong} on:click={onSubmit}>
         {#if isLoading}
@@ -111,3 +125,4 @@
     </div>
   </form>
 </div>
+<GenerateKeyDialog bind:open={openGenerateKeyDialog} bind:key />
