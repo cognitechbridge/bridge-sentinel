@@ -8,6 +8,7 @@
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
   import { app } from '$api/app';
+  import GenerateKeyDialog from '$components/docs/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -16,15 +17,18 @@
   let email = '';
   let password = '';
   let password2 = '';
+  let key = '';
   let isStrong = false;
   let strength = 0;
   let passwordsMatch = false;
   let passwordError = '';
   let barColor = 'bg-gray-400'; // Default color
 
+  let openGenerateKeyDialog = false;
+
   async function onSubmit() {
     isLoading = true;
-    await app.saveUserData(email, password);
+    await app.saveUserData(email, password, key);
     isLoading = false;
   }
 
@@ -90,6 +94,28 @@
           <p transition:slide class="text-red-500 text-sm">Passwords do not match</p>
         {/if}
       </div>
+      <div class="grid gap-1 mt-1">
+        <Label class="mb-1" for="key">Private Key:</Label>
+        <div class="flex">
+          <Input
+            id="key"
+            class="flex-1"
+            placeholder="Your private key"
+            type="password"
+            autoCorrect="off"
+            disabled={isLoading}
+            bind:value={key}
+          />
+          <Button
+            type="button"
+            class="ml-2"
+            disabled={isLoading}
+            on:click={() => (openGenerateKeyDialog = true)}
+          >
+            Generate
+          </Button>
+        </div>
+      </div>
       <Button disabled={isLoading || !passwordsMatch || !isStrong} on:click={onSubmit}>
         {#if isLoading}
           <Icons.spinner class="mr-2 h-4 w-4 animate-spin" />
@@ -99,3 +125,4 @@
     </div>
   </form>
 </div>
+<GenerateKeyDialog bind:open={openGenerateKeyDialog} bind:key />

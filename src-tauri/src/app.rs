@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2, Params,
@@ -47,7 +47,6 @@ pub fn get_ui_app() -> &'static mut UiApp {
 pub struct UiApp {
     key: Vec<u8>,
     mounted_paths: HashMap<String, CommandChild>,
-    repo_keys: HashMap<String, Vec<u8>>,
 }
 
 const CHA_CHA20_POLY1350_V1_INFO: &str = "cognitechbridge.com/v1/ChaCha20Poly1350";
@@ -58,7 +57,6 @@ impl UiApp {
         Self {
             key: vec![0, 32],
             mounted_paths: HashMap::new(),
-            repo_keys: HashMap::new(),
         }
     }
 
@@ -132,11 +130,6 @@ impl UiApp {
         Ok(argon2)
     }
 
-    /// Gets the key for a repository.
-    fn get_repo_key(&self, repo: &str) -> Option<&Vec<u8>> {
-        self.repo_keys.get(repo)
-    }
-
     /// Encrypts a repository key using ChaCha20Poly1305.
     pub fn encrypt_repo_key(&self, encoded_key: &str) -> Result<String> {
         // Decode the base58-encoded key
@@ -159,6 +152,34 @@ impl UiApp {
         // Combine the salt and ciphertext
         let encrypted_key = format!("{}:{}", salt_string, ciphertext_string);
         Ok(encrypted_key)
+    }
+
+    /// Decrypts a repository key encrypted with ChaCha20Poly1305.
+    pub fn decrypt_repo_key(&self, encrypted_key: &str) -> Result<String> {
+        // Split the encrypted key into salt and ciphertext parts
+        let parts: Vec<&str> = encrypted_key.split(':').collect();
+        if parts.len() != 2 {
+            return Err(anyhow!("Invalid encrypted key"));
+        }
+
+        // Decode the salt and ciphertext from base58
+        let salt = bs58::decode(parts[0]).into_vec().unwrap();
+        let ciphertext = bs58::decode(parts[1]).into_vec().unwrap();
+
+        // Derive the key using the same method as in encryption
+        let derived_key = Self::derive_key(&self.key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
+
+        // Decrypt the ciphertext using ChaCha20Poly1305
+        let cipher = ChaCha20Poly1305::new(&derived_key);
+        let nonce = Nonce::from_slice(&[0u8; 12]); // 96-bit zeroed nonce, same as encryption
+        let unencrypted_key = cipher
+            .decrypt(nonce, ciphertext.as_ref())
+            .expect("decryption failure!");
+
+        // Convert the unencrypted key to a base58-encoded string
+        let unencrypted_encoded_key = bs58::encode(unencrypted_key).into_string();
+
+        Ok(unencrypted_encoded_key)
     }
 
     /// Derives a key from the root key, salt, and info using HKDF and SHA-256.
