@@ -25,7 +25,7 @@ fn check_set_secret(secret: &str, salt: &str, encrypted_key: &str) -> bool {
 /// Mounts the specified `path` asynchronously.
 /// Returns the process ID of the mounted path as a `u32`.
 #[tauri::command]
-async fn mount(path: String, encrypted_key: String) -> String {
+async fn mount(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_key();
     let (mut rx, child) = Command::new_sidecar("storage")
@@ -83,12 +83,7 @@ fn unmount(path: String) {
 
 /// Shares the specified `path` with the specified `recipient` asynchronously.
 #[tauri::command]
-async fn share(
-    repo_path: String,
-    recipient: String,
-    path: String,
-    encrypted_key: String,
-) -> String {
+async fn share(repo_path: String, recipient: String, path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_key();
     let (res, _) = spawn_sidecar([
@@ -112,7 +107,7 @@ async fn unshare(repo_path: String, recipient: String, path: String) -> String {
 
 /// Initializes the specified `path` asynchronously.
 #[tauri::command]
-async fn init(path: String, encrypted_key: String) -> String {
+async fn init(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_key();
     let (res, _) = spawn_sidecar(["init", "-p", &path, "-k", &key, "-o", "json"]).await;
@@ -122,7 +117,7 @@ async fn init(path: String, encrypted_key: String) -> String {
 /// Gets the status of the specified `path` asynchronously.
 /// Returns the status as a `String`.
 #[tauri::command]
-async fn get_status(path: String, encrypted_key: String) -> String {
+async fn get_status(path: String) -> String {
     let app = app::get_ui_app();
     let key = app.get_key();
     let (res, _) = spawn_sidecar(["status", "-p", &path, "-k", &key, "-o", "json"]).await;

@@ -54,7 +54,7 @@ class App {
 
     // Function to get the status of a repository using App CLI
     async getRepositoryStatus(repositoryPath: string): Promise<RepositoryStatus> {
-        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath });
         return output.result;
     }
 
@@ -64,7 +64,7 @@ class App {
         if (!repo) {
             throw new Error("Repository not found");
         }
-        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath });
         repo.mounted = true;
         repo.mountPoint = output.result;
         return output.result;
@@ -72,20 +72,20 @@ class App {
 
     // Function to unmount a repository using termination child process
     async unmountRepository(repositoryPath: string): Promise<void> {
-        await invoke('unmount', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        await invoke('unmount', { path: repositoryPath });
         return;
     }
 
     // Function to initialize an empty repository using App CLI
     async initRepository(repositoryPath: string): Promise<void> {
-        await invoke('init', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        await invoke('init', { path: repositoryPath });
         return;
     }
 
 
     // Function to share a path with a user
     async sharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path, encryptedKey: await this.getEncryptedKey() });
+        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path });
         return res;
     }
 
@@ -202,10 +202,6 @@ class App {
         repositories.push(newRepo);
         await this.saveRepositories(repositories);
         return extendedNewRepo;
-    }
-
-    async getEncryptedKey(): Promise<string> {
-        return await this.store.get('encrypted_key') as string;
     }
 }
 
