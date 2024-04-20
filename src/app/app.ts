@@ -148,18 +148,19 @@ class App {
     // Function to save the user data
     async saveUserData(email: string, secret: string, key: string): Promise<void> {
         let salt = this.generateRandomString(32);
-        let hahsed_secret = await invoke('set_new_secret', { secret: secret, salt: salt }) as string;
-        if (hahsed_secret.length === 0) {
+        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, key: key }) as string;
+        if (encrypted_key.length === 0) {
             console.error("Failed to set secret");
         }
         let userData: UserData = {
             email: email,
-            salt: salt,
-            hahsed_secret: hahsed_secret
+            salt: salt
         };
+        console.log("Encrypted key: ", encrypted_key);
         await this.store.set('user_data', userData);
+        await this.store.set('encrypted_key', encrypted_key);
+        console.log(encrypted_key);
         await this.store.save();
-        await this.encryptAndSetKey(key);
     }
 
     // Function to save the user data
@@ -168,12 +169,6 @@ class App {
         let salt = user_data.salt;
         let encrypted_key = await this.store.get('encrypted_key') as string;
         let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedKey: encrypted_key }) as boolean;
-        return res;
-    }
-
-    // Function to save the user data
-    async encrypt_repo_key(encoded_key: string): Promise<string> {
-        let res = await invoke('encrypt_repo_key', { encodedKey: encoded_key }) as string;
         return res;
     }
 
@@ -211,12 +206,6 @@ class App {
 
     async getEncryptedKey(): Promise<string> {
         return await this.store.get('encrypted_key') as string;
-    }
-
-    async encryptAndSetKey(key: string): Promise<void> {
-        let encoded_key = await this.encrypt_repo_key(key);
-        await this.store.set('encrypted_key', encoded_key);
-        await this.store.save();
     }
 }
 

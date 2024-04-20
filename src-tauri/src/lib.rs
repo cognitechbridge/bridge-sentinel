@@ -8,10 +8,10 @@ pub mod app;
 /// Sets a new secret using the provided `secret` and `salt`.
 /// Returns the hashed secret as a `String`.
 #[tauri::command]
-fn set_new_secret(secret: &str, salt: &str) -> String {
+fn set_new_secret(secret: &str, salt: &str, key: &str) -> String {
     let app = app::get_ui_app();
-    let hashed_secret = app.set_new_secret(secret, salt).unwrap();
-    hashed_secret.to_string()
+    let encrypted_key = app.set_new_secret(secret, salt, key).unwrap();
+    encrypted_key.to_string()
 }
 
 /// Checks if the provided `secret` matches the `hash` and `salt`.
@@ -136,14 +136,6 @@ async fn list_access(repo_path: String, path: String) -> String {
     res
 }
 
-/// Encrypts the provided `encoded_key`.
-#[tauri::command]
-fn encrypt_repo_key(encoded_key: String) -> String {
-    let app = app::get_ui_app();
-    app.encrypt_repo_key(&encoded_key)
-        .expect("Error encrypting repo key")
-}
-
 /// Spawns a sidecar process with the provided arguments asynchronously.
 /// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
@@ -186,8 +178,7 @@ pub fn run() {
             get_status,
             share,
             unshare,
-            list_access,
-            encrypt_repo_key
+            list_access
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
