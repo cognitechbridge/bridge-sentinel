@@ -17,9 +17,9 @@ fn set_new_secret(secret: &str, salt: &str) -> String {
 /// Checks if the provided `secret` matches the `hash` and `salt`.
 /// Returns `true` if the secret matches, `false` otherwise.
 #[tauri::command]
-fn check_set_secret(secret: &str, hash: &str, salt: &str) -> bool {
+fn check_set_secret(secret: &str, salt: &str, encrypted_key: &str) -> bool {
     let app = app::get_ui_app();
-    app.check_set_secret(secret, hash, salt).unwrap()
+    app.check_set_secret(secret, salt, encrypted_key).unwrap()
 }
 
 /// Mounts the specified `path` asynchronously.
@@ -27,9 +27,7 @@ fn check_set_secret(secret: &str, hash: &str, salt: &str) -> bool {
 #[tauri::command]
 async fn mount(path: String, encrypted_key: String) -> String {
     let app = app::get_ui_app();
-    let key = app
-        .decrypt_repo_key(&encrypted_key)
-        .expect("Error decrypting repo key");
+    let key = app.get_key();
     let (mut rx, child) = Command::new_sidecar("storage")
         .expect("failed to create sidecar")
         .args(["mount", "-p", &path, "-k", &key, "-o", "json"])
@@ -92,9 +90,7 @@ async fn share(
     encrypted_key: String,
 ) -> String {
     let app = app::get_ui_app();
-    let key = app
-        .decrypt_repo_key(&encrypted_key)
-        .expect("Error decrypting repo key");
+    let key = app.get_key();
     let (res, _) = spawn_sidecar([
         // -j: join if not already joined, -r: recipient
         "share", "-j", &path, "-p", &repo_path, "-r", &recipient, "-k", &key, "-o", "json",
@@ -118,9 +114,7 @@ async fn unshare(repo_path: String, recipient: String, path: String) -> String {
 #[tauri::command]
 async fn init(path: String, encrypted_key: String) -> String {
     let app = app::get_ui_app();
-    let key = app
-        .decrypt_repo_key(&encrypted_key)
-        .expect("Error decrypting repo key");
+    let key = app.get_key();
     let (res, _) = spawn_sidecar(["init", "-p", &path, "-k", &key, "-o", "json"]).await;
     res
 }
@@ -130,9 +124,7 @@ async fn init(path: String, encrypted_key: String) -> String {
 #[tauri::command]
 async fn get_status(path: String, encrypted_key: String) -> String {
     let app = app::get_ui_app();
-    let key = app
-        .decrypt_repo_key(&encrypted_key)
-        .expect("Error decrypting repo key");
+    let key = app.get_key();
     let (res, _) = spawn_sidecar(["status", "-p", &path, "-k", &key, "-o", "json"]).await;
     res
 }

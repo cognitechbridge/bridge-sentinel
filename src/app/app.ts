@@ -12,7 +12,6 @@ type RepositoryCore = {
 type UserData = {
     email: string;
     salt: string;
-    hahsed_secret: string;
 }
 
 export type Repository = RepositoryCore & {
@@ -167,8 +166,8 @@ class App {
     async login(secret: string): Promise<boolean> {
         let user_data = await this.store.get('user_data') as UserData;
         let salt = user_data.salt;
-        let hash = user_data.hahsed_secret;
-        let res = await invoke('check_set_secret', { hash: hash, secret: secret, salt: salt }) as boolean;
+        let encrypted_key = await this.store.get('encrypted_key') as string;
+        let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedKey: encrypted_key }) as boolean;
         return res;
     }
 
