@@ -146,9 +146,9 @@ class App {
     }
 
     // Function to save the user data
-    async saveUserData(email: string, secret: string, key: string): Promise<void> {
+    async saveUserData(email: string, secret: string, rootKey: string): Promise<void> {
         let salt = this.generateRandomString(32);
-        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, key: key }) as string;
+        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
         if (encrypted_key.length === 0) {
             console.error("Failed to set secret");
         }
@@ -167,8 +167,8 @@ class App {
     async login(secret: string): Promise<boolean> {
         let user_data = await this.store.get('user_data') as UserData;
         let salt = user_data.salt;
-        let encrypted_key = await this.store.get('encrypted_key') as string;
-        let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedKey: encrypted_key }) as boolean;
+        let encryptedRootKey = await this.store.get('encrypted_key') as string;
+        let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedRootKey: encryptedRootKey }) as boolean;
         return res;
     }
 
