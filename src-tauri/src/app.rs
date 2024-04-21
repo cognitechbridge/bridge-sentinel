@@ -1,8 +1,5 @@
 use anyhow::{anyhow, Result};
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2, Params,
-};
+use argon2::{Argon2, Params};
 use bs58;
 use chacha20poly1305::aead::generic_array::GenericArray;
 use chacha20poly1305::{
@@ -121,7 +118,7 @@ impl UiApp {
     }
 
     /// Encrypts a repository key using ChaCha20Poly1305.
-    pub fn encrypt_root_key(&self, root_key: &str, secret_key: &Vec<u8>) -> Result<String> {
+    pub fn encrypt_root_key(&self, root_key: &str, secret_key: &[u8]) -> Result<String> {
         // Generate a random salt
         let mut salt = [0u8; 32];
         let mut rng = rand::thread_rng();
@@ -144,7 +141,7 @@ impl UiApp {
     }
 
     /// Decrypts a repository key encrypted with ChaCha20Poly1305.
-    pub fn decrypt_root_key(&self, encrypted_root_key: &str, secret_key: &Vec<u8>) -> Result<String> {
+    pub fn decrypt_root_key(&self, encrypted_root_key: &str, secret_key: &[u8]) -> Result<String> {
         // Split the encrypted key into salt and ciphertext parts
         let parts: Vec<&str> = encrypted_root_key.split(':').collect();
         if parts.len() != 2 {
