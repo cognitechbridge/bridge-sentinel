@@ -12,7 +12,6 @@ type RepositoryCore = {
 type UserData = {
     email: string;
     salt: string;
-    hahsed_secret: string;
 }
 
 export type Repository = RepositoryCore & {
@@ -55,7 +54,7 @@ class App {
 
     // Function to get the status of a repository using App CLI
     async getRepositoryStatus(repositoryPath: string): Promise<RepositoryStatus> {
-        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath });
         return output.result;
     }
 
@@ -65,7 +64,7 @@ class App {
         if (!repo) {
             throw new Error("Repository not found");
         }
-        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath });
         repo.mounted = true;
         repo.mountPoint = output.result;
         return output.result;
@@ -73,20 +72,20 @@ class App {
 
     // Function to unmount a repository using termination child process
     async unmountRepository(repositoryPath: string): Promise<void> {
-        await invoke('unmount', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        await invoke('unmount', { path: repositoryPath });
         return;
     }
 
     // Function to initialize an empty repository using App CLI
     async initRepository(repositoryPath: string): Promise<void> {
-        await invoke('init', { path: repositoryPath, encryptedKey: await this.getEncryptedKey() });
+        await invoke('init', { path: repositoryPath });
         return;
     }
 
 
     // Function to share a path with a user
     async sharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path, encryptedKey: await this.getEncryptedKey() });
+        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path });
         return res;
     }
 
@@ -147,34 +146,29 @@ class App {
     }
 
     // Function to save the user data
-    async saveUserData(email: string, secret: string, key: string): Promise<void> {
+    async saveUserData(email: string, secret: string, rootKey: string): Promise<void> {
         let salt = this.generateRandomString(32);
-        let hahsed_secret = await invoke('set_new_secret', { secret: secret, salt: salt }) as string;
-        if (hahsed_secret.length === 0) {
+        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
+        if (encrypted_key.length === 0) {
             console.error("Failed to set secret");
         }
         let userData: UserData = {
             email: email,
-            salt: salt,
-            hahsed_secret: hahsed_secret
+            salt: salt
         };
+        console.log("Encrypted key: ", encrypted_key);
         await this.store.set('user_data', userData);
+        await this.store.set('encrypted_key', encrypted_key);
+        console.log(encrypted_key);
         await this.store.save();
-        await this.encryptAndSetKey(key);
     }
 
     // Function to save the user data
     async login(secret: string): Promise<boolean> {
         let user_data = await this.store.get('user_data') as UserData;
         let salt = user_data.salt;
-        let hash = user_data.hahsed_secret;
-        let res = await invoke('check_set_secret', { hash: hash, secret: secret, salt: salt }) as boolean;
-        return res;
-    }
-
-    // Function to save the user data
-    async encrypt_repo_key(encoded_key: string): Promise<string> {
-        let res = await invoke('encrypt_repo_key', { encodedKey: encoded_key }) as string;
+        let encryptedRootKey = await this.store.get('encrypted_key') as string;
+        let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedRootKey: encryptedRootKey }) as boolean;
         return res;
     }
 
@@ -208,16 +202,6 @@ class App {
         repositories.push(newRepo);
         await this.saveRepositories(repositories);
         return extendedNewRepo;
-    }
-
-    async getEncryptedKey(): Promise<string> {
-        return await this.store.get('encrypted_key') as string;
-    }
-
-    async encryptAndSetKey(key: string): Promise<void> {
-        let encoded_key = await this.encrypt_repo_key(key);
-        await this.store.set('encrypted_key', encoded_key);
-        await this.store.save();
     }
 }
 

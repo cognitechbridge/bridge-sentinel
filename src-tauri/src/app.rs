@@ -45,7 +45,7 @@ pub fn get_ui_app() -> &'static mut UiApp {
 
 /// Represents the UI application.
 pub struct UiApp {
-    key: Vec<u8>,
+    root_key: String,
     mounted_paths: HashMap<String, CommandChild>,
 }
 
@@ -55,35 +55,33 @@ impl UiApp {
     /// Creates a new `UiApp` instance with an empty secret.
     fn new() -> Self {
         Self {
-            key: vec![0, 32],
+            root_key: "".to_string(),
             mounted_paths: HashMap::new(),
         }
     }
 
     /// Derives a key from the secret and sets it.
-    pub fn set_new_secret(&mut self, secret: &str, salt: &str) -> Result<String> {
-        let hash_secret = Self::hash_secret(secret)?;
-        self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
-        Ok(hash_secret)
+    pub fn set_new_secret(&mut self, secret: &str, salt: &str, key: &str) -> Result<String> {
+        let secret_key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
+        let encrypted_key = self.encrypt_root_key(key, &secret_key)?;
+        self.root_key = key.to_string();
+        Ok(encrypted_key)
     }
 
     /// Checks if the secret is valid and sets the key.
-    pub fn check_set_secret(&mut self, secret: &str, hash: &str, salt: &str) -> Result<bool> {
-        let argon2 = Argon2::default();
-        let password_hash = PasswordHash::new(hash).unwrap();
-        let is_valid = argon2
-            .verify_password(secret.as_bytes(), &password_hash)
-            .is_ok();
+    pub fn check_set_secret(
+        &mut self,
+        secret: &str,
+        salt: &str,
+        encrypted_key: &str,
+    ) -> Result<bool> {
+        let derived_key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
+        let decrypt_result = self.decrypt_root_key(encrypted_key, &derived_key);
+        let is_valid = decrypt_result.is_ok();
         if is_valid {
-            self.key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
+            self.root_key = decrypt_result.unwrap()
         }
         Ok(is_valid)
-    }
-
-    /// Returns the secret key as a base58-encoded string.
-    pub fn get_secret_base58(&self) -> String {
-        let key = self.key.clone();
-        bs58::encode(key).into_string()
     }
 
     /// Adds a mounted path to the list of mounted paths.
@@ -99,18 +97,6 @@ impl UiApp {
     /// Removes a mounted child process by path and returns it.
     pub fn remove_mounted_child(&mut self, path: &str) -> Option<CommandChild> {
         self.mounted_paths.remove(path)
-    }
-
-    /// Hashes a secret using Argon2id.
-    fn hash_secret(secret: &str) -> Result<String> {
-        let argon2 = Self::generate_argon()?;
-
-        let salt = SaltString::generate(&mut OsRng);
-        let password_hash = argon2
-            .hash_password(secret.as_bytes(), &salt)
-            .unwrap()
-            .to_string();
-        Ok(password_hash)
     }
 
     /// Derives a key from the secret using Argon2id.
@@ -130,21 +116,24 @@ impl UiApp {
         Ok(argon2)
     }
 
+    pub fn get_root_key(&self) -> String {
+        self.root_key.clone()
+    }
+
     /// Encrypts a repository key using ChaCha20Poly1305.
-    pub fn encrypt_repo_key(&self, encoded_key: &str) -> Result<String> {
-        // Decode the base58-encoded key
-        let key = bs58::decode(encoded_key).into_vec().unwrap();
+    pub fn encrypt_root_key(&self, root_key: &str, secret_key: &Vec<u8>) -> Result<String> {
         // Generate a random salt
         let mut salt = [0u8; 32];
         let mut rng = rand::thread_rng();
         rng.fill_bytes(&mut salt);
         // Derive a key from the root key, salt, and repo name
-        let derived_key = Self::derive_key(&self.key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
+        let derived_key = Self::derive_key(secret_key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
         // Encrypt the key using ChaCha20Poly1305
         let cipher = ChaCha20Poly1305::new(&derived_key);
         let nonce = Nonce::from_slice(&[0u8; 12]); // 96-bit zroed nonce
+        let decoded_key = bs58::decode(root_key).into_vec().unwrap();
         let ciphertext = cipher
-            .encrypt(nonce, key.as_ref())
+            .encrypt(nonce, decoded_key.as_slice())
             .expect("encryption failure!");
         // Encode the salt and ciphertext as base58
         let salt_string = bs58::encode(salt).into_string();
@@ -155,9 +144,9 @@ impl UiApp {
     }
 
     /// Decrypts a repository key encrypted with ChaCha20Poly1305.
-    pub fn decrypt_repo_key(&self, encrypted_key: &str) -> Result<String> {
+    pub fn decrypt_root_key(&self, encrypted_root_key: &str, secret_key: &Vec<u8>) -> Result<String> {
         // Split the encrypted key into salt and ciphertext parts
-        let parts: Vec<&str> = encrypted_key.split(':').collect();
+        let parts: Vec<&str> = encrypted_root_key.split(':').collect();
         if parts.len() != 2 {
             return Err(anyhow!("Invalid encrypted key"));
         }
@@ -167,14 +156,16 @@ impl UiApp {
         let ciphertext = bs58::decode(parts[1]).into_vec().unwrap();
 
         // Derive the key using the same method as in encryption
-        let derived_key = Self::derive_key(&self.key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
+        let derived_key = Self::derive_key(secret_key, &salt, CHA_CHA20_POLY1350_V1_INFO)?;
 
         // Decrypt the ciphertext using ChaCha20Poly1305
         let cipher = ChaCha20Poly1305::new(&derived_key);
         let nonce = Nonce::from_slice(&[0u8; 12]); // 96-bit zeroed nonce, same as encryption
-        let unencrypted_key = cipher
-            .decrypt(nonce, ciphertext.as_ref())
-            .expect("decryption failure!");
+        let unencrypted_key_result = cipher.decrypt(nonce, ciphertext.as_ref());
+        if unencrypted_key_result.is_err() {
+            return Err(anyhow!("Error decrypting key"));
+        }
+        let unencrypted_key = unencrypted_key_result.unwrap();
 
         // Convert the unencrypted key to a base58-encoded string
         let unencrypted_encoded_key = bs58::encode(unencrypted_key).into_string();
