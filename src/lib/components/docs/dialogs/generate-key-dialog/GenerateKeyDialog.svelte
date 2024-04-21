@@ -10,20 +10,16 @@
     DialogFooter
   } from '$lib/components/ui/dialog/index.js';
   import { toast } from 'svelte-sonner';
-
-  import * as bip39 from '@scure/bip39';
-  import { wordlist } from '@scure/bip39/wordlists/english';
-  import bs58 from 'bs58';
-
+  import { generateRootKey } from '$api/crypto';
   export let open = false;
   let mnemonic = '';
   export let key: string = '';
   let temp_key: string = '';
 
   async function generateKey() {
-    mnemonic = bip39.generateMnemonic(wordlist, 128);
-    let bytes = (await bip39.mnemonicToSeed(mnemonic)).slice(0, 32);
-    temp_key = bs58.encode(bytes);
+    let res = await generateRootKey();
+    temp_key = res.privateKey;
+    mnemonic = res.mnemonic;
   }
 
   function useClose() {
