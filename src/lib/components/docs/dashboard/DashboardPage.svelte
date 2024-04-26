@@ -72,7 +72,13 @@
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
-    let repository = await app.addFolderToRepositories(repositoryPath);
+    if (_app.repositories.some((repo) => repo.path === repositoryPath)) {
+      toast.error('Repository already exists', {
+        description: 'The repository is already added to the list'
+      });
+      return;
+    }
+    let repository = await _app.addFolderToRepositories(repositoryPath);
     if (repository.status.is_empty === true) {
       openEmptyRepositoryDialog = true;
       selectedRepository = repository;
