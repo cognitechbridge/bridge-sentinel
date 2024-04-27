@@ -770,6 +770,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cryptoxide"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "382ce8820a5bb815055d3553a610e8cb542b2d767bbacea99038afda96cd760d"
+
+[[package]]
 name = "cssparser"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -933,6 +939,16 @@ name = "dunce"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56ce8c6da7551ec6c462cbaf3bfbc75131ebbfa1c944aeaa9dab51ca1c5f0c3b"
+
+[[package]]
+name = "ed25519-bip32-core"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d35962ca39c3751fedb1e650e40a82f8a233f2332191e67f7f13abef39aedd69"
+dependencies = [
+ "cryptoxide",
+ "zeroize",
+]
 
 [[package]]
 name = "embed-resource"
@@ -3859,6 +3875,7 @@ dependencies = [
  "argon2",
  "bs58",
  "chacha20poly1305",
+ "ed25519-bip32-core",
  "hkdf",
  "rand 0.8.5",
  "serde",
