@@ -2,7 +2,8 @@
   import { dev } from '$app/environment';
   import '../styles/globals.css';
 
-  import { ExamplesNav, TailwindIndicator } from '$components/pages';
+  import { TailwindIndicator } from '$components/pages';
+  import { DevNav } from '$components/elements';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
   import LightSwitch from '$components/pages/light-switch/LightSwitch.svelte';
@@ -37,7 +38,7 @@
     <div class="pl-2 flex items-center p-1">
       <ChevronRight class="h-5 w-5 " />
 
-      <ExamplesNav data-tauri-drag-region class="pl-1" />
+      <DevNav data-tauri-drag-region class="pl-1" />
       <LightSwitch />
     </div>
   </div>
