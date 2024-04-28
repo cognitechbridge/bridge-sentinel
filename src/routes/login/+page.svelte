@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Button } from '$components/ui/button';
-  import UserAuthForm from './UserAuthForm.svelte';
+  import { LoginForm } from '$components/pages/login';
 </script>
 
 <div
@@ -33,7 +32,7 @@
         <h1 class="text-2xl font-semibold tracking-tight text-center">Login</h1>
         <p class="text-sm text-muted-foreground">Enter your secret (password) below to login.</p>
       </div>
-      <UserAuthForm />
+      <LoginForm />
     </div>
   </div>
 </div>
