@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Icons } from '$components/pages';
+  import { Icons } from '$components/elements';
   import { Button } from '$components/ui/button';
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
