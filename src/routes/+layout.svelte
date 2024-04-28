@@ -6,7 +6,7 @@
   import { DevNav } from '$components/elements';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
-  import LightSwitch from '$components/pages/light-switch/LightSwitch.svelte';
+  import { LightSwitch } from '$components/elements';
   import { Toaster } from '$components/ui/sonner';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
