@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Icons } from '$components/docs';
+  import { Icons } from '$components/pages';
   import { Button } from '$components/ui/button';
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
@@ -8,7 +8,7 @@
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
   import { app } from '$api/app';
-  import GenerateKeyDialog from '$components/docs/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
+  import GenerateKeyDialog from '$components/pages/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };

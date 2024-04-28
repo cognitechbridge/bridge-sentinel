@@ -2,10 +2,10 @@
   import { dev } from '$app/environment';
   import '../styles/globals.css';
 
-  import { ExamplesNav, TailwindIndicator } from '$components/docs';
+  import { ExamplesNav, TailwindIndicator } from '$components/pages';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
-  import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
+  import LightSwitch from '$components/pages/light-switch/LightSwitch.svelte';
   import { Toaster } from '$components/ui/sonner';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
