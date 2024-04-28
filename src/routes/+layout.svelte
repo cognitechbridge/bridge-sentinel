@@ -4,7 +4,7 @@
 
   import { ExamplesNav, TailwindIndicator } from '$components/docs';
   import { cn } from '$lib/utils';
-  import { Sailboat } from 'lucide-svelte';
+  import { ChevronRight } from 'lucide-svelte';
   import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
   import { Toaster } from '$components/ui/sonner';
   import { toast } from 'svelte-sonner';
@@ -35,7 +35,7 @@
 <div class="h-screen overflow-clip">
   <div class="ml-2">
     <div class="pl-2 flex items-center p-1">
-      <Sailboat class="h-5 w-5 " />
+      <ChevronRight class="h-5 w-5 " />
 
       <ExamplesNav data-tauri-drag-region class="pl-1" />
       <LightSwitch />
