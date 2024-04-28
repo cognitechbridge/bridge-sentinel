@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Button } from '$components/ui/button';
-  import UserAuthForm from './UserAuthForm.svelte';
+  import { UserAuthForm } from '$components/pages/authentication';
 </script>
 
 <div
