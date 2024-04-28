@@ -8,7 +8,7 @@
   import { cn } from '$lib/utils';
   import InputPassword from './InputPassword.svelte';
   import { app } from '$api/app';
-  import GenerateKeyDialog from '$components/pages/dialogs/generate-key-dialog/GenerateKeyDialog.svelte';
+  import GenerateKeyDialog from './GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
