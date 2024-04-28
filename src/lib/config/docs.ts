@@ -313,22 +313,18 @@ type Example = {
   name: string;
   href: string;
   label?: string;
-  code: string;
 };
 export const examples: Example[] = [
   {
     name: 'Dashboard',
-    href: '/dashboard',
-    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/lib/components/pages/dashboard'
+    href: '/dashboard'
   },
   {
     name: 'Authentication',
-    href: '/authentication',
-    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
+    href: '/register'
   },
   {
     name: 'Login',
-    href: '/login',
-    code: 'https://github.com/huntabyte/shadcn-svelte/tree/main/apps/www/src/routes/examples/authentication'
+    href: '/login'
   }
 ];

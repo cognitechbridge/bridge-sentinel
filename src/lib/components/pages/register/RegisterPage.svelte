@@ -1,5 +1,5 @@
 <script>
-  import UserAuthForm from './UserAuthForm.svelte';
+  import UserRegisterForm from './UserRegisterForm.svelte';
 </script>
 
 <div
@@ -34,7 +34,7 @@
           Enter your email and secret (password) below to setup the application.
         </p>
       </div>
-      <UserAuthForm />
+      <UserRegisterForm />
       <p class="px-8 text-center text-sm text-muted-foreground">
         By clicking continue, you agree to our Terms of Service and Privacy Policy.
       </p>

@@ -17,7 +17,7 @@
 
   onMount(async () => {
     let userData = await app.loadUserData();
-    !userData && goto('/authentication');
+    !userData && goto('/register');
   });
 
   async function onSubmit() {
