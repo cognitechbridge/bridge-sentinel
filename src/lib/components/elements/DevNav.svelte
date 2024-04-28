@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { examples } from '$lib/config/docs';
+  import { pages } from '$lib/config/pages';
   import { cn } from '$lib/utils';
 
   let className: string | undefined | null = undefined;
@@ -9,7 +9,7 @@
 
 <div class="w-full">
   <div class={cn('', className)} {...$$restProps}>
-    {#each examples as example, index (index)}
+    {#each pages as example, index (index)}
       <a
         href={example.href}
         class={cn(

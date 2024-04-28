@@ -1,9 +1,9 @@
-type Example = {
+type Page = {
   name: string;
   href: string;
   label?: string;
 };
-export const examples: Example[] = [
+export const pages: Page[] = [
   {
     name: 'Dashboard',
     href: '/dashboard'
