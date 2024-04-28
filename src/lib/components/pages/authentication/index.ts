@@ -1,2 +1,2 @@
 
-export { default as UserAuthForm } from "./UserAuthForm.svelte"
+export { default as AuthenticationPage } from "./AuthenticationPage.svelte"

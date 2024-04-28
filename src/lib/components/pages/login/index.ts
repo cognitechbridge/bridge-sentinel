@@ -1,2 +1,2 @@
 
-export { default as LoginForm } from "./LoginForm.svelte"
+export { default as LoginPage } from "./LoginPage.svelte"
