@@ -8,7 +8,6 @@ import { shortenFilePath } from "./utils";
 type RepositoryCore = {
     name: string;
     path: string;
-    salt: string;
 }
 
 type UserData = {
@@ -198,7 +197,6 @@ class App {
         let newRepo = {
             path: folderPath,
             name: folderPath.split('/').pop() || '',
-            salt: this.generateRandomString(32),
         };
         let extendedNewRepo = await this.extendRepository(newRepo);
         if (extendedNewRepo.status.is_valid === false) {
