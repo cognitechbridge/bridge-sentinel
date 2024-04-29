@@ -4,7 +4,7 @@
   import { open } from '@tauri-apps/api/dialog';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
-  import { app } from '$api/app';
+  import { app, repositories } from '$api/app';
   import { onMount } from 'svelte';
   import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
@@ -18,8 +18,6 @@
 
   let shareDialogOpen = false;
   let sharePath = '';
-
-  let _app = app;
 
   type instanceEvent = {
     args: string[];
@@ -35,7 +33,7 @@
         appWindow.setFocus();
         let fullPath = event.payload.args[2];
         let shareRepository =
-          _app.repositories.find(
+          $repositories.find(
             (repo) =>
               repo.mountPoint && repo.mountPoint === fullPath.slice(0, repo.mountPoint.length)
           ) || null;
@@ -62,23 +60,21 @@
     if (!selectedRepository) return;
     await app.initRepository(selectedRepository.path);
     await addRepository(selectedRepository.path);
-    _app = app;
   };
 
   async function loadRepositories() {
     await app.loadRepositories();
-    _app = app;
   }
 
   // Check if the repository is valid and add it to the repositories list if it is valid
   async function addRepository(repositoryPath: string) {
-    if (_app.repositories.some((repo) => repo.path === repositoryPath)) {
+    if ($repositories.some((repo) => repo.path === repositoryPath)) {
       toast.error('Repository already exists', {
         description: 'The repository is already added to the list'
       });
       return;
     }
-    let repository = await _app.addFolderToRepositories(repositoryPath);
+    let repository = await app.addFolderToRepositories(repositoryPath);
     if (repository.status.is_empty === true) {
       openEmptyRepositoryDialog = true;
       selectedRepository = repository;
@@ -97,10 +93,8 @@
   async function handleRemove(event: CustomEvent<Repository>) {
     await app.remove_repository(event.detail.path);
     loadRepositories();
-    selectedRepository = app.repositories[0] || null;
+    selectedRepository = $repositories[0] || null;
   }
-
-  $: repositories = _app.repositories;
 </script>
 
 <div class="flex-col md:flex">
@@ -110,7 +104,7 @@
     </div>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
       <div class="col-span-2 space-y-2">
-        {#each repositories as repository}
+        {#each $repositories as repository}
           <div
             class="rounded-md border px-4 py-3 font-mono text-sm {selectedRepository === repository
               ? 'bg-muted/50'

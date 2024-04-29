@@ -1,3 +1,5 @@
+import { get, writable } from 'svelte/store';
+
 import { Command } from '@tauri-apps/api/shell';
 import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
@@ -42,12 +44,12 @@ export type AccessList = {
 
 type MountResult = string;
 
+export let repositories = writable<Repository[]>([]);
+
 class App {
 
     // Store object to save and load data
     store = new Store("config.json");
-
-    repositories = [] as Repository[];
 
     constructor() {
     }
@@ -60,7 +62,7 @@ class App {
 
     // Function to mount a repository using App CLI
     async mountRepository(repositoryPath: string): Promise<MountResult> {
-        let repo = this.repositories.find((repo) => repo.path === repositoryPath);
+        let repo = get(repositories).find((repo) => repo.path === repositoryPath);
         if (!repo) {
             throw new Error("Repository not found");
         }
@@ -118,6 +120,7 @@ class App {
     async saveRepositories(repositories: RepositoryCore[]): Promise<void> {
         await this.store.set('repositories', repositories);
         await this.store.save();
+        this.loadRepositories();
     }
 
     // Function to load the list of repositories from the store
@@ -128,7 +131,7 @@ class App {
     // Function to retrieve the list of repositories
     async loadRepositories(): Promise<void> {
         let list = await this.loadCoreRepositories();
-        this.repositories = await Promise.all(list.map(repo => this.extendRepository(repo)));
+        repositories.set(await Promise.all(list.map(repo => this.extendRepository(repo))));
     }
 
     // Function to invoke a the ctb-cli with a given command and arguments
@@ -205,8 +208,4 @@ class App {
     }
 }
 
-let app = new App();
-
-export {
-    app
-};
+export let app = new App();
