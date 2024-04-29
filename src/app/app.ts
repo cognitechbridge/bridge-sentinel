@@ -184,8 +184,11 @@ class App {
     generateRandomString(length: number): string {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
+        const randomValues = new Uint8Array(length); // Create a typed array of the required length
+        crypto.getRandomValues(randomValues); // Populate it with cryptographically secure random values
+
         for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
+            const randomIndex = randomValues[i] % characters.length; // Use modulo to get a valid index
             result += characters.charAt(randomIndex);
         }
         return result;
