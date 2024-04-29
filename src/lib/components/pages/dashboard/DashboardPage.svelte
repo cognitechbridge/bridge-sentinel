@@ -13,6 +13,7 @@
   import { toast } from 'svelte-sonner';
 
   let selectedRepository: Repository | null = null;
+  let initRepository: Repository | null = null;
   let openInvalidRepositoryDialog = false;
   let openEmptyRepositoryDialog = false;
 
@@ -57,9 +58,9 @@
   };
 
   const initRepo = async () => {
-    if (!selectedRepository) return;
-    await app.initRepository(selectedRepository.path);
-    await addRepository(selectedRepository.path);
+    if (!initRepository) return;
+    await app.initRepository(initRepository.path);
+    await addRepository(initRepository.path);
   };
 
   async function loadRepositories() {
@@ -77,7 +78,7 @@
     let repository = await app.addFolderToRepositories(repositoryPath);
     if (repository.status.is_empty === true) {
       openEmptyRepositoryDialog = true;
-      selectedRepository = repository;
+      initRepository = repository;
       return;
     } else if (repository.status.is_valid === false) {
       openInvalidRepositoryDialog = true;
@@ -90,10 +91,11 @@
     selectedRepository = repository;
   };
 
-  async function handleRemove(event: CustomEvent<Repository>) {
-    await app.remove_repository(event.detail.path);
-    loadRepositories();
-    selectedRepository = $repositories[0] || null;
+  $: {
+    if (selectedRepository) {
+      selectedRepository =
+        $repositories.find((repo) => repo.path === selectedRepository?.path) || null;
+    }
   }
 </script>
 
@@ -156,7 +158,7 @@
                 />
               </TabsContent>
               <TabsContent value="setting" class="space-y-4">
-                <RepositorySettings repository={selectedRepository} on:remove={handleRemove} />
+                <RepositorySettings repository={selectedRepository} />
               </TabsContent>
             </Card>
           </Tabs>

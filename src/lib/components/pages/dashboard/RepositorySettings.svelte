@@ -4,13 +4,13 @@
   import { Button } from '$components/ui/button';
   import { createEventDispatcher } from 'svelte';
   import type { Repository } from '$api/app';
+  import { app } from '$api/app';
 
   export let repository: Repository | null = null;
 
-  const dispatch = createEventDispatcher();
-
-  function removeRepository() {
-    dispatch('remove', repository);
+  async function removeRepository() {
+    if (!repository) return;
+    await app.remove_repository(repository.path);
   }
 </script>
 
