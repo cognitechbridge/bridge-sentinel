@@ -134,7 +134,7 @@
           role="button"
           tabindex="0"
         >
-          Add new card
+          Add new repository
         </div>
       </div>
       <div class="col-span-6">
