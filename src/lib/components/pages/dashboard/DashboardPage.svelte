@@ -11,6 +11,7 @@
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
   import { listen } from '@tauri-apps/api/event';
   import { toast } from 'svelte-sonner';
+  import RepositoryTabs from './RepositoryTabs.svelte';
 
   let selectedRepository: Repository | null = null;
   let initRepository: Repository | null = null;
@@ -144,24 +145,7 @@
             </CardContent>
           </Card>
         {:else}
-          <Tabs value="overview" class="space-y-4">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="setting">Settings</TabsTrigger>
-            </TabsList>
-            <Card>
-              <TabsContent value="overview" class="space-y-4">
-                <RepositoryDashboard
-                  repository={selectedRepository}
-                  bind:shareDialogOpen
-                  bind:sharePath
-                />
-              </TabsContent>
-              <TabsContent value="setting" class="space-y-4">
-                <RepositorySettings repository={selectedRepository} />
-              </TabsContent>
-            </Card>
-          </Tabs>
+          <RepositoryTabs {selectedRepository} bind:shareDialogOpen bind:sharePath />
         {/if}
       </div>
     </div>
