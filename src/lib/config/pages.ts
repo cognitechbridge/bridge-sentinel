@@ -15,5 +15,9 @@ export const pages: Page[] = [
   {
     name: 'Login',
     href: '/login'
+  },
+  {
+    name: 'Login Clound',
+    href: '/login-cloud'
   }
 ];

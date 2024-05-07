@@ -91,6 +91,7 @@
       },
       "shell": {
         "sidecar": true,
+        "open": true,
         "scope": [
           {
             "name": "binaries/storage",
