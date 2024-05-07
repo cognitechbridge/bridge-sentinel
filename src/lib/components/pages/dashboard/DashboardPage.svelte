@@ -48,6 +48,18 @@
         selectedRepository = shareRepository;
         sharePath = fullPath.replace(shareRepository.mountPoint || '', '');
         shareDialogOpen = true;
+      } else if (event.payload.args.length == 3 && event.payload.args[1] == 'login-callback') {
+        appWindow.unminimize();
+        appWindow.setFocus();
+        let fullPath = event.payload.args[2];
+        const urlObj = new URL(fullPath);
+        const searchParams = urlObj.searchParams;
+        const access_token = searchParams.get('access_token');
+        if (access_token) {
+          console.log('access_token:', access_token);
+        }
+      } else {
+        console.log('new-instance:', event.payload.args);
       }
     });
   });
