@@ -12,44 +12,11 @@
 
   let r_verifier = '';
 
-  function base64URLEncode(buffer: ArrayBuffer) {
-    return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
-
-  async function sha256(buffer: ArrayBuffer) {
-    const hash = await crypto.subtle.digest('SHA-256', buffer);
-    console.log('hash:', hash);
-    return new Uint8Array(hash);
-  }
-
   async function generateChallenge(): Promise<{ verifier: string; challenge: string }> {
     console.log('---------------------------------');
-
-    const randomBuffer = crypto.getRandomValues(new Uint8Array(32));
-
-    console.log(
-      'randomBuffer:',
-      Array.from(randomBuffer)
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('')
-    );
-
-    let verifier = base64URLEncode(randomBuffer);
-    const hashed = await sha256(randomBuffer);
-    let challenge = base64URLEncode(hashed.buffer);
-
-    console.log(
-      'challenge:',
-      Array.from(hashed)
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('')
-    );
-    console.log('verifier:', verifier, 'challenge:', challenge);
-    verifier = 'pb9gASs8LDWb05tyuA58_HYK0_DQTsns1SrljQ_ia6E';
-    challenge = 'DEY8gKpdkS8CMv_-REzk64i5yTdPJz1hEotUvPo-kKA';
+    let r = await pkceChallenge();
+    let verifier = r.code_verifier;
+    let challenge = r.code_challenge;
     return { verifier, challenge };
   }
 
