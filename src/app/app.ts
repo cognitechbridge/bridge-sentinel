@@ -50,6 +50,10 @@ class App {
     // Store object to save and load data
     store = new Store("config.json");
 
+    // Token to authenticate the user
+    token: string = "";
+    refresh_token: string = "";
+
     constructor() {
     }
 
@@ -206,6 +210,11 @@ class App {
         repositories.push(newRepo);
         await this.saveRepositories(repositories);
         return extendedNewRepo;
+    }
+
+    saveToken(token: string, refresh_token: string) {
+        this.token = token;
+        this.refresh_token = refresh_token;
     }
 }
 

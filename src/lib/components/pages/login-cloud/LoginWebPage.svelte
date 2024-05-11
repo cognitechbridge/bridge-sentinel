@@ -4,16 +4,14 @@
   import { listen } from '@tauri-apps/api/event';
   import pkceChallenge from 'pkce-challenge';
   import axios from 'axios';
+  import { app } from '$api/app';
 
   type instanceEvent = {
     args: string[];
     cwd: string;
   };
 
-  let r_verifier = '';
-
   async function generateChallenge(): Promise<{ verifier: string; challenge: string }> {
-    console.log('---------------------------------');
     let r = await pkceChallenge();
     let verifier = r.code_verifier;
     let challenge = r.code_challenge;
@@ -38,7 +36,8 @@
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data);
+        app.saveToken(response.data.access_token, response.data.refresh_token);
+        //console.log(response.data.access_token);
       })
       .catch(function (error) {
         console.error(error);
@@ -47,7 +46,6 @@
 
   onMount(async () => {
     const { verifier, challenge } = await generateChallenge();
-    r_verifier = verifier;
     const callbackUrl = 'http://localhost:1323/callback';
     const apiAudience = 'https://cognitechbridge.com/api';
     const state = Math.random().toString(36).substring(2);
@@ -57,11 +55,9 @@
     url.searchParams.append('code_challenge_method', 'S256');
     url.searchParams.append('client_id', 'ZBRZXrV3FrzvZfO3Zz8OCnKEwXnyxrDf');
     url.searchParams.append('redirect_uri', callbackUrl);
-    url.searchParams.append('scope', 'profile');
+    url.searchParams.append('scope', 'profile offline_access');
     url.searchParams.append('audience', apiAudience);
     url.searchParams.append('state', state);
-
-    console.log('Navigate to:', url.toString());
 
     open(url.toString());
 
@@ -76,11 +72,8 @@
         const searchParams = urlObj.searchParams;
         const code = searchParams.get('code');
         if (code && searchParams.get('state') === state) {
-          console.log('Got code:', code);
-          get_token(code, r_verifier);
+          get_token(code, verifier);
         }
-      } else {
-        console.log('new-instance:', event.payload.args);
       }
     });
   });
