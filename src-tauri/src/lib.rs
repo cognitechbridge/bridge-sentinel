@@ -14,12 +14,22 @@ fn set_new_secret(secret: &str, salt: &str, root_key: &str) -> String {
     encrypted_key.to_string()
 }
 
+/// Encrypts the provided `plain` text using the provided `secret` and `salt`.
+/// Returns the encrypted text as a `String`.
+#[tauri::command]
+fn encrypt_by_secret(secret: &str, salt: &str, plain: &str) -> String {
+    let app = app::get_ui_app();
+    let encrypted = app.encrypt_by_secret(secret, salt, plain).unwrap();
+    encrypted.to_string()
+}
+
 /// Checks if the provided `secret` matches the `hash` and `salt`.
 /// Returns `true` if the secret matches, `false` otherwise.
 #[tauri::command]
 fn check_set_secret(secret: &str, salt: &str, encrypted_root_key: &str) -> bool {
     let app = app::get_ui_app();
-    app.check_set_secret(secret, salt, encrypted_root_key).unwrap()
+    app.check_set_secret(secret, salt, encrypted_root_key)
+        .unwrap()
 }
 
 /// Mounts the specified `path` asynchronously.
@@ -166,6 +176,7 @@ pub fn run() {
         }))
         .invoke_handler(tauri::generate_handler![
             set_new_secret,
+            encrypt_by_secret,
             check_set_secret,
             mount,
             unmount,

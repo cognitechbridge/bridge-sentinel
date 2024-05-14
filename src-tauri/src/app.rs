@@ -65,6 +65,13 @@ impl UiApp {
         Ok(encrypted_key)
     }
 
+    /// Encrypts a key using a key derived from the secret.
+    pub fn encrypt_by_secret(&self, secret: &str, salt: &str, plain: &str) -> Result<String> {
+        let secret_key = Self::derive_key_from_secret(secret, salt.as_bytes())?;
+        let encrypted = self.encrypt_plain_by_key(&plain.as_bytes().to_vec(), &secret_key)?;
+        Ok(encrypted)
+    }
+
     /// Checks if the secret is valid and sets the key.
     pub fn check_set_secret(
         &mut self,
@@ -117,8 +124,8 @@ impl UiApp {
         self.root_key.clone()
     }
 
-    /// Encrypts a repository key using ChaCha20Poly1305.
-    pub fn encrypt_root_key(&self, root_key: &str, secret_key: &[u8]) -> Result<String> {
+    /// Encrypts a plain text using ChaCha20Poly1305.
+    pub fn encrypt_plain_by_key(&self, plain: &Vec<u8>, secret_key: &[u8]) -> Result<String> {
         // Generate a random salt
         let mut salt = [0u8; 32];
         let mut rng = rand::thread_rng();
@@ -128,9 +135,8 @@ impl UiApp {
         // Encrypt the key using ChaCha20Poly1305
         let cipher = ChaCha20Poly1305::new(&derived_key);
         let nonce = Nonce::from_slice(&[0u8; 12]); // 96-bit zroed nonce
-        let decoded_key = bs58::decode(root_key).into_vec().unwrap();
         let ciphertext = cipher
-            .encrypt(nonce, decoded_key.as_slice())
+            .encrypt(nonce, plain.as_slice())
             .expect("encryption failure!");
         // Encode the salt and ciphertext as base58
         let salt_string = bs58::encode(salt).into_string();
@@ -138,6 +144,12 @@ impl UiApp {
         // Combine the salt and ciphertext
         let encrypted_key = format!("{}:{}", salt_string, ciphertext_string);
         Ok(encrypted_key)
+    }
+
+    /// Encrypts a repository key using ChaCha20Poly1305.
+    pub fn encrypt_root_key(&self, root_key: &str, secret_key: &[u8]) -> Result<String> {
+        let decoded_key = bs58::decode(root_key).into_vec().unwrap();
+        self.encrypt_plain_by_key(&decoded_key, secret_key)
     }
 
     /// Decrypts a repository key encrypted with ChaCha20Poly1305.

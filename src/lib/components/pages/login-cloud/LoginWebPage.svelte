@@ -5,6 +5,9 @@
   import pkceChallenge from 'pkce-challenge';
   import axios from 'axios';
   import { app } from '$api/app';
+  import { Button } from '$components/ui/button';
+  import LoginSide from '../login-shared/LoginSide.svelte';
+  import { goto } from '$app/navigation';
 
   type instanceEvent = {
     args: string[];
@@ -19,7 +22,6 @@
   }
 
   async function get_token(code: string, verifier: string) {
-    console.log('get_token:', code, 'verifier:', verifier);
     var options = {
       method: 'POST',
       url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
@@ -37,14 +39,14 @@
       .request(options)
       .then(function (response) {
         app.saveToken(response.data.access_token, response.data.refresh_token);
-        //console.log(response.data.access_token);
+        goto('/login');
       })
       .catch(function (error) {
         console.error(error);
       });
   }
 
-  onMount(async () => {
+  async function loginWeb() {
     const { verifier, challenge } = await generateChallenge();
     const callbackUrl = 'http://localhost:1323/callback';
     const apiAudience = 'https://cognitechbridge.com/api';
@@ -76,7 +78,19 @@
         }
       }
     });
-  });
+  }
+
+  onMount(async () => {});
 </script>
 
-<a href="https://example.com" target="_blank">Open in new tab</a>
+<LoginSide>
+  <div class="px-5">
+    <di class="flex justify-center">
+      <h1 class="text-2xl font-bold py-3">Login to CTB Cloud</h1>
+    </di>
+    <p>First you need to login to CTB Cloud to access the web version of the app.</p>
+    <div class="flex justify-center py-3">
+      <Button on:click={loginWeb}>Login to CTB Cloud</Button>
+    </div>
+  </div>
+</LoginSide>

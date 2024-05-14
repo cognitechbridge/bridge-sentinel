@@ -18,17 +18,35 @@
   onMount(async () => {
     let userData = await app.loadUserData();
     !userData && goto('/register');
+    if (
+      userData?.use_cloud &&
+      // Check if the user has a valid encrypted refresh token or a valid token (Logged in before)
+      !((await app.has_valid_encrypted_refresh_token()) && !app.has_valid_token())
+    ) {
+      goto('/login-cloud');
+    }
   });
 
   async function onSubmit() {
     isLoading = true;
     let res = await app.login(secret);
     if (res === false) {
-      toast.error('Invlid secret', {
+      toast.error('Invalid secret', {
         description: 'Please try again'
       });
     } else {
-      goto('/dashboard');
+      let userData = await app.loadUserData();
+      if (userData?.use_cloud) {
+        // Check if the user has a valid token (Logged in before)
+        if (app.has_valid_token()) {
+          // If the user has already a valid token, save the refresh token
+          app.save_refresh_token(secret);
+        } else {
+          // Restore the encrypted refresh token
+          await app.restore_encrypted_refresh_token(secret);
+        }
+      }
+      //goto('/dashboard');
     }
     isLoading = false;
   }
