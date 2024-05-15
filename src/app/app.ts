@@ -227,7 +227,7 @@ class App {
 
     // Function to save the the refresh token in the store
     async save_refresh_token(secret: string): Promise<void> {
-        let salt = this.generateRandomString(32);
+        let salt = (await this.store.get('user_data') as UserData).salt;
         let encrypted_refresh_token = await invoke('encrypt_by_secret', { secret: secret, salt: salt, plain: this.refresh_token }) as string;
         if (encrypted_refresh_token.length === 0) {
             console.error("Failed to set secret");
@@ -235,6 +235,15 @@ class App {
         console.log("Encrypted refresh token: ", encrypted_refresh_token);
         await this.store.set('encrypted_refresh_token', encrypted_refresh_token);
         await this.store.save();
+    }
+
+    // Function to restore the refresh token from the store and decrypt it
+    async restore_refresh_token(secret: string): Promise<string> {
+        let salt = (await this.store.get('user_data') as UserData).salt;
+        let encrypted_refresh_token = await this.store.get('encrypted_refresh_token') as string;
+        let refresh_token = await invoke('decrypt_by_secret', { secret: secret, salt: salt, encrypted: encrypted_refresh_token }) as string;
+        this.refresh_token = refresh_token;
+        return refresh_token;
     }
 }
 

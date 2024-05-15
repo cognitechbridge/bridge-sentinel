@@ -21,7 +21,8 @@
     if (
       userData?.use_cloud &&
       // Check if the user has a valid encrypted refresh token or a valid token (Logged in before)
-      !((await app.has_valid_encrypted_refresh_token()) && !app.has_valid_token())
+      !(await app.has_valid_encrypted_refresh_token()) &&
+      !app.has_valid_token()
     ) {
       goto('/login-cloud');
     }
@@ -43,7 +44,7 @@
           app.save_refresh_token(secret);
         } else {
           // Restore the encrypted refresh token
-          await app.restore_encrypted_refresh_token(secret);
+          await app.restore_refresh_token(secret);
         }
       }
       //goto('/dashboard');

@@ -39,6 +39,7 @@
       .request(options)
       .then(function (response) {
         app.saveToken(response.data.access_token, response.data.refresh_token);
+        console.log(response.data);
         goto('/login');
       })
       .catch(function (error) {
