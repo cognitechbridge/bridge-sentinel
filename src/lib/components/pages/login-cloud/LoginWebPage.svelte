@@ -22,6 +22,8 @@
   }
 
   async function get_token(code: string, verifier: string) {
+    let email = await app.get_user_email();
+
     var options = {
       method: 'POST',
       url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
@@ -37,11 +39,15 @@
 
     axios
       .request(options)
-      .then(function (response) {
-        app.saveToken(response.data.access_token, response.data.refresh_token);
-        console.log(response.data);
-        goto('/login');
-      })
+      .then(
+        await async function (response) {
+          app.saveToken(response.data.access_token, response.data.refresh_token);
+          console.log(response.data);
+          let salt = await app.client.get_user_salt(email);
+          console.log(salt);
+          goto('/login');
+        }
+      )
       .catch(function (error) {
         console.error(error);
       });
@@ -58,7 +64,7 @@
     url.searchParams.append('code_challenge_method', 'S256');
     url.searchParams.append('client_id', 'ZBRZXrV3FrzvZfO3Zz8OCnKEwXnyxrDf');
     url.searchParams.append('redirect_uri', callbackUrl);
-    url.searchParams.append('scope', 'profile offline_access');
+    url.searchParams.append('scope', 'openid email offline_access');
     url.searchParams.append('audience', apiAudience);
     url.searchParams.append('state', state);
 

@@ -20,9 +20,8 @@
     !userData && goto('/register');
     if (
       userData?.use_cloud &&
-      // Check if the user has a valid encrypted refresh token or a valid token (Logged in before)
-      !(await app.has_valid_encrypted_refresh_token()) &&
-      !app.has_valid_token()
+      // Check if the user has a valid recoverable refresh token
+      !(await app.user_has_recoverable_refresh_token())
     ) {
       goto('/login-cloud');
     }

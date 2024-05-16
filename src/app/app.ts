@@ -1,5 +1,6 @@
 import { get, writable } from 'svelte/store';
 
+import { AppCloudClient } from './app_cloud_client';
 import { Command } from '@tauri-apps/api/shell';
 import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
@@ -50,6 +51,8 @@ class App {
 
     // Store object to save and load data
     store = new Store("config.json");
+
+    client = new AppCloudClient();
 
     // Token to authenticate the user
     token: string = "";
@@ -212,12 +215,31 @@ class App {
     }
 
     saveToken(token: string, refresh_token: string) {
+        console.log("Token: ", token);
         this.token = token;
         this.refresh_token = refresh_token;
     }
 
+    async get_user_email(): Promise<string> {
+        let user_data = await this.store.get('user_data') as UserData;
+        return user_data.email;
+    }
+
     has_valid_token(): boolean {
         return (this.token.length > 0) && (this.refresh_token.length > 0);
+    }
+
+    async has_valid_salt(): Promise<boolean> {
+        let user_data = await this.store.get('user_data') as UserData;
+        return user_data.salt.length > 0;
+    }
+
+    async user_has_recoverable_refresh_token(): Promise<boolean> {
+        if (this.refresh_token.length > 0)
+            return true;
+        if (await this.has_valid_salt() && await this.has_valid_encrypted_refresh_token())
+            return true;
+        return false;
     }
 
     async has_valid_encrypted_refresh_token(): Promise<boolean> {
