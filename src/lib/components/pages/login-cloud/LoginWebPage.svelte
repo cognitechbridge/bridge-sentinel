@@ -22,35 +22,14 @@
   }
 
   async function get_token(code: string, verifier: string) {
-    let email = await app.get_user_email();
-
-    var options = {
-      method: 'POST',
-      url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      data: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: 'ZBRZXrV3FrzvZfO3Zz8OCnKEwXnyxrDf',
-        code_verifier: verifier,
-        code: code,
-        redirect_uri: 'http://localhost:1323/callback'
-      })
-    };
-
-    axios
-      .request(options)
-      .then(
-        await async function (response) {
-          app.saveToken(response.data.access_token, response.data.refresh_token);
-          console.log(response.data);
-          let salt = await app.client.get_user_salt(email);
-          app.update_salt_if_needed(salt);
-          goto('/login');
-        }
-      )
-      .catch(function (error) {
-        console.error(error);
-      });
+    let tokens = await app.client.get_tokens(code, verifier);
+    if (!tokens) {
+      console.error('Failed to get tokens');
+      return;
+    }
+    console.log('Got tokens', tokens);
+    app.get_save_user_details();
+    goto('/login');
   }
 
   async function loginWeb() {

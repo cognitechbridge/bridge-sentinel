@@ -276,6 +276,13 @@ class App {
             await this.store.save();
         }
     }
+
+    // Function to get and save the user details
+    async get_save_user_details() {
+        let email = await this.get_user_email();
+        let salt = await this.client.get_user_salt(email);
+        this.update_salt_if_needed(salt);
+    }
 }
 
 export let app = new App();
