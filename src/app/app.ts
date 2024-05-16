@@ -254,7 +254,6 @@ class App {
         if (encrypted_refresh_token.length === 0) {
             console.error("Failed to set secret");
         }
-        console.log("Encrypted refresh token: ", encrypted_refresh_token);
         await this.store.set('encrypted_refresh_token', encrypted_refresh_token);
         await this.store.save();
     }
@@ -266,6 +265,16 @@ class App {
         let refresh_token = await invoke('decrypt_by_secret', { secret: secret, salt: salt, encrypted: encrypted_refresh_token }) as string;
         this.refresh_token = refresh_token;
         return refresh_token;
+    }
+
+    // Update the salt in the store if it is different from the given salt
+    async update_salt_if_needed(salt: string): Promise<void> {
+        let user_data = await this.store.get('user_data') as UserData;
+        if (user_data.salt !== salt) {
+            user_data.salt = salt;
+            await this.store.set('user_data', user_data);
+            await this.store.save();
+        }
     }
 }
 

@@ -44,7 +44,7 @@
           app.saveToken(response.data.access_token, response.data.refresh_token);
           console.log(response.data);
           let salt = await app.client.get_user_salt(email);
-          console.log(salt);
+          app.update_salt_if_needed(salt);
           goto('/login');
         }
       )
