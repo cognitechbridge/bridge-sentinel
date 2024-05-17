@@ -15,6 +15,7 @@ type UserData = {
     email: string;
     salt: string;
     use_cloud?: boolean;
+    encrypted_key?: string;
 }
 
 export type Repository = RepositoryCore & {
@@ -164,10 +165,10 @@ class App {
         }
         let userData: UserData = {
             email: email,
-            salt: salt
+            salt: salt,
+            encrypted_key: encrypted_key,
         };
         await this.store.set('user_data', userData);
-        await this.store.set('encrypted_key', encrypted_key);
         await this.store.save();
     }
 
@@ -233,8 +234,8 @@ class App {
         if (user_data.use_cloud) {
             return await this.client.get_encrypted_private_key(email);
         }
-        let encrypted_key = await this.store.get('encrypted_key') as string;
-        return encrypted_key;
+        let encrypted_key = user_data.encrypted_key;
+        return encrypted_key || '';
     }
 }
 
