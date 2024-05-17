@@ -51,11 +51,8 @@ class App {
     // Store object to save and load data
     store = new Store("config.json");
 
+    // Cloud client object to interact with the cloud
     client = new AppCloudClient(this.store);
-
-    // Token to authenticate the user
-    //token: string = "";
-    //refresh_token: string = "";
 
     constructor() {
     }
@@ -170,7 +167,7 @@ class App {
         await this.store.save();
     }
 
-    // Function to save the user data
+    // Function to login the user using a secret
     async login(secret: string): Promise<boolean> {
         let salt = await this.get_user_salt();
         let encryptedRootKey = await this.get_user_encrypted_key();
@@ -184,7 +181,7 @@ class App {
     }
 
     // Function to generate a random string with a given length
-    generateRandomString(length: number): string {
+    private generateRandomString(length: number): string {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
         const randomValues = new Uint8Array(length); // Create a typed array of the required length
@@ -197,6 +194,7 @@ class App {
         return result;
     }
 
+    // Function to add a folder to the list of repositories
     async addFolderToRepositories(folderPath: string): Promise<Repository> {
         let newRepo = {
             path: folderPath,
@@ -212,20 +210,24 @@ class App {
         return extendedNewRepo;
     }
 
+    // Get the email of the user from the store
+    // @TODO: Get the email from the id token
     async get_user_email(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
         return user_data.email;
     }
 
+    // Get the salt of the user from the cloud or from the store
     async get_user_salt(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
-        let email = user_data.email;
+        let email = await this.get_user_email();
         if (await this.get_use_cloud()) {
             return await this.client.get_user_salt(email);
         }
         return user_data.salt;
     }
 
+    // Get the encrypted key of the user from the cloud or from the store
     async get_user_encrypted_key(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
         let email = user_data.email;
@@ -236,11 +238,13 @@ class App {
         return encrypted_key || '';
     }
 
+    // Check if the use enabled the cloud
     async get_use_cloud(): Promise<boolean> {
         let use_cloud = await this.store.get('use_cloud') as boolean;
         return use_cloud;
     }
 
+    // Check if the user is required to login to the cloud (if the cloud is enabled and the user is not logged in)
     async needs_login_to_cloud(): Promise<boolean> {
         return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
     }
