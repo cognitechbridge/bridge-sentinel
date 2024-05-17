@@ -21,7 +21,7 @@
     if (
       userData?.use_cloud &&
       // Check if the user has a valid recoverable refresh token
-      !(await app.user_has_recoverable_refresh_token())
+      !(await app.client.has_any_access_token())
     ) {
       goto('/login-cloud');
     }
@@ -37,14 +37,7 @@
     } else {
       let userData = await app.loadUserData();
       if (userData?.use_cloud) {
-        // Check if the user has a valid token (Logged in before)
-        if (app.has_valid_token()) {
-          // If the user has already a valid token, save the refresh token
-          app.save_refresh_token(secret);
-        } else {
-          // Restore the encrypted refresh token
-          await app.restore_refresh_token(secret);
-        }
+        app.get_save_user_details();
       }
       //goto('/dashboard');
     }

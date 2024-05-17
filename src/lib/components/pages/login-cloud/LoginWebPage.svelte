@@ -27,7 +27,6 @@
       console.error('Failed to get tokens');
       return;
     }
-    console.log('Got tokens', tokens);
     app.get_save_user_details();
     goto('/login');
   }

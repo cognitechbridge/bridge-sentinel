@@ -52,11 +52,11 @@ class App {
     // Store object to save and load data
     store = new Store("config.json");
 
-    client = new AppCloudClient();
+    client = new AppCloudClient(this.store);
 
     // Token to authenticate the user
-    token: string = "";
-    refresh_token: string = "";
+    //token: string = "";
+    //refresh_token: string = "";
 
     constructor() {
     }
@@ -214,57 +214,14 @@ class App {
         return extendedNewRepo;
     }
 
-    saveToken(token: string, refresh_token: string) {
-        console.log("Token: ", token);
-        this.token = token;
-        this.refresh_token = refresh_token;
-    }
-
     async get_user_email(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
         return user_data.email;
     }
 
-    has_valid_token(): boolean {
-        return (this.token.length > 0) && (this.refresh_token.length > 0);
-    }
-
     async has_valid_salt(): Promise<boolean> {
         let user_data = await this.store.get('user_data') as UserData;
         return user_data.salt.length > 0;
-    }
-
-    async user_has_recoverable_refresh_token(): Promise<boolean> {
-        if (this.refresh_token.length > 0)
-            return true;
-        if (await this.has_valid_salt() && await this.has_valid_encrypted_refresh_token())
-            return true;
-        return false;
-    }
-
-    async has_valid_encrypted_refresh_token(): Promise<boolean> {
-        let encrypted_refresh_token = await this.store.get('encrypted_refresh_token') as string;
-        return encrypted_refresh_token.length > 0;
-    }
-
-    // Function to save the the refresh token in the store
-    async save_refresh_token(secret: string): Promise<void> {
-        let salt = (await this.store.get('user_data') as UserData).salt;
-        let encrypted_refresh_token = await invoke('encrypt_by_secret', { secret: secret, salt: salt, plain: this.refresh_token }) as string;
-        if (encrypted_refresh_token.length === 0) {
-            console.error("Failed to set secret");
-        }
-        await this.store.set('encrypted_refresh_token', encrypted_refresh_token);
-        await this.store.save();
-    }
-
-    // Function to restore the refresh token from the store and decrypt it
-    async restore_refresh_token(secret: string): Promise<string> {
-        let salt = (await this.store.get('user_data') as UserData).salt;
-        let encrypted_refresh_token = await this.store.get('encrypted_refresh_token') as string;
-        let refresh_token = await invoke('decrypt_by_secret', { secret: secret, salt: salt, encrypted: encrypted_refresh_token }) as string;
-        this.refresh_token = refresh_token;
-        return refresh_token;
     }
 
     // Update the salt in the store if it is different from the given salt
