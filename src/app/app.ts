@@ -1,7 +1,6 @@
 import { get, writable } from 'svelte/store';
 
 import { AppCloudClient } from './app_cloud_client';
-import { Command } from '@tauri-apps/api/shell';
 import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from "./utils";
@@ -14,7 +13,6 @@ type RepositoryCore = {
 type UserData = {
     email: string;
     salt: string;
-    use_cloud?: boolean;
     encrypted_key?: string;
 }
 
@@ -222,7 +220,7 @@ class App {
     async get_user_salt(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
         let email = user_data.email;
-        if (user_data.use_cloud) {
+        if (await this.get_use_cloud()) {
             return await this.client.get_user_salt(email);
         }
         return user_data.salt;
@@ -231,11 +229,20 @@ class App {
     async get_user_encrypted_key(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
         let email = user_data.email;
-        if (user_data.use_cloud) {
+        if (await this.get_use_cloud()) {
             return await this.client.get_encrypted_private_key(email);
         }
         let encrypted_key = user_data.encrypted_key;
         return encrypted_key || '';
+    }
+
+    async get_use_cloud(): Promise<boolean> {
+        let use_cloud = await this.store.get('use_cloud') as boolean;
+        return use_cloud;
+    }
+
+    async needs_login_to_cloud(): Promise<boolean> {
+        return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
     }
 }
 

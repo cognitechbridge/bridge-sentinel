@@ -18,11 +18,7 @@
   onMount(async () => {
     let userData = await app.loadUserData();
     !userData && goto('/register');
-    if (
-      userData?.use_cloud &&
-      // Check if the user has a valid recoverable refresh token
-      !(await app.client.has_any_access_token())
-    ) {
+    if (await app.needs_login_to_cloud()) {
       goto('/login-cloud');
     }
   });
