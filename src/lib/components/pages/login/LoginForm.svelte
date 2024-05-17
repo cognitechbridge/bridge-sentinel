@@ -35,11 +35,7 @@
         description: 'Please try again'
       });
     } else {
-      let userData = await app.loadUserData();
-      if (userData?.use_cloud) {
-        app.get_save_user_details();
-      }
-      //goto('/dashboard');
+      goto('/dashboard');
     }
     isLoading = false;
   }

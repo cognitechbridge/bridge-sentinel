@@ -173,9 +173,8 @@ class App {
 
     // Function to save the user data
     async login(secret: string): Promise<boolean> {
-        let user_data = await this.store.get('user_data') as UserData;
-        let salt = user_data.salt;
-        let encryptedRootKey = await this.store.get('encrypted_key') as string;
+        let salt = await this.get_user_salt();
+        let encryptedRootKey = await this.get_user_encrypted_key();
         let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedRootKey: encryptedRootKey }) as boolean;
         return res;
     }
@@ -219,26 +218,23 @@ class App {
         return user_data.email;
     }
 
-    async has_valid_salt(): Promise<boolean> {
+    async get_user_salt(): Promise<string> {
         let user_data = await this.store.get('user_data') as UserData;
-        return user_data.salt.length > 0;
-    }
-
-    // Update the salt in the store if it is different from the given salt
-    async update_salt_if_needed(salt: string): Promise<void> {
-        let user_data = await this.store.get('user_data') as UserData;
-        if (user_data.salt !== salt) {
-            user_data.salt = salt;
-            await this.store.set('user_data', user_data);
-            await this.store.save();
+        let email = user_data.email;
+        if (user_data.use_cloud) {
+            return await this.client.get_user_salt(email);
         }
+        return user_data.salt;
     }
 
-    // Function to get and save the user details
-    async get_save_user_details() {
-        let email = await this.get_user_email();
-        let salt = await this.client.get_user_salt(email);
-        this.update_salt_if_needed(salt);
+    async get_user_encrypted_key(): Promise<string> {
+        let user_data = await this.store.get('user_data') as UserData;
+        let email = user_data.email;
+        if (user_data.use_cloud) {
+            return await this.client.get_encrypted_private_key(email);
+        }
+        let encrypted_key = await this.store.get('encrypted_key') as string;
+        return encrypted_key;
     }
 }
 

@@ -1,6 +1,6 @@
 import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
-import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
 
 interface Tokens {
     access_token: string;
@@ -20,7 +20,26 @@ export class AppCloudClient {
     }
 
     async get_user_salt(email: string): Promise<string> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
         const response = await axios.get(this.baseURL + 'user/salt', {
+            headers: headers,
+            params: {
+                email: email
+            }
+        });
+        return response.data;
+    }
+
+    async get_encrypted_private_key(email: string): Promise<string> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await axios.get(this.baseURL + 'user/priv', {
+            headers: headers,
             params: {
                 email: email
             }
@@ -117,7 +136,7 @@ export class AppCloudClient {
     }
 
     async has_any_access_token(): Promise<boolean> {
-        return (await this.has_refresh_token()) || this.has_access_token();
+        return this.has_access_token() || (await this.has_refresh_token());
     }
 
     async has_refresh_token(): Promise<boolean> {
@@ -145,8 +164,8 @@ export class AppCloudClient {
 }
 
 function is_valid_jwt(token: string): boolean {
-    const decodedToken = jwt_decode(token);
-    if (!decodedToken) {
+    const decodedToken = jwtDecode(token);
+    if (!decodedToken || !decodedToken.exp) {
         return false;
     }
     const expirationTime = decodedToken.exp * 1000; // Convert expiration time to milliseconds
@@ -155,15 +174,5 @@ function is_valid_jwt(token: string): boolean {
         return false;
     } else {
         return true;
-    }
-}
-
-function jwt_decode(token: string) {
-    try {
-        const decoded = jwt.decode(token, { complete: true });
-        return decoded;
-    } catch (err) {
-        console.log(err);
-        return null;
     }
 }
