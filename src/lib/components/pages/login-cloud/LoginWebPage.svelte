@@ -27,8 +27,11 @@
       console.error('Failed to get tokens');
       return;
     }
-    app.get_save_user_details();
-    goto('/login');
+    if (await app.is_user_registered()) {
+      goto('/login');
+    } else {
+      goto('/register-cloud');
+    }
   }
 
   async function loginWeb() {

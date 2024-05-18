@@ -19,6 +19,25 @@ export class AppCloudClient {
         this.store = store;
     }
 
+    async is_user_registered(email: string): Promise<boolean> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        let response;
+        try {
+            response = await axios.get(this.baseURL + 'user/salt', {
+                headers: headers,
+                params: {
+                    email: email
+                }
+            })
+        } catch (error) {
+            return false;
+        }
+        return response.status === 200 ? true : false;
+    }
+
     async get_user_salt(email: string): Promise<string> {
         const token = await this.get_token();
         const headers = {
@@ -160,6 +179,23 @@ export class AppCloudClient {
             return this.token;
         }
         return '';
+    }
+
+    // Register a user using email, public key, private key and salt
+    async register_user(email: string, pub_key: string, priv_key: string, salt: string): Promise<boolean> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await axios.post(this.baseURL + 'user/register', {
+            email: email,
+            pub_key: pub_key,
+            priv_key: priv_key,
+            salt: salt
+        }, {
+            headers: headers
+        });
+        return response.status === 200 ? true : false;
     }
 }
 

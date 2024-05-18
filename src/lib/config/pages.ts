@@ -9,8 +9,12 @@ export const pages: Page[] = [
     href: '/dashboard'
   },
   {
-    name: 'Authentication',
+    name: 'Sign Up',
     href: '/register'
+  },
+  {
+    name: 'Sign Up Could',
+    href: '/register-cloud'
   },
   {
     name: 'Login',

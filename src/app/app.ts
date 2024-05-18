@@ -167,6 +167,18 @@ class App {
         await this.store.save();
     }
 
+    // Function to register a user using email, public key, private key and salt
+    async registerUserCloud(secret: string, rootKey: string): Promise<boolean> {
+        let email = await this.get_user_email();
+
+        let salt = this.generateRandomString(32);
+        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
+        if (encrypted_key.length === 0) {
+            console.error("Failed to set secret");
+        }
+        return await this.client.register_user(email, "publicKey", encrypted_key, salt);
+    }
+
     // Function to login the user using a secret
     async login(secret: string): Promise<boolean> {
         let salt = await this.get_user_salt();
@@ -247,6 +259,11 @@ class App {
     // Check if the user is required to login to the cloud (if the cloud is enabled and the user is not logged in)
     async needs_login_to_cloud(): Promise<boolean> {
         return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
+    }
+
+    async is_user_registered(): Promise<boolean> {
+        let email = await this.get_user_email();
+        return await this.client.is_user_registered(email);
     }
 }
 
