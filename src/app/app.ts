@@ -106,6 +106,12 @@ class App {
         return res;
     }
 
+    // Function to get the public key of a private key
+    async getPublicKey(privateKey: string): Promise<AppResult<string>> {
+        let res = await this.invokeCli<string>('get_public_key', { privateKey: privateKey });
+        return res;
+    }
+
     // Function to extend a repository object with additional properties
     async extendRepository(repo: RepositoryCore): Promise<Repository> {
         let shortenPath = shortenFilePath(repo.path);
@@ -176,7 +182,8 @@ class App {
         if (encrypted_key.length === 0) {
             console.error("Failed to set secret");
         }
-        return await this.client.register_user(email, "publicKey", encrypted_key, salt);
+        let publicKey = (await this.getPublicKey(rootKey)).result;
+        return await this.client.register_user(email, publicKey, encrypted_key, salt);
     }
 
     // Function to login the user using a secret

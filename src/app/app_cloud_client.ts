@@ -108,7 +108,6 @@ export class AppCloudClient {
     // Get user tokens using refresh token
     async use_refresh_token(refresh_token: string): Promise<Tokens | null> {
         console.log('Using refresh token: ' + refresh_token);
-        console.trace();
         var options = {
             method: 'POST',
             url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',

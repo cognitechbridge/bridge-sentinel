@@ -148,6 +148,14 @@ async fn list_access(repo_path: String, path: String) -> String {
     res
 }
 
+/// Gets the public key of the specified `root_key` asynchronously.
+/// Returns the status as a `String`.
+#[tauri::command]
+async fn get_public_key(private_key: String) -> String {
+    let (res, _) = spawn_sidecar(["pubkey", "-k", &private_key, "-o", "json"]).await;
+    res
+}
+
 /// Spawns a sidecar process with the provided arguments asynchronously.
 /// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
@@ -192,7 +200,8 @@ pub fn run() {
             get_status,
             share,
             unshare,
-            list_access
+            list_access,
+            get_public_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
