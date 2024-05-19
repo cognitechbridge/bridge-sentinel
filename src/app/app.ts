@@ -272,6 +272,12 @@ class App {
         let email = await this.get_user_email();
         return await this.client.is_user_registered(email);
     }
+
+    // Set the use of the cloud
+    async set_use_cloud(use_cloud: boolean): Promise<void> {
+        await this.store.set('use_cloud', use_cloud);
+        await this.store.save();
+    }
 }
 
 export let app = new App();

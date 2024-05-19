@@ -16,9 +16,12 @@
   let secret = '';
 
   onMount(async () => {
-    let userData = await app.loadUserData();
-    !userData && goto('/register');
-    if (await app.needs_login_to_cloud()) {
+    if (!app.get_use_cloud()) {
+      let userData = await app.loadUserData();
+      if (!userData) {
+        goto('/register');
+      }
+    } else if (await app.needs_login_to_cloud()) {
       goto('/login-cloud');
     }
   });

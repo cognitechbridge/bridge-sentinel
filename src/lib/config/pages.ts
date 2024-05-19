@@ -23,5 +23,9 @@ export const pages: Page[] = [
   {
     name: 'Login Clound',
     href: '/login-cloud'
+  },
+  {
+    name: 'First Time Setup',
+    href: '/first-time'
   }
 ];
