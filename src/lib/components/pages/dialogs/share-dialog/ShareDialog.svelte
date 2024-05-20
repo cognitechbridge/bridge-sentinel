@@ -2,12 +2,14 @@
   import { app, type AccessList, type Repository, type AppResult } from '$api/app';
   import ValidatedInput from '$components/ui/input/ValidatedInput.svelte';
   import Separator from '$components/ui/separator/Separator.svelte';
-  import Table from '$components/ui/table/Table.svelte';
-  import TableBody from '$components/ui/table/TableBody.svelte';
-  import TableCell from '$components/ui/table/TableCell.svelte';
-  import TableHead from '$components/ui/table/TableHead.svelte';
-  import TableHeader from '$components/ui/table/TableHeader.svelte';
-  import TableRow from '$components/ui/table/TableRow.svelte';
+  import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
+  } from '$components/ui/table';
   import { Trash2 } from 'lucide-svelte';
   import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
   import {
@@ -21,12 +23,20 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
   import UnshareDialog from '../unshare-dialog/UnshareDialog.svelte';
+  import { onMount } from 'svelte';
 
   type RenderedAccessList = {
     PublicKey: string;
     Inherited: string;
     Removable: boolean;
+    Email: string;
   }[];
+
+  let use_cloud = false;
+
+  onMount(async () => {
+    use_cloud = await app.get_use_cloud();
+  });
 
   async function list_access(path: string) {
     if (!repository) return;
@@ -36,7 +46,12 @@
 
   async function share() {
     if (!repository) return;
-    let res = await app.sharePath(repository?.path, path, publicKey);
+    let res: AppResult<void>;
+    if (isValidEmail(recipient)) {
+      res = await app.sharePathWithEmail(repository?.path, path, recipient);
+    } else {
+      res = await app.sharePathWithPublicKey(repository?.path, path, recipient);
+    }
     if (res.ok) {
       open = false;
       toast.success('Path shared successfully', {
@@ -74,21 +89,42 @@
     open = true;
   }
 
-  function render_access_list(accessList: AccessList): RenderedAccessList {
-    let res = accessList.map((access) => {
-      let publickey = repository?.status.public_key == access.PublicKey ? 'You' : access.PublicKey;
-      let removable = access.PublicKey != repository?.status.public_key;
-      return {
-        PublicKey: publickey,
-        Inherited: access.Inherited ? 'Yes' : 'No',
-        Removable: removable
-      };
-    });
+  async function render_access_list(accessList: AccessList): Promise<RenderedAccessList> {
+    let res = await Promise.all(
+      accessList.map(async (access) => {
+        let publickey = access.PublicKey;
+        let removable = access.PublicKey != repository?.status.public_key;
+        let email = '';
+        if (await app.get_use_cloud()) {
+          email = await app.client.get_email_from_public_key(access.PublicKey);
+        }
+        // Check if the access is yours
+        let isYou = access.PublicKey == repository?.status.public_key;
+        if (isYou) {
+          email += ' (You)';
+        }
+        return {
+          PublicKey: publickey,
+          Inherited: access.Inherited ? 'Yes' : 'No',
+          Removable: removable,
+          Email: email
+        };
+      })
+    );
     return res;
   }
 
+  function isValidPublicKey(recipient: string) {
+    console.log(recipient);
+    return /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/.test(recipient);
+  }
+
+  function isValidEmail(recipient: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient);
+  }
+
   let mountPoint = '';
-  let publicKey = '';
+  let recipient = '';
   let pathErr = '';
   let accessList: RenderedAccessList = [];
 
@@ -100,21 +136,21 @@
   $: {
     open &&
       repository &&
-      list_access(path).then((res) => {
+      list_access(path).then(async (res) => {
         if (!res || res.err) {
           pathErr = 'The path is not valid';
           accessList = [];
         } else {
           pathErr = '';
-          accessList = render_access_list(res.result);
+          accessList = await render_access_list(res.result);
         }
       });
   }
-  $: isValid = !pathErr && publicKey.length > 0;
+  $: isValid = !pathErr && (isValidEmail(recipient) || isValidPublicKey(recipient));
 </script>
 
 <Dialog bind:open>
-  <DialogContent class="sm:max-w-[800px]">
+  <DialogContent class="sm:max-w-[1000px]">
     <DialogHeader>
       <DialogTitle>Share path</DialogTitle>
       <DialogDescription>
@@ -127,8 +163,15 @@
         <ValidatedInput id="path" bind:value={path} error={pathErr} prefix={mountPoint} />
       </div>
       <div class="grid gap-1 mt-2">
-        <Label for="recipient">Recipient:</Label>
-        <ValidatedInput id="recipient" bind:value={publicKey} />
+        <Label for="recipient">
+          Recipient
+          {#if use_cloud}
+            (Email or Public Key):
+          {:else}
+            (Public Key):
+          {/if}
+        </Label>
+        <ValidatedInput id="recipient" bind:value={recipient} />
       </div>
     </div>
     <DialogFooter>
@@ -140,6 +183,9 @@
       <TableHeader>
         <TableRow>
           <TableHead>#</TableHead>
+          {#if use_cloud}
+            <TableHead>Email</TableHead>
+          {/if}
           <TableHead>Public Key</TableHead>
           <TableHead>Inherited</TableHead>
           <TableHead>Remove</TableHead>
@@ -149,6 +195,9 @@
         {#each accessList as access, i (i)}
           <TableRow>
             <TableCell>{i + 1}</TableCell>
+            {#if use_cloud}
+              <TableCell>{access.Email}</TableCell>
+            {/if}
             <TableCell>{access.PublicKey}</TableCell>
             <TableCell>{access.Inherited}</TableCell>
             <TableCell>

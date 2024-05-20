@@ -88,9 +88,16 @@ class App {
     }
 
 
-    // Function to share a path with a user
-    async sharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path });
+    // Function to share a path with a user's email
+    async sharePathWithEmail(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
+        let publicKey = await this.getPublicKey(await this.client.get_public_key(recipient));
+        let res = this.sharePathWithPublicKey(repositoryPath, path, publicKey.result);
+        return res;
+    }
+
+    // Function to share a path with a public key
+    async sharePathWithPublicKey(repositoryPath: string, path: string, publicKey: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: publicKey, path: path });
         return res;
     }
 
@@ -230,19 +237,23 @@ class App {
     }
 
     // Get the email of the user from the store
-    // @TODO: Get the email from the id token
     async get_user_email(): Promise<string> {
-        let user_data = await this.store.get('user_data') as UserData;
-        return user_data.email;
+        if (await this.get_use_cloud()) {
+            let email = await this.client.get_email();
+            return email;
+        } else {
+            let user_data = await this.store.get('user_data') as UserData;
+            return user_data.email;
+        }
     }
 
     // Get the salt of the user from the cloud or from the store
     async get_user_salt(): Promise<string> {
-        let user_data = await this.store.get('user_data') as UserData;
         let email = await this.get_user_email();
         if (await this.get_use_cloud()) {
             return await this.client.get_user_salt(email);
         }
+        let user_data = await this.store.get('user_data') as UserData;
         return user_data.salt;
     }
 
@@ -268,8 +279,15 @@ class App {
         return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
     }
 
+    // Check if the user is registered on (local or cloud)
     async is_user_registered(): Promise<boolean> {
         let email = await this.get_user_email();
+        if (!email) {
+            return false;
+        }
+        if (!await this.get_use_cloud()) {
+            return true;
+        }
         return await this.client.is_user_registered(email);
     }
 

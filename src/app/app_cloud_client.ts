@@ -12,6 +12,7 @@ export class AppCloudClient {
     private baseURL: string = 'http://localhost:1323/';
     private token: string = '';
     private refresh_token: string = '';
+    private id_token: string = '';
 
     private store: Store;
 
@@ -97,6 +98,7 @@ export class AppCloudClient {
 
         this.token = result.access_token;
         this.refresh_token = result.refresh_token;
+        this.id_token = result.id_token;
 
         console.log('Token: ' + this.token);
 
@@ -132,10 +134,12 @@ export class AppCloudClient {
         let result = {
             access_token: token_res.data.access_token,
             refresh_token: token_res.data.refresh_token,
+            id_token: token_res.data.id_token
         }
 
         this.token = result.access_token;
         this.refresh_token = result.refresh_token;
+        this.id_token = result.id_token;
 
         console.log('Token (By Refresh): ' + this.token);
 
@@ -195,6 +199,68 @@ export class AppCloudClient {
             headers: headers
         });
         return response.status === 200 ? true : false;
+    }
+
+    // Get id token directly from memory or using refresh token
+    async get_id_token(): Promise<string> {
+        if (this.id_token.length > 0 && is_valid_jwt(this.id_token)) {
+            return this.id_token;
+        } else if (await this.has_refresh_token()) {
+            await this.get_token();
+            return this.id_token;
+        }
+        return '';
+    }
+
+    // Get email from id token
+    async get_email(): Promise<string> {
+        if (!(await this.get_id_token())) {
+            return '';
+        }
+        const decodedToken = decode_token<{ email: string }>(this.id_token);
+        return decodedToken ? decodedToken.email : '';
+    }
+
+    // Get public key from user email
+    async get_public_key(email: string): Promise<string> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        const response = await axios.get(this.baseURL + 'user/pub', {
+            headers: headers,
+            params: {
+                email: email
+            }
+        });
+        return response.data;
+    }
+
+    // Get email from public key
+    async get_email_from_public_key(pub_key: string): Promise<string> {
+        const token = await this.get_token();
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+        try {
+            const response = await axios.get(this.baseURL + 'user/email', {
+                headers: headers,
+                params: {
+                    pub_key: pub_key
+                }
+            });
+            return response.data;
+        } catch (error) {
+            return '';
+        }
+    }
+}
+
+function decode_token<T>(token: string): T | null {
+    try {
+        return jwtDecode<T>(token);
+    } catch (error) {
+        return null;
     }
 }
 
