@@ -259,11 +259,11 @@ class App {
 
     // Get the encrypted key of the user from the cloud or from the store
     async get_user_encrypted_key(): Promise<string> {
-        let user_data = await this.store.get('user_data') as UserData;
-        let email = user_data.email;
+        let email = await this.get_user_email();
         if (await this.get_use_cloud()) {
             return await this.client.get_encrypted_private_key(email);
         }
+        let user_data = await this.store.get('user_data') as UserData;
         let encrypted_key = user_data.encrypted_key;
         return encrypted_key || '';
     }
