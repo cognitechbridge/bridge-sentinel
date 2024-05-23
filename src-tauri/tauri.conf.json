@@ -45,6 +45,14 @@
         "timestampUrl": "",
         "nsis": {
           "installerIcon": "./icons/icon.ico"
+        },
+        "wix": {
+          "fragmentPaths": [
+            "./../installation/registry.wxs"
+          ],
+          "componentRefs": [
+            "FragmentRegistryEntries"
+          ]
         }
       }
     },

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <!-- these registry entries should be installed
+         to the target user's machine -->
+        <DirectoryRef Id="TARGETDIR">
+            <!-- groups together the registry entries to be installed -->
+            <!-- Note the unique `Id` we provide here -->
+            <Component Id="FragmentRegistryEntries" Guid="*">
+                <!-- Share command (Background Context Menu) -->
+                <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB"
+                    Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Value="Share With CTB" />
+                </RegistryKey>
+                <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB\Command"
+                    Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string"
+                        Value='"[INSTALLDIR]storage-ui.exe" "share" "%V"' />
+                </RegistryKey>
+                <!-- Share command (Context Menu) -->
+                <RegistryKey Root="HKCR" Key="Directory\shell\CTB"
+                    Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Value="Share With CTB" />
+                </RegistryKey>
+                <RegistryKey Root="HKCR" Key="Directory\shell\CTB\Command"
+                    Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string"
+                        Value='"[INSTALLDIR]storage-ui.exe" "share" "%V"' />
+                </RegistryKey>
+                <!-- Custom URI -->
+                <RegistryKey Root="HKCR" Key="ctb" Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Name="URL Protocol" Value="" KeyPath="yes" />
+                </RegistryKey>
+                <RegistryKey Root="HKCR" Key="ctb\shell\open\command"
+                    Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string"
+                        Value='"[INSTALLDIR]storage-ui.exe" login-callback "%1"' />
+                </RegistryKey>
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+</Wix>
