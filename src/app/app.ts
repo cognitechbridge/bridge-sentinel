@@ -268,6 +268,12 @@ class App {
         return encrypted_key || '';
     }
 
+    // Check if the app is running for the first time
+    async get_is_first_run(): Promise<boolean> {
+        let use_cloud = await this.store.get('use_cloud');
+        return use_cloud === null || use_cloud === undefined;
+    }
+
     // Check if the use enabled the cloud
     async get_use_cloud(): Promise<boolean> {
         let use_cloud = await this.store.get('use_cloud') as boolean;
