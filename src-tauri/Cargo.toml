@@ -10,7 +10,8 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tauri = { version = "1.6.1", features = [ "shell-open",
+tauri = { version = "1.6.1", features = [
+    "shell-open",
     "cli",
     "dialog-all",
     "path-all",
@@ -35,7 +36,7 @@ ed25519-bip32-core = "0.1.1"
 default = ["custom-protocol"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
-custom-protocol = []
+custom-protocol = ["tauri/custom-protocol"]
 
 # Optimized for bundle size. If you want faster builds comment out/delete this section.
 [profile.release]
