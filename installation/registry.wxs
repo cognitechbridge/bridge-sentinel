@@ -11,6 +11,7 @@
                 <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string" Value="Share With CTB" />
+                    <RegistryValue Type="string" Name="Icon" Value="[INSTALLDIR]storage-ui.exe,0" />
                 </RegistryKey>
                 <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB\Command"
                     Action="createAndRemoveOnUninstall">
@@ -21,6 +22,7 @@
                 <RegistryKey Root="HKCR" Key="Directory\shell\CTB"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string" Value="Share With CTB" />
+                    <RegistryValue Type="string" Name="Icon" Value="[INSTALLDIR]storage-ui.exe,0" />
                 </RegistryKey>
                 <RegistryKey Root="HKCR" Key="Directory\shell\CTB\Command"
                     Action="createAndRemoveOnUninstall">
