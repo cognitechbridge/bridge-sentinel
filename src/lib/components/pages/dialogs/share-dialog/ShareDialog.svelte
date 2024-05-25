@@ -115,7 +115,6 @@
   }
 
   function isValidPublicKey(recipient: string) {
-    console.log(recipient);
     return /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/.test(recipient);
   }
 

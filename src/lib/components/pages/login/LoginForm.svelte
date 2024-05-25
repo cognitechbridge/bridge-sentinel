@@ -16,7 +16,6 @@
   let secret = '';
 
   onMount(async () => {
-    console.log(await app.get_is_first_run());
     if (await app.get_is_first_run()) {
       goto('/first-time');
     } else if (!(await app.get_use_cloud())) {

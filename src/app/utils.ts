@@ -36,4 +36,8 @@ function shortenFilePath(filePath: string, maxLength: number = 45): string {
   return start + separator + middle + separator + end;
 }
 
+export function isDev() {
+  return window.location.host.startsWith('localhost:');
+}
+
 export { shortenFilePath };
