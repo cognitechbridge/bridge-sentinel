@@ -124,6 +124,14 @@
           "takesValue": true
         }
       ]
+    },
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://gist.githubusercontent.com/saadatfar/305e7981efdc964d88e8a57ce0e3eab0/raw/"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDEwMTM0RTZERkQwNkMwQTYKUldTbXdBYjliVTRURUJHeXpnWE5Ka0ZyaEVBditBTUwzOUJ4ZDUyaVpVbGMrS05XRnlsc0JIaUUK"
     }
   }
 }
