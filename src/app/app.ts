@@ -305,6 +305,15 @@ class App {
         await this.store.save();
     }
 
+    // Logout the user from the cloud and remove the user data from the store
+    async logout(): Promise<void> {
+        if (await this.get_use_cloud()) {
+            await this.client.logout();
+        }
+        await this.store.set('user_data', null);
+        await this.store.save();
+    }
+
 }
 
 export function get_api_base_url(): string {

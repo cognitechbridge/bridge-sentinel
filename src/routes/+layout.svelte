@@ -15,11 +15,16 @@
   import { isDev } from '$api/utils';
 
   import { getMatches } from '@tauri-apps/api/cli';
+  import Button from '$components/ui/button/button.svelte';
+  import UserIcon from '$components/elements/user-icon/user-icon.svelte';
 
   let development = false;
 
+  let user_email = '';
+
   onMount(async () => {
     development = isDev();
+    user_email = await app.get_user_email();
     const matches = await getMatches();
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
@@ -45,6 +50,9 @@
       {:else}
         <div class="w-full">Cognitech Bridge Secure Storage GUI</div>
       {/if}
+      <div>
+        <UserIcon />
+      </div>
       <LightSwitch />
     </div>
   </div>

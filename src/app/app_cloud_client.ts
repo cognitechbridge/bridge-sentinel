@@ -165,7 +165,12 @@ export class AppCloudClient {
     }
 
     async has_refresh_token(): Promise<boolean> {
-        return await this.store.has('refresh_token');
+        if (!await this.store.has('refresh_token'))
+            return false;
+        let refresh_token = await this.store.get<string | null>('refresh_token');
+        if (!refresh_token)
+            return false;
+        return refresh_token.length > 0;
     }
 
     has_access_token(): boolean {
@@ -256,6 +261,15 @@ export class AppCloudClient {
         } catch (error) {
             return '';
         }
+    }
+
+    // Logout user
+    async logout() {
+        this.token = '';
+        this.refresh_token = '';
+        this.id_token = '';
+        await this.store.set('refresh_token', null);
+        await this.store.save();
     }
 }
 
