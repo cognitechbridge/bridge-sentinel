@@ -37,7 +37,7 @@ function shortenFilePath(filePath: string, maxLength: number = 45): string {
 }
 
 export function isDev() {
-  return window.location.host.startsWith('localhost:');
+  return process.env.NODE_ENV === 'development';
 }
 
 export { shortenFilePath };
