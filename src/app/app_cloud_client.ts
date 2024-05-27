@@ -9,7 +9,7 @@ interface Tokens {
 }
 
 export class AppCloudClient {
-    private baseURL: string = 'http://localhost:1323/';
+    private baseURL: string = 'https://api.cognitechbridge.com/';
     private token: string = '';
     private refresh_token: string = '';
     private id_token: string = '';
@@ -78,7 +78,7 @@ export class AppCloudClient {
                 client_id: 'ZBRZXrV3FrzvZfO3Zz8OCnKEwXnyxrDf',
                 code_verifier: verifier,
                 code: code,
-                redirect_uri: 'http://localhost:1323/callback'
+                redirect_uri: 'https://api.cognitechbridge.com/callback'
             })
         };
 
