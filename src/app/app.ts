@@ -54,6 +54,8 @@ class App {
     // Cloud client object to interact with the cloud
     client = new AppCloudClient(this.store);
 
+    api_base_url = get_api_base_url();
+
     constructor() {
     }
 
@@ -302,6 +304,15 @@ class App {
         await this.store.set('use_cloud', use_cloud);
         await this.store.save();
     }
+
+}
+
+export function get_api_base_url(): string {
+    let base_url =
+        import.meta.env.MODE === 'development'
+            ? 'http://localhost:1323'
+            : 'https://api.cognitechbridge.com';
+    return base_url;
 }
 
 export let app = new App();

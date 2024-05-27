@@ -3,7 +3,6 @@
   import { onMount } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
   import pkceChallenge from 'pkce-challenge';
-  import axios from 'axios';
   import { app } from '$api/app';
   import { Button } from '$components/ui/button';
   import LoginSide from '../login-shared/LoginSide.svelte';
@@ -19,7 +18,7 @@
 
   function openLoginUrl(challenge: string, is_signup: boolean = false) {
     state = Math.random().toString(36).substring(2);
-    const callbackUrl = 'https://api.cognitechbridge.com/callback';
+    const callbackUrl = `${app.api_base_url}/callback`;
     const apiAudience = 'https://cognitechbridge.com/api';
     const url = new URL('https://dev-65toamv7157f23vq.us.auth0.com/authorize');
     url.searchParams.append('response_type', 'code');

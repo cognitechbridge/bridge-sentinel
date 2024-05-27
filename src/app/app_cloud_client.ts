@@ -1,3 +1,5 @@
+import { app, get_api_base_url } from './app';
+
 import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
@@ -9,7 +11,7 @@ interface Tokens {
 }
 
 export class AppCloudClient {
-    private baseURL: string = 'https://api.cognitechbridge.com/';
+    private baseURL: string = '';
     private token: string = '';
     private refresh_token: string = '';
     private id_token: string = '';
@@ -18,6 +20,7 @@ export class AppCloudClient {
 
     constructor(store: Store) {
         this.store = store;
+        this.baseURL = get_api_base_url();
     }
 
     async is_user_registered(email: string): Promise<boolean> {
@@ -27,7 +30,7 @@ export class AppCloudClient {
         };
         let response;
         try {
-            response = await axios.get(this.baseURL + 'user/salt', {
+            response = await axios.get(`${this.baseURL}/user/salt`, {
                 headers: headers,
                 params: {
                     email: email
@@ -44,7 +47,7 @@ export class AppCloudClient {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(this.baseURL + 'user/salt', {
+        const response = await axios.get(`${this.baseURL}/user/salt`, {
             headers: headers,
             params: {
                 email: email
@@ -58,7 +61,7 @@ export class AppCloudClient {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(this.baseURL + 'user/priv', {
+        const response = await axios.get(`${this.baseURL}/user/priv`, {
             headers: headers,
             params: {
                 email: email
@@ -78,7 +81,7 @@ export class AppCloudClient {
                 client_id: 'ZBRZXrV3FrzvZfO3Zz8OCnKEwXnyxrDf',
                 code_verifier: verifier,
                 code: code,
-                redirect_uri: 'https://api.cognitechbridge.com/callback'
+                redirect_uri: `${this.baseURL}/callback`
             })
         };
 
@@ -190,7 +193,7 @@ export class AppCloudClient {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.post(this.baseURL + 'user/register', {
+        const response = await axios.post(`${this.baseURL}/user/register`, {
             email: email,
             pub_key: pub_key,
             priv_key: priv_key,
@@ -227,7 +230,7 @@ export class AppCloudClient {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(this.baseURL + 'user/pub', {
+        const response = await axios.get(`${this.baseURL}/user/pub`, {
             headers: headers,
             params: {
                 email: email
@@ -243,7 +246,7 @@ export class AppCloudClient {
             Authorization: `Bearer ${token}`
         };
         try {
-            const response = await axios.get(this.baseURL + 'user/email', {
+            const response = await axios.get(`${this.baseURL}/user/email`, {
                 headers: headers,
                 params: {
                     pub_key: pub_key
