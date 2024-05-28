@@ -45,6 +45,7 @@ export type AccessList = {
 type MountResult = string;
 
 export let repositories = writable<Repository[]>([]);
+export let user_email = writable<string | null>(null);
 
 class App {
 
@@ -303,10 +304,12 @@ class App {
     async set_use_cloud(use_cloud: boolean): Promise<void> {
         await this.store.set('use_cloud', use_cloud);
         await this.store.save();
+
     }
 
     // Logout the user from the cloud and remove the user data from the store
     async logout(): Promise<void> {
+        user_email.set(null);
         if (await this.get_use_cloud()) {
             await this.client.logout();
         }
@@ -319,7 +322,7 @@ class App {
 export function get_api_base_url(): string {
     let base_url =
         import.meta.env.MODE === 'development'
-            ? 'http://localhost:1323'
+            ? 'https://api.cognitechbridge.com'
             : 'https://api.cognitechbridge.com';
     return base_url;
 }

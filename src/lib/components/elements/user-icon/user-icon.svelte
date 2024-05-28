@@ -11,11 +11,9 @@
   import DropdownMenuItem from '$components/ui/dropdown-menu/dropdown-menu-item.svelte';
   import DropdownMenuLabel from '$components/ui/dropdown-menu/dropdown-menu-label.svelte';
   import { onMount } from 'svelte';
+  import { user_email } from '$api/app';
 
-  let user_email = '';
-  onMount(async () => {
-    user_email = await app.get_user_email();
-  });
+  onMount(async () => {});
 
   function logout() {
     app.logout();
@@ -23,15 +21,17 @@
   }
 </script>
 
-<DropdownMenu>
-  <DropdownMenuTrigger asChild let:builder>
-    <Button builders={[builder]} size="sm" variant="outline">
-      {user_email}
-    </Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent class="w-56">
-    <!-- <DropdownMenuLabel>Account</DropdownMenuLabel>
+{#if $user_email}
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild let:builder>
+      <Button builders={[builder]} size="sm" variant="outline">
+        {$user_email}
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent class="w-56">
+      <!-- <DropdownMenuLabel>Account</DropdownMenuLabel>
     <DropdownMenuSeparator /> -->
-    <DropdownMenuItem on:click={logout}>Logout</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
+      <DropdownMenuItem on:click={logout}>Logout</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+{/if}

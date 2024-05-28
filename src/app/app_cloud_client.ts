@@ -1,4 +1,4 @@
-import { app, get_api_base_url } from './app';
+import { app, get_api_base_url, user_email } from './app';
 
 import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
@@ -103,6 +103,8 @@ export class AppCloudClient {
         this.refresh_token = result.refresh_token;
         this.id_token = result.id_token;
 
+        user_email.set(await this.get_email());
+
         console.log('Token: ' + this.token);
 
         await this.save_refresh_token_to_store(this.refresh_token);
@@ -143,6 +145,8 @@ export class AppCloudClient {
         this.token = result.access_token;
         this.refresh_token = result.refresh_token;
         this.id_token = result.id_token;
+
+        user_email.set(await this.get_email());
 
         console.log('Token (By Refresh): ' + this.token);
 
