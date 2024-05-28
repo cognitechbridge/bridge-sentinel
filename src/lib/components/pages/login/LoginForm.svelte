@@ -17,14 +17,14 @@
 
   onMount(async () => {
     if (await app.get_is_first_run()) {
-      goto('/first-time');
+      goto('/auth/first-time');
     } else if (!(await app.get_use_cloud())) {
       let userData = await app.loadUserData();
       if (!userData) {
-        goto('/register');
+        goto('/auth/register');
       }
     } else if (await app.needs_login_to_cloud()) {
-      goto('/login-cloud');
+      goto('/auth/login-cloud');
     }
   });
 

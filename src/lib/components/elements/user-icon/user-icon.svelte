@@ -17,7 +17,7 @@
 
   function logout() {
     app.logout();
-    goto('/first-time');
+    goto('/auth/first-time');
   }
 </script>
 

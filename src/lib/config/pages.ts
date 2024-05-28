@@ -10,22 +10,22 @@ export const pages: Page[] = [
   },
   {
     name: 'Sign Up',
-    href: '/register'
+    href: '/auth/register'
   },
   {
     name: 'Sign Up Could',
-    href: '/register-cloud'
+    href: '/auth/register-cloud'
   },
   {
     name: 'Login',
-    href: '/login'
+    href: '/auth/login'
   },
   {
     name: 'Login Clound',
-    href: '/login-cloud'
+    href: '/auth/login-cloud'
   },
   {
     name: 'First Time Setup',
-    href: '/first-time'
+    href: '/auth/first-time'
   }
 ];

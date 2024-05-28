@@ -5,7 +5,6 @@
   import pkceChallenge from 'pkce-challenge';
   import { app } from '$api/app';
   import { Button } from '$components/ui/button';
-  import LoginSide from '../login-shared/LoginSide.svelte';
   import { goto } from '$app/navigation';
 
   let state = '';
@@ -72,9 +71,9 @@
       return;
     }
     if (await app.is_user_registered()) {
-      goto('/login');
+      goto('/auth/login');
     } else {
-      goto('/register-cloud');
+      goto('/auth/register-cloud');
     }
   }
 
@@ -85,21 +84,19 @@
   }
 
   onMount(async () => {
-    await listenToLoginResult('');
+    await listenToLoginResult();
   });
 </script>
 
-<LoginSide>
-  <div class="px-5">
-    <di class="flex justify-center">
-      <h1 class="text-2xl font-bold py-3">Login to CTB Cloud</h1>
-    </di>
-    <p>First you need to login to CTB Cloud to access the web version of the app.</p>
-    <div class="flex justify-center py-3">
-      <Button on:click={loginWeb}>Login to CTB Cloud</Button>
-    </div>
-    <div class="flex justify-center">
-      <Button size="sm" variant="link" on:click={openRegister}>or click here to Signup</Button>
-    </div>
+<div class="px-5">
+  <di class="flex justify-center">
+    <h1 class="text-2xl font-bold py-3">Login to CTB Cloud</h1>
+  </di>
+  <p>First you need to login to CTB Cloud to access the web version of the app.</p>
+  <div class="flex justify-center py-3">
+    <Button on:click={loginWeb}>Login to CTB Cloud</Button>
   </div>
-</LoginSide>
+  <div class="flex justify-center">
+    <Button size="sm" variant="link" on:click={openRegister}>or click here to Signup</Button>
+  </div>
+</div>
