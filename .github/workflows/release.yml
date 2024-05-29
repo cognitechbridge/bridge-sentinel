@@ -79,14 +79,20 @@ jobs:
               owner: 'cognitechbridge',
               repo: 'goclient'
             });
+            const asset = latestRelease.data.assets.find(asset => asset.name.includes('storage-x86_64-pc-windows-msvc.exe'));
+            if (!asset) {
+              throw new Error('Release asset not found');
+            }
+
+            console.log(`Found asset: ${asset.name} with download URL: ${asset.browser_download_url}`);
+
             return {
-              tag_name: latestRelease.data.tag_name,
-              download_url: latestRelease.data.assets.find(asset => asset.name.includes('storage-x86_64-pc-windows-msvc.exe')).browser_download_url
+              download_url: asset.browser_download_url
             };
 
       - name: Download latest client release
         run: |
-          mkdir -p binaries
+          mkdir -p src-tauri/binaries
           curl -L ${{ steps.get_latest_release.outputs.download_url }} -o src-tauri/binaries/storage-x86_64-pc-windows-msvc.exe
 
       - name: Install apt dependencies (ubuntu only)
