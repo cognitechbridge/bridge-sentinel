@@ -36,4 +36,8 @@ function shortenFilePath(filePath: string, maxLength: number = 45): string {
   return start + separator + middle + separator + end;
 }
 
+export function isDev() {
+  return process.env.NODE_ENV === 'development';
+}
+
 export { shortenFilePath };

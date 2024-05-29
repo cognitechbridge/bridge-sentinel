@@ -6,20 +6,33 @@
       {
         "label": "ui:dev",
         "type": "shell",
-        // `dev` keeps running in the background
-        // ideally you should also configure a `problemMatcher`
-        // see https://code.visualstudio.com/docs/editor/tasks#_can-a-background-task-be-used-as-a-prelaunchtask-in-launchjson
         "isBackground": true,
-        // change this to your `beforeDevCommand`:
         "command": "pnpm",
-        "args": ["dev"]
+        "args": [
+          "dev"
+        ]
       },
       {
         "label": "ui:build",
         "type": "shell",
-        // change this to your `beforeBuildCommand`:
         "command": "pnpm",
-        "args": ["build"]
+        "args": [
+          "build"
+        ]
+      },
+      {
+        "label": "dev: secret",
+        "type": "shell",
+        "command": "cargo",
+        "args": [
+          "tauri",
+          "dev",
+          "--",
+          "--",
+          "--secret",
+          "$env:CTBUI_SECRET"
+        ],
+        "problemMatcher": []
       }
     ]
   }

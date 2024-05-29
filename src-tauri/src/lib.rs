@@ -14,12 +14,29 @@ fn set_new_secret(secret: &str, salt: &str, root_key: &str) -> String {
     encrypted_key.to_string()
 }
 
+/// Encrypts the provided `plain` text using the provided `secret` and `salt`.
+/// Returns the encrypted text as a `String`.
+#[tauri::command]
+fn encrypt_by_secret(secret: &str, salt: &str, plain: &str) -> String {
+    let app = app::get_ui_app();
+    app.encrypt_by_secret(secret, salt, plain).unwrap()
+}
+
+/// Decrypts the provided `encrypted` text using the provided `secret`.
+/// Returns the decrypted text as a `String`.
+#[tauri::command]
+fn decrypt_by_secret(secret: &str, salt: &str, encrypted: &str) -> String {
+    let app = app::get_ui_app();
+    app.decrypt_by_secret(secret, salt, encrypted).unwrap()
+}
+
 /// Checks if the provided `secret` matches the `hash` and `salt`.
 /// Returns `true` if the secret matches, `false` otherwise.
 #[tauri::command]
 fn check_set_secret(secret: &str, salt: &str, encrypted_root_key: &str) -> bool {
     let app = app::get_ui_app();
-    app.check_set_secret(secret, salt, encrypted_root_key).unwrap()
+    app.check_set_secret(secret, salt, encrypted_root_key)
+        .unwrap()
 }
 
 /// Mounts the specified `path` asynchronously.
@@ -131,6 +148,14 @@ async fn list_access(repo_path: String, path: String) -> String {
     res
 }
 
+/// Gets the public key of the specified `root_key` asynchronously.
+/// Returns the status as a `String`.
+#[tauri::command]
+async fn get_public_key(private_key: String) -> String {
+    let (res, _) = spawn_sidecar(["pubkey", "-k", &private_key, "-o", "json"]).await;
+    res
+}
+
 /// Spawns a sidecar process with the provided arguments asynchronously.
 /// Returns the stdout and stderr output as a tuple of `String`.
 async fn spawn_sidecar<I, S>(args: I) -> (String, String)
@@ -150,10 +175,10 @@ where
 /// Runs the Tauri application.
 pub fn run() {
     tauri::Builder::default()
-        .setup(|app| {
+        .setup(|_app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = app.get_window("main").unwrap();
+                let window = _app.get_window("main").unwrap();
                 window.open_devtools();
                 window.close_devtools();
             }
@@ -166,6 +191,8 @@ pub fn run() {
         }))
         .invoke_handler(tauri::generate_handler![
             set_new_secret,
+            encrypt_by_secret,
+            decrypt_by_secret,
             check_set_secret,
             mount,
             unmount,
@@ -173,7 +200,8 @@ pub fn run() {
             get_status,
             share,
             unshare,
-            list_access
+            list_access,
+            get_public_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

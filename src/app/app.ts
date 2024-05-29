@@ -1,4 +1,6 @@
-import { Command } from '@tauri-apps/api/shell';
+import { get, writable } from 'svelte/store';
+
+import { AppCloudClient } from './app_cloud_client';
 import { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from "./utils";
@@ -6,12 +8,12 @@ import { shortenFilePath } from "./utils";
 type RepositoryCore = {
     name: string;
     path: string;
-    salt: string;
 }
 
 type UserData = {
     email: string;
     salt: string;
+    encrypted_key?: string;
 }
 
 export type Repository = RepositoryCore & {
@@ -42,12 +44,18 @@ export type AccessList = {
 
 type MountResult = string;
 
+export let repositories = writable<Repository[]>([]);
+export let user_email = writable<string | null>(null);
+
 class App {
 
     // Store object to save and load data
     store = new Store("config.json");
 
-    repositories = [] as Repository[];
+    // Cloud client object to interact with the cloud
+    client = new AppCloudClient(this.store);
+
+    api_base_url = get_api_base_url();
 
     constructor() {
     }
@@ -60,7 +68,7 @@ class App {
 
     // Function to mount a repository using App CLI
     async mountRepository(repositoryPath: string): Promise<MountResult> {
-        let repo = this.repositories.find((repo) => repo.path === repositoryPath);
+        let repo = get(repositories).find((repo) => repo.path === repositoryPath);
         if (!repo) {
             throw new Error("Repository not found");
         }
@@ -83,9 +91,16 @@ class App {
     }
 
 
-    // Function to share a path with a user
-    async sharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: recipient, path: path });
+    // Function to share a path with a user's email
+    async sharePathWithEmail(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
+        let publicKey = await this.getPublicKey(await this.client.get_public_key(recipient));
+        let res = this.sharePathWithPublicKey(repositoryPath, path, publicKey.result);
+        return res;
+    }
+
+    // Function to share a path with a public key
+    async sharePathWithPublicKey(repositoryPath: string, path: string, publicKey: string): Promise<AppResult<void>> {
+        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: publicKey, path: path });
         return res;
     }
 
@@ -98,6 +113,12 @@ class App {
     // Function to list the access of a path
     async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
         let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });
+        return res;
+    }
+
+    // Function to get the public key of a private key
+    async getPublicKey(privateKey: string): Promise<AppResult<string>> {
+        let res = await this.invokeCli<string>('get_public_key', { privateKey: privateKey });
         return res;
     }
 
@@ -118,6 +139,7 @@ class App {
     async saveRepositories(repositories: RepositoryCore[]): Promise<void> {
         await this.store.set('repositories', repositories);
         await this.store.save();
+        this.loadRepositories();
     }
 
     // Function to load the list of repositories from the store
@@ -128,7 +150,7 @@ class App {
     // Function to retrieve the list of repositories
     async loadRepositories(): Promise<void> {
         let list = await this.loadCoreRepositories();
-        this.repositories = await Promise.all(list.map(repo => this.extendRepository(repo)));
+        repositories.set(await Promise.all(list.map(repo => this.extendRepository(repo))));
     }
 
     // Function to invoke a the ctb-cli with a given command and arguments
@@ -154,20 +176,30 @@ class App {
         }
         let userData: UserData = {
             email: email,
-            salt: salt
+            salt: salt,
+            encrypted_key: encrypted_key,
         };
-        console.log("Encrypted key: ", encrypted_key);
         await this.store.set('user_data', userData);
-        await this.store.set('encrypted_key', encrypted_key);
-        console.log(encrypted_key);
         await this.store.save();
     }
 
-    // Function to save the user data
+    // Function to register a user using email, public key, private key and salt
+    async registerUserCloud(secret: string, rootKey: string): Promise<boolean> {
+        let email = await this.get_user_email();
+
+        let salt = this.generateRandomString(32);
+        let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
+        if (encrypted_key.length === 0) {
+            console.error("Failed to set secret");
+        }
+        let publicKey = (await this.getPublicKey(rootKey)).result;
+        return await this.client.register_user(email, publicKey, encrypted_key, salt);
+    }
+
+    // Function to login the user using a secret
     async login(secret: string): Promise<boolean> {
-        let user_data = await this.store.get('user_data') as UserData;
-        let salt = user_data.salt;
-        let encryptedRootKey = await this.store.get('encrypted_key') as string;
+        let salt = await this.get_user_salt();
+        let encryptedRootKey = await this.get_user_encrypted_key();
         let res = await invoke('check_set_secret', { secret: secret, salt: salt, encryptedRootKey: encryptedRootKey }) as boolean;
         return res;
     }
@@ -178,21 +210,24 @@ class App {
     }
 
     // Function to generate a random string with a given length
-    generateRandomString(length: number): string {
+    private generateRandomString(length: number): string {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
+        const randomValues = new Uint8Array(length); // Create a typed array of the required length
+        crypto.getRandomValues(randomValues); // Populate it with cryptographically secure random values
+
         for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
+            const randomIndex = randomValues[i] % characters.length; // Use modulo to get a valid index
             result += characters.charAt(randomIndex);
         }
         return result;
     }
 
+    // Function to add a folder to the list of repositories
     async addFolderToRepositories(folderPath: string): Promise<Repository> {
         let newRepo = {
             path: folderPath,
             name: folderPath.split('/').pop() || '',
-            salt: this.generateRandomString(32),
         };
         let extendedNewRepo = await this.extendRepository(newRepo);
         if (extendedNewRepo.status.is_valid === false) {
@@ -203,10 +238,93 @@ class App {
         await this.saveRepositories(repositories);
         return extendedNewRepo;
     }
+
+    // Get the email of the user from the store
+    async get_user_email(): Promise<string> {
+        if (await this.get_use_cloud()) {
+            let email = await this.client.get_email();
+            return email;
+        } else {
+            let user_data = await this.store.get('user_data') as UserData;
+            return user_data.email;
+        }
+    }
+
+    // Get the salt of the user from the cloud or from the store
+    async get_user_salt(): Promise<string> {
+        let email = await this.get_user_email();
+        if (await this.get_use_cloud()) {
+            return await this.client.get_user_salt(email);
+        }
+        let user_data = await this.store.get('user_data') as UserData;
+        return user_data.salt;
+    }
+
+    // Get the encrypted key of the user from the cloud or from the store
+    async get_user_encrypted_key(): Promise<string> {
+        let email = await this.get_user_email();
+        if (await this.get_use_cloud()) {
+            return await this.client.get_encrypted_private_key(email);
+        }
+        let user_data = await this.store.get('user_data') as UserData;
+        let encrypted_key = user_data.encrypted_key;
+        return encrypted_key || '';
+    }
+
+    // Check if the app is running for the first time
+    async get_is_first_run(): Promise<boolean> {
+        let use_cloud = await this.store.get('use_cloud');
+        return use_cloud === null || use_cloud === undefined;
+    }
+
+    // Check if the use enabled the cloud
+    async get_use_cloud(): Promise<boolean> {
+        let use_cloud = await this.store.get('use_cloud') as boolean;
+        return use_cloud;
+    }
+
+    // Check if the user is required to login to the cloud (if the cloud is enabled and the user is not logged in)
+    async needs_login_to_cloud(): Promise<boolean> {
+        return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
+    }
+
+    // Check if the user is registered on (local or cloud)
+    async is_user_registered(): Promise<boolean> {
+        let email = await this.get_user_email();
+        if (!email) {
+            return false;
+        }
+        if (!await this.get_use_cloud()) {
+            return true;
+        }
+        return await this.client.is_user_registered(email);
+    }
+
+    // Set the use of the cloud
+    async set_use_cloud(use_cloud: boolean): Promise<void> {
+        await this.store.set('use_cloud', use_cloud);
+        await this.store.save();
+
+    }
+
+    // Logout the user from the cloud and remove the user data from the store
+    async logout(): Promise<void> {
+        user_email.set(null);
+        if (await this.get_use_cloud()) {
+            await this.client.logout();
+        }
+        await this.store.set('user_data', null);
+        await this.store.save();
+    }
+
 }
 
-let app = new App();
+export function get_api_base_url(): string {
+    let base_url =
+        import.meta.env.MODE === 'development'
+            ? 'https://api.cognitechbridge.com'
+            : 'https://api.cognitechbridge.com';
+    return base_url;
+}
 
-export {
-    app
-};
+export let app = new App();

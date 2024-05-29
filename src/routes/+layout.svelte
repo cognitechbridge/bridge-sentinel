@@ -2,20 +2,29 @@
   import { dev } from '$app/environment';
   import '../styles/globals.css';
 
-  import { ExamplesNav, TailwindIndicator } from '$components/docs';
+  import { TailwindIndicator } from '$components/pages';
+  import { DevNav } from '$components/elements';
   import { cn } from '$lib/utils';
-  import { Sailboat } from 'lucide-svelte';
-  import LightSwitch from '$components/docs/light-switch/LightSwitch.svelte';
+  import { ChevronRight } from 'lucide-svelte';
+  import { LightSwitch } from '$components/elements';
   import { Toaster } from '$components/ui/sonner';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
-
   import { onMount } from 'svelte';
   import { app } from '$api/app';
+  import { isDev } from '$api/utils';
 
   import { getMatches } from '@tauri-apps/api/cli';
+  import Button from '$components/ui/button/button.svelte';
+  import UserIcon from '$components/elements/user-icon/user-icon.svelte';
+
+  let development = false;
+
+  let user_email = '';
 
   onMount(async () => {
+    development = isDev();
+    user_email = await app.get_user_email();
     const matches = await getMatches();
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
@@ -35,9 +44,15 @@
 <div class="h-screen overflow-clip">
   <div class="ml-2">
     <div class="pl-2 flex items-center p-1">
-      <Sailboat class="h-5 w-5 " />
-
-      <ExamplesNav data-tauri-drag-region class="pl-1" />
+      <ChevronRight class="h-5 w-5 " />
+      {#if development}
+        <DevNav data-tauri-drag-region class="pl-1" />
+      {:else}
+        <div class="w-full">Cognitech Bridge Secure Storage GUI</div>
+      {/if}
+      <div>
+        <UserIcon />
+      </div>
       <LightSwitch />
     </div>
   </div>
