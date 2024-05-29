@@ -1,9 +1,9 @@
-name: "release"
+name: 'release'
 on:
   workflow_dispatch:
   push:
     tags:
-      - "*"
+      - '*'
 jobs:
   create-release:
     permissions:
@@ -19,7 +19,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
 
       - name: Get version
         run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest, ubuntu-latest]
+        platform: [windows-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -67,8 +67,27 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache-dependency-path: v2/package-lock.json
+
+      - name: Get latest client info
+        id: get_latest_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const latestRelease = await github.rest.repos.getLatestRelease({
+              owner: 'cognitechbridge',
+              repo: 'goclient'
+            });
+            return {
+              tag_name: latestRelease.data.tag_name,
+              download_url: latestRelease.data.assets.find(asset => asset.name.includes('storage-x86_64-pc-windows-msvc.exe')).browser_download_url
+            };
+
+      - name: Download latest client release
+        run: |
+          mkdir -p binaries
+          curl -L ${{ steps.get_latest_release.outputs.download_url }} -o src-tauri/binaries/storage-x86_64-pc-windows-msvc.exe
 
       - name: Install apt dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
