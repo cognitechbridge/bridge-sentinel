@@ -90,6 +90,10 @@ jobs:
               download_url: asset.browser_download_url
             };
 
+      - name: Debug download URL
+        run: |
+          echo "Download URL: ${{ steps.get_latest_release.outputs.download_url }}"
+
       - name: Download latest client release
         run: |
           mkdir -p src-tauri/binaries
