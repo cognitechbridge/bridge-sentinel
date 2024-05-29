@@ -92,12 +92,12 @@ jobs:
 
       - name: Debug download URL
         run: |
-          echo "Download URL: ${{ steps.get_latest_release.outputs.download_url }}"
+          echo "Download URL: ${{ steps.get_latest_release.outputs.result.download_url }}"
 
       - name: Download latest client release
         run: |
           mkdir -p src-tauri/binaries
-          curl -L ${{ steps.get_latest_release.outputs.download_url }} -o src-tauri/binaries/storage-x86_64-pc-windows-msvc.exe
+          curl -L ${{ steps.get_latest_release.outputs.result.download_url }} -o src-tauri/binaries/storage-x86_64-pc-windows-msvc.exe
 
       - name: Install apt dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
