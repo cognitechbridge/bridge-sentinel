@@ -88,10 +88,6 @@ jobs:
 
             core.setOutput('download_url', asset.browser_download_url);
 
-      - name: Debug download URL
-        run: |
-          echo "Download URL: ${{ steps.get_latest_release.outputs.download_url }}"
-
       - name: Download latest client release
         run: |
           mkdir -p src-tauri/binaries
@@ -113,6 +109,8 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
 
