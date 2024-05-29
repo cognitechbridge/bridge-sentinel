@@ -61,8 +61,6 @@ jobs:
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: v2 -> v2/target
 
       - name: Install Node.js
         uses: actions/setup-node@v3
