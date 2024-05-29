@@ -1,16 +1,6 @@
 {
   "name": "storage-ui",
-  "version": "0.1.0",
   "private": true,
-  "author": {
-    "name": "huntabyte",
-    "url": "https://twitter.com/huntabyte"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/huntabyte/shadcn-svelte.git",
-    "directory": "apps/www"
-  },
   "type": "module",
   "scripts": {
     "dev": "vite dev",
