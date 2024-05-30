@@ -77,7 +77,7 @@ jobs:
           script: |
             const latestRelease = await github.rest.repos.getLatestRelease({
               owner: 'cognitechbridge',
-              repo: 'goclient'
+              repo: 'BridgeGuard'
             });
             const asset = latestRelease.data.assets.find(asset => asset.name.includes('storage-x86_64-pc-windows-msvc.exe'));
             if (!asset) {
