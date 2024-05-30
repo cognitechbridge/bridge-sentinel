@@ -10,7 +10,7 @@
   import { goto } from '$app/navigation';
   import { toast } from 'svelte-sonner';
   import { app } from '$api/app';
-  import GenerateKeyDialog from '../register/GenerateKeyDialog.svelte';
+  import GenerateKeyDialog from '$components/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
   export { className as class };
