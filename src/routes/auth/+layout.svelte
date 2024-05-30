@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LoginSide from '$components/pages/login-shared/LoginSide.svelte';
+  import LoginSide from '$components/LoginSide.svelte';
 </script>
 
 <LoginSide>
