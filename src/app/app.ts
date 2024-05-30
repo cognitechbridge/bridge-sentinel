@@ -325,7 +325,7 @@ class App {
 export function get_api_base_url(): string {
     let base_url =
         import.meta.env.MODE === 'development'
-            ? 'http://localhost:1323'
+            ? 'http://localhost:80'
             : 'https://api.cognitechbridge.com';
     return base_url;
 }
