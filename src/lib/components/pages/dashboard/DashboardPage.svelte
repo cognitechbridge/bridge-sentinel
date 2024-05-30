@@ -1,12 +1,9 @@
 <script lang="ts">
   import { Card, CardContent, CardHeader, CardTitle } from '$components/ui/card';
-  import { Tabs, TabsContent, TabsList, TabsTrigger } from '$components/ui/tabs';
   import { open } from '@tauri-apps/api/dialog';
-  import RepositoryDashboard from './RepositoryDashboard.svelte';
   import type { Repository } from '$api/app';
   import { app, repositories } from '$api/app';
   import { onMount } from 'svelte';
-  import RepositorySettings from './RepositorySettings.svelte';
   import InvalidRepositoryDialog from './InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from './EmptyRepositoryDialog.svelte';
   import { listen } from '@tauri-apps/api/event';
