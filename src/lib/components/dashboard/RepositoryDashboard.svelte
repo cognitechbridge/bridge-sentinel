@@ -6,7 +6,7 @@
   import type { Repository } from '$api/app';
   import { app } from '$api/app';
   import ShareKey from './ShareKey.svelte';
-  import ShareDialog from '../pages/dialogs/share-dialog/ShareDialog.svelte';
+  import ShareDialog from '$components/dialogs/share-dialog/ShareDialog.svelte';
 
   export let shareDialogOpen = false;
   export let sharePath = '';

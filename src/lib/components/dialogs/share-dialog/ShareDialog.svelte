@@ -22,7 +22,7 @@
   } from '$lib/components/ui/dialog/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
   import { toast } from 'svelte-sonner';
-  import UnshareDialog from '../unshare-dialog/UnshareDialog.svelte';
+  import UnshareDialog from '$components/dialogs/unshare-dialog/UnshareDialog.svelte';
   import { onMount } from 'svelte';
 
   type RenderedAccessList = {
