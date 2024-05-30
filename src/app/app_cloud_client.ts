@@ -275,6 +275,14 @@ export class AppCloudClient {
         await this.store.set('refresh_token', null);
         await this.store.save();
     }
+
+    async is_user_logged_in(): Promise<boolean> {
+        if (!await this.has_any_access_token())
+            return true;
+        if (!await this.get_token())
+            return true;
+        return false;
+    }
 }
 
 function decode_token<T>(token: string): T | null {

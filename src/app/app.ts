@@ -285,7 +285,10 @@ class App {
 
     // Check if the user is required to login to the cloud (if the cloud is enabled and the user is not logged in)
     async needs_login_to_cloud(): Promise<boolean> {
-        return (await app.get_use_cloud()) && !(await app.client.has_any_access_token())
+        if (!await app.get_use_cloud()) {
+            return false;
+        }
+        return await app.client.is_user_logged_in();
     }
 
     // Check if the user is registered on (local or cloud)
