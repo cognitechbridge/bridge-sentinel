@@ -1,15 +1,15 @@
 <script>
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import { goto } from '$app/navigation';
   import { Button } from '$components/ui/button';
 
   function useCloud() {
-    app.set_use_cloud(true);
+    userService.set_use_cloud(true);
     goto('/auth/login');
   }
 
   function useLocalStorage() {
-    app.set_use_cloud(false);
+    userService.set_use_cloud(false);
     goto('/auth/login');
   }
 </script>

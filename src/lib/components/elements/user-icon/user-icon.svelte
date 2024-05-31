@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import { goto } from '$app/navigation';
   import Button from '$components/ui/button/button.svelte';
   import {
@@ -11,12 +11,12 @@
   import DropdownMenuItem from '$components/ui/dropdown-menu/dropdown-menu-item.svelte';
   import DropdownMenuLabel from '$components/ui/dropdown-menu/dropdown-menu-label.svelte';
   import { onMount } from 'svelte';
-  import { user_email } from '$api/app';
+  import { user_email } from '$lib/stores/user';
 
   onMount(async () => {});
 
   function logout() {
-    app.logout();
+    userService.logout();
     goto('/auth/first-time');
   }
 </script>

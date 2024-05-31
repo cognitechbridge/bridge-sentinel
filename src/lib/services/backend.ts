@@ -1,16 +1,16 @@
-import { app, get_api_base_url, user_email } from './app';
-
 import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
+import { store } from "$lib/stores/store";
+import { user_email } from '../stores/user';
 
-interface Tokens {
+export interface Tokens {
     access_token: string;
     refresh_token: string;
     id_token?: string;
 }
 
-export class AppCloudClient {
+export class BackendService {
     private baseURL: string = '';
     private token: string = '';
     private refresh_token: string = '';
@@ -285,6 +285,14 @@ export class AppCloudClient {
     }
 }
 
+export function get_api_base_url(): string {
+    let base_url =
+        import.meta.env.MODE === 'development'
+            ? 'http://localhost:80'
+            : 'https://api.cognitechbridge.com';
+    return base_url;
+}
+
 function decode_token<T>(token: string): T | null {
     try {
         return jwtDecode<T>(token);
@@ -306,3 +314,5 @@ function is_valid_jwt(token: string): boolean {
         return true;
     }
 }
+
+export const backendService = new BackendService(store);

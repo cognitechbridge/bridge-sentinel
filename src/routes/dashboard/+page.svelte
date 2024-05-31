@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Card, CardContent, CardHeader, CardTitle } from '$components/ui/card';
   import { open } from '@tauri-apps/api/dialog';
-  import type { Repository } from '$api/app';
-  import { app, repositories } from '$api/app';
+  import { repositoryService, repositories } from '$lib/stores/repository';
+  import type { Repository } from '$lib/stores/repository';
   import { onMount } from 'svelte';
   import InvalidRepositoryDialog from '$components/dashboard/InvalidRepositoryDialog.svelte';
   import EmptyRepositoryDialog from '$components/dashboard/EmptyRepositoryDialog.svelte';
@@ -59,12 +59,12 @@
 
   const initRepo = async () => {
     if (!initRepository) return;
-    await app.initRepository(initRepository.path);
+    await repositoryService.initRepository(initRepository.path);
     await addRepository(initRepository.path);
   };
 
   async function loadRepositories() {
-    await app.loadRepositories();
+    await repositoryService.loadRepositories();
   }
 
   // Check if the repository is valid and add it to the repositories list if it is valid
@@ -75,7 +75,7 @@
       });
       return;
     }
-    let repository = await app.addFolderToRepositories(repositoryPath);
+    let repository = await repositoryService.addFolderToRepositories(repositoryPath);
     if (repository.status.is_empty === true) {
       openEmptyRepositoryDialog = true;
       initRepository = repository;

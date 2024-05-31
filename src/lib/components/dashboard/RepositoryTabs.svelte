@@ -3,7 +3,7 @@
   import { Card } from '$components/ui/card';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import RepositorySettings from './RepositorySettings.svelte';
-  import type { Repository } from '$api/app';
+  import type { Repository } from '$lib/stores/repository';
 
   export let selectedRepository: Repository | null = null;
   export let shareDialogOpen = false;

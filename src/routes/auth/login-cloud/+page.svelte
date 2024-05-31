@@ -3,9 +3,10 @@
   import { onMount } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
   import pkceChallenge from 'pkce-challenge';
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import { Button } from '$components/ui/button';
   import { goto } from '$app/navigation';
+  import { get_api_base_url } from '$lib/services/backend';
 
   let state = '';
   let verifier = '';
@@ -17,7 +18,7 @@
 
   function openLoginUrl(challenge: string, is_signup: boolean = false) {
     state = Math.random().toString(36).substring(2);
-    const callbackUrl = `${app.api_base_url}/callback`;
+    const callbackUrl = `${get_api_base_url()}/callback`;
     const apiAudience = 'https://cognitechbridge.com/api';
     const url = new URL('https://dev-65toamv7157f23vq.us.auth0.com/authorize');
     url.searchParams.append('response_type', 'code');
@@ -65,12 +66,12 @@
   }
 
   async function get_token(code: string, verifier: string) {
-    let tokens = await app.client.get_tokens(code, verifier);
+    let tokens = await userService.get_tokens(code, verifier);
     if (!tokens) {
       console.error('Failed to get tokens');
       return;
     }
-    if (await app.is_user_registered()) {
+    if (await userService.is_user_registered()) {
       goto('/auth/login');
     } else {
       goto('/auth/register-cloud');

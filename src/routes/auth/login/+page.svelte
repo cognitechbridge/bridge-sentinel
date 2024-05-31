@@ -4,7 +4,7 @@
   import { Input } from '$components/ui/input';
   import { Label } from '$components/ui/label';
   import { cn } from '$lib/utils';
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
@@ -16,21 +16,21 @@
   let secret = '';
 
   onMount(async () => {
-    if (await app.get_is_first_run()) {
+    if (await userService.get_is_first_run()) {
       goto('/auth/first-time');
-    } else if (!(await app.get_use_cloud())) {
-      let userData = await app.loadUserData();
+    } else if (!(await userService.get_use_cloud())) {
+      let userData = await userService.loadUserData();
       if (!userData) {
         goto('/auth/register');
       }
-    } else if (await app.needs_login_to_cloud()) {
+    } else if (await userService.needs_login_to_cloud()) {
       goto('/auth/login-cloud');
     }
   });
 
   async function onSubmit() {
     isLoading = true;
-    let res = await app.login(secret);
+    let res = await userService.login(secret);
     if (res === false) {
       toast.error('Invalid secret', {
         description: 'Please try again'

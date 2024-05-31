@@ -2,7 +2,7 @@
   import { dev } from '$app/environment';
   import '../styles/globals.css';
 
-  import { TailwindIndicator } from '$components/pages';
+  import TailwindIndicator from '$components/TailWindIndicator.svelte';
   import { DevNav } from '$components/elements';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
@@ -11,8 +11,8 @@
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { app } from '$api/app';
-  import { isDev } from '$api/utils';
+  import { userService } from '$lib/stores/user';
+  import { isDev } from '$lib/utils';
 
   import { getMatches } from '@tauri-apps/api/cli';
   import Button from '$components/ui/button/button.svelte';
@@ -24,11 +24,11 @@
 
   onMount(async () => {
     development = isDev();
-    user_email = await app.get_user_email();
+    user_email = await userService.get_user_email();
     const matches = await getMatches();
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
-      let res = await app.login(secret);
+      let res = await userService.login(secret);
       if (res === false) {
         toast.error('Invlid secret', {
           description: 'Please try again'

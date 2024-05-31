@@ -7,7 +7,7 @@
   import owasp from 'owasp-password-strength-test';
   import { cn } from '$lib/utils';
   import InputPassword from '$components/InputPassword.svelte';
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import GenerateKeyDialog from '$components/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
@@ -28,7 +28,7 @@
 
   async function onSubmit() {
     isLoading = true;
-    await app.saveUserData(email, password, key);
+    await userService.saveUserData(email, password, key);
     isLoading = false;
   }
 

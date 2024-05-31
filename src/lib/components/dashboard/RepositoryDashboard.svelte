@@ -1,10 +1,9 @@
 <script lang="ts">
   import { HardDriveDownload, Share } from 'lucide-svelte';
-  import { Avatar, AvatarFallback, AvatarImage } from '$components/ui/avatar';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
+  import { CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
-  import type { Repository } from '$api/app';
-  import { app } from '$api/app';
+  import type { Repository } from '$lib/stores/repository';
+  import { repositoryService } from '$lib/stores/repository';
   import ShareKey from './ShareKey.svelte';
   import ShareDialog from '$components/dialogs/share-dialog/ShareDialog.svelte';
 
@@ -20,7 +19,7 @@
   async function mount() {
     if (!repository) return;
     repository.mounted = true;
-    let point = await app.mountRepository(repository?.path || ('' as string));
+    let point = await repositoryService.mount(repository?.path || ('' as string));
     repository.mountPoint = point;
   }
 
@@ -28,7 +27,7 @@
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
-    await app.unmountRepository(repository.path);
+    await repositoryService.unmount(repository.path);
   }
 
   export let repository: Repository | null = null;

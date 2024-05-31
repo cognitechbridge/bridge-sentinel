@@ -1,16 +1,15 @@
 <script lang="ts">
   import { Trash2 } from 'lucide-svelte';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
+  import { CardContent, CardDescription, CardHeader, CardTitle } from '$components/ui/card';
   import { Button } from '$components/ui/button';
-  import { createEventDispatcher } from 'svelte';
-  import type { Repository } from '$api/app';
-  import { app } from '$api/app';
+  import type { Repository } from '$lib/stores/repository';
+  import { repositoryService } from '$lib/stores/repository';
 
   export let repository: Repository | null = null;
 
   async function removeRepository() {
     if (!repository) return;
-    await app.remove_repository(repository.path);
+    await repositoryService.remove_repository(repository.path);
   }
 </script>
 
