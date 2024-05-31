@@ -2,7 +2,7 @@
   import { dev } from '$app/environment';
   import '../styles/globals.css';
 
-  import { TailwindIndicator } from '$components/pages';
+  import TailwindIndicator from '$components/TailWindIndicator.svelte';
   import { DevNav } from '$components/elements';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';

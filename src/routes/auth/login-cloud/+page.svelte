@@ -6,6 +6,7 @@
   import { app } from '$api/app';
   import { Button } from '$components/ui/button';
   import { goto } from '$app/navigation';
+  import { get_api_base_url } from '$api/app_cloud_client';
 
   let state = '';
   let verifier = '';
@@ -17,7 +18,7 @@
 
   function openLoginUrl(challenge: string, is_signup: boolean = false) {
     state = Math.random().toString(36).substring(2);
-    const callbackUrl = `${app.api_base_url}/callback`;
+    const callbackUrl = `${get_api_base_url()}/callback`;
     const apiAudience = 'https://cognitechbridge.com/api';
     const url = new URL('https://dev-65toamv7157f23vq.us.auth0.com/authorize');
     url.searchParams.append('response_type', 'code');

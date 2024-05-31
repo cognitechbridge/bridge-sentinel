@@ -1,14 +1,10 @@
 import { get, writable } from 'svelte/store';
 
 import { AppCloudClient } from './app_cloud_client';
-import { Store } from "tauri-plugin-store-api";
+import { BridgeCli } from '$lib/services/bridge-cli';
+import type { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
-import { shortenFilePath } from "./utils";
-
-type RepositoryCore = {
-    name: string;
-    path: string;
-}
+import { store } from "$lib/stores/store";
 
 type UserData = {
     email: string;
@@ -16,155 +12,21 @@ type UserData = {
     encrypted_key?: string;
 }
 
-export type Repository = RepositoryCore & {
-    status: RepositoryStatus;
-    shortenPath: string;
-    mounted: boolean;
-    mountPoint?: string;
-}
-
-export type AppResult<T> = {
-    ok: boolean;
-    result: T;
-    err: string;
-}
-
-type RepositoryStatus = {
-    is_valid: boolean;
-    is_empty: boolean;
-    is_joined: boolean;
-    public_key: string;
-    repoid: string;
-}
-
-export type AccessList = {
-    PublicKey: string;
-    Inherited: boolean;
-}[]
-
-type MountResult = string;
-
-export let repositories = writable<Repository[]>([]);
 export let user_email = writable<string | null>(null);
 
 class App {
 
     // Store object to save and load data
-    store = new Store("config.json");
-
+    store: Store;
     // Cloud client object to interact with the cloud
-    client = new AppCloudClient(this.store);
+    client: AppCloudClient;
+    // Bridge CLI object to interact with the bridge CLI
+    cli: BridgeCli;
 
-    api_base_url = get_api_base_url();
-
-    constructor() {
-    }
-
-    // Function to get the status of a repository using App CLI
-    async getRepositoryStatus(repositoryPath: string): Promise<RepositoryStatus> {
-        const output = await this.invokeCli<RepositoryStatus>('get_status', { path: repositoryPath });
-        return output.result;
-    }
-
-    // Function to mount a repository using App CLI
-    async mountRepository(repositoryPath: string): Promise<MountResult> {
-        let repo = get(repositories).find((repo) => repo.path === repositoryPath);
-        if (!repo) {
-            throw new Error("Repository not found");
-        }
-        let output = await this.invokeCli<MountResult>('mount', { path: repositoryPath });
-        repo.mounted = true;
-        repo.mountPoint = output.result;
-        return output.result;
-    }
-
-    // Function to unmount a repository using termination child process
-    async unmountRepository(repositoryPath: string): Promise<void> {
-        await invoke('unmount', { path: repositoryPath });
-        return;
-    }
-
-    // Function to initialize an empty repository using App CLI
-    async initRepository(repositoryPath: string): Promise<void> {
-        await invoke('init', { path: repositoryPath });
-        return;
-    }
-
-
-    // Function to share a path with a user's email
-    async sharePathWithEmail(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let publicKey = await this.getPublicKey(await this.client.get_public_key(recipient));
-        let res = this.sharePathWithPublicKey(repositoryPath, path, publicKey.result);
-        return res;
-    }
-
-    // Function to share a path with a public key
-    async sharePathWithPublicKey(repositoryPath: string, path: string, publicKey: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('share', { repoPath: repositoryPath, recipient: publicKey, path: path });
-        return res;
-    }
-
-    // Function to unshare a path with a user
-    async unsharePath(repositoryPath: string, path: string, recipient: string): Promise<AppResult<void>> {
-        let res = await this.invokeCli<void>('unshare', { repoPath: repositoryPath, recipient: recipient, path: path });
-        return res;
-    }
-
-    // Function to list the access of a path
-    async listAccess(repositoryPath: string, path: string): Promise<AppResult<AccessList>> {
-        let res = await this.invokeCli<AccessList>('list_access', { repoPath: repositoryPath, path: path });
-        return res;
-    }
-
-    // Function to get the public key of a private key
-    async getPublicKey(privateKey: string): Promise<AppResult<string>> {
-        let res = await this.invokeCli<string>('get_public_key', { privateKey: privateKey });
-        return res;
-    }
-
-    // Function to extend a repository object with additional properties
-    async extendRepository(repo: RepositoryCore): Promise<Repository> {
-        let shortenPath = shortenFilePath(repo.path);
-        let status = await this.getRepositoryStatus(repo.path);
-        let rep = {
-            ...repo,
-            status,
-            shortenPath,
-            mounted: false,
-        }
-        return rep;
-    }
-
-    // Function to save the list of repositories
-    async saveRepositories(repositories: RepositoryCore[]): Promise<void> {
-        await this.store.set('repositories', repositories);
-        await this.store.save();
-        this.loadRepositories();
-    }
-
-    // Function to load the list of repositories from the store
-    async loadCoreRepositories(): Promise<RepositoryCore[]> {
-        return (await this.store.get('repositories') || []) as RepositoryCore[];
-    }
-
-    // Function to retrieve the list of repositories
-    async loadRepositories(): Promise<void> {
-        let list = await this.loadCoreRepositories();
-        repositories.set(await Promise.all(list.map(repo => this.extendRepository(repo))));
-    }
-
-    // Function to invoke a the ctb-cli with a given command and arguments
-    async invokeCli<T>(command: string, args: any): Promise<AppResult<T>> {
-        let res = await invoke(command, args) as string;
-        return JSON.parse(res) as AppResult<T>;
-    }
-
-    // Function to remove a repository from the list
-    async remove_repository(path: string) {
-        let core_repositories = (await this.loadCoreRepositories()).filter(
-            (repo) => repo.path !== path
-        );
-        this.saveRepositories(core_repositories);
+    constructor(store: Store) {
+        this.store = store;
+        this.client = new AppCloudClient(store);
+        this.cli = new BridgeCli();
     }
 
     // Function to save the user data
@@ -192,7 +54,7 @@ class App {
         if (encrypted_key.length === 0) {
             console.error("Failed to set secret");
         }
-        let publicKey = (await this.getPublicKey(rootKey)).result;
+        let publicKey = (await this.cli.getPublicKey(rootKey)).result;
         return await this.client.register_user(email, publicKey, encrypted_key, salt);
     }
 
@@ -221,22 +83,6 @@ class App {
             result += characters.charAt(randomIndex);
         }
         return result;
-    }
-
-    // Function to add a folder to the list of repositories
-    async addFolderToRepositories(folderPath: string): Promise<Repository> {
-        let newRepo = {
-            path: folderPath,
-            name: folderPath.split('/').pop() || '',
-        };
-        let extendedNewRepo = await this.extendRepository(newRepo);
-        if (extendedNewRepo.status.is_valid === false) {
-            return extendedNewRepo;
-        }
-        let repositories = await this.loadCoreRepositories();
-        repositories.push(newRepo);
-        await this.saveRepositories(repositories);
-        return extendedNewRepo;
     }
 
     // Get the email of the user from the store
@@ -322,12 +168,4 @@ class App {
 
 }
 
-export function get_api_base_url(): string {
-    let base_url =
-        import.meta.env.MODE === 'development'
-            ? 'http://localhost:80'
-            : 'https://api.cognitechbridge.com';
-    return base_url;
-}
-
-export let app = new App();
+export let app = new App(store);
