@@ -1,6 +1,6 @@
 [package]
 name = "ui"
-version = "0.1.0"
+version = "0.1.1"
 description = "An efficient and secure Tauri-based application for managing and sharing files with advanced encryption features."
 authors = ["Mohammd Saadatfar <mh.saadatfar@gmail.com>"]
 license = "MIT"
@@ -10,7 +10,8 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tauri = { version = "1.6.1", features = [ "updater",
+tauri = { version = "1.6.1", features = [
+    "updater",
     "shell-open",
     "cli",
     "dialog-all",
