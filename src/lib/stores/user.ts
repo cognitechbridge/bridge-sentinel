@@ -3,6 +3,7 @@ import { get, writable } from 'svelte/store';
 import { AppCloudClient } from '../../app/app_cloud_client';
 import { BridgeCli } from '$lib/services/bridge-cli';
 import type { Store } from "tauri-plugin-store-api";
+import type { Tokens } from '../../app/app_cloud_client';
 import { invoke } from '@tauri-apps/api/tauri';
 import { store } from "$lib/stores/store";
 
@@ -19,7 +20,7 @@ class UserService {
     // Store object to save and load data
     store: Store;
     // Cloud client object to interact with the cloud
-    client: AppCloudClient;
+    private client: AppCloudClient;
     // Bridge CLI object to interact with the bridge CLI
     cli: BridgeCli;
 
@@ -169,6 +170,11 @@ class UserService {
     // Get the public key of the user from the cloud
     async get_email_from_public_key(publicKey: string): Promise<string> {
         return await this.client.get_email_from_public_key(publicKey);
+    }
+
+    // Get the tokens using the code and the verifier
+    async get_tokens(code: string, verifier: string): Promise<Tokens | null> {
+        return await this.client.get_tokens(code, verifier);
     }
 
 }

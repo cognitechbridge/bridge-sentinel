@@ -66,7 +66,7 @@
   }
 
   async function get_token(code: string, verifier: string) {
-    let tokens = await userService.client.get_tokens(code, verifier);
+    let tokens = await userService.get_tokens(code, verifier);
     if (!tokens) {
       console.error('Failed to get tokens');
       return;

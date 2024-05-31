@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
 import { user_email } from '../lib/stores/user';
 
-interface Tokens {
+export interface Tokens {
     access_token: string;
     refresh_token: string;
     id_token?: string;
