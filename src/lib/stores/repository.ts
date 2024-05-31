@@ -19,7 +19,7 @@ export type Repository = RepositoryCore & {
     mountPoint?: string;
 }
 
-export let repositories = writable<Repository[]>([]);
+export const repositories = writable<Repository[]>([]);
 
 export class RepositoryService {
     store: Store;
@@ -51,13 +51,11 @@ export class RepositoryService {
     // Function to unmount a repository using termination child process
     async unmount(repositoryPath: string): Promise<void> {
         await invoke('unmount', { path: repositoryPath });
-        return;
     }
 
     // Function to initialize an empty repository using App CLI
     async initRepository(repositoryPath: string): Promise<void> {
         await invoke('init', { path: repositoryPath });
-        return;
     }
 
 
@@ -138,14 +136,13 @@ export class RepositoryService {
             name: folderPath.split('/').pop() || '',
         };
         let extendedNewRepo = await this.extendRepository(newRepo);
-        if (extendedNewRepo.status.is_valid === false) {
-            return extendedNewRepo;
+        if (extendedNewRepo.status.is_valid) {
+            let repositories = await this.loadCoreRepositories();
+            repositories.push(newRepo);
+            await this.saveRepositories(repositories);
         }
-        let repositories = await this.loadCoreRepositories();
-        repositories.push(newRepo);
-        await this.saveRepositories(repositories);
         return extendedNewRepo;
     }
 }
 
-export let repositoryService: RepositoryService = new RepositoryService(store, backendService);
+export const repositoryService: RepositoryService = new RepositoryService(store, backendService);
