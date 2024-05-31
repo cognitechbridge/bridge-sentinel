@@ -42,7 +42,7 @@ export class RepositoryService {
     }
 
     // Function to mount a repository using App CLI
-    async mountRepository(repositoryPath: string): Promise<MountResult> {
+    async mount(repositoryPath: string): Promise<MountResult> {
         let repo = get(repositories).find((repo) => repo.path === repositoryPath);
         if (!repo) {
             throw new Error("Repository not found");
@@ -54,7 +54,7 @@ export class RepositoryService {
     }
 
     // Function to unmount a repository using termination child process
-    async unmountRepository(repositoryPath: string): Promise<void> {
+    async unmount(repositoryPath: string): Promise<void> {
         await invoke('unmount', { path: repositoryPath });
         return;
     }

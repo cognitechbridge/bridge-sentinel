@@ -19,7 +19,7 @@
   async function mount() {
     if (!repository) return;
     repository.mounted = true;
-    let point = await repositoryService.mountRepository(repository?.path || ('' as string));
+    let point = await repositoryService.mount(repository?.path || ('' as string));
     repository.mountPoint = point;
   }
 
@@ -27,7 +27,7 @@
   async function unmount() {
     if (!repository) return;
     repository.mounted = false;
-    await repositoryService.unmountRepository(repository.path);
+    await repositoryService.unmount(repository.path);
   }
 
   export let repository: Repository | null = null;
