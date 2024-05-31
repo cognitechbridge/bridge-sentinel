@@ -136,12 +136,11 @@ export class RepositoryService {
             name: folderPath.split('/').pop() || '',
         };
         let extendedNewRepo = await this.extendRepository(newRepo);
-        if (extendedNewRepo.status.is_valid === false) {
-            return extendedNewRepo;
+        if (extendedNewRepo.status.is_valid) {
+            let repositories = await this.loadCoreRepositories();
+            repositories.push(newRepo);
+            await this.saveRepositories(repositories);
         }
-        let repositories = await this.loadCoreRepositories();
-        repositories.push(newRepo);
-        await this.saveRepositories(repositories);
         return extendedNewRepo;
     }
 }
