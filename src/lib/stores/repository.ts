@@ -19,7 +19,7 @@ export type Repository = RepositoryCore & {
     mountPoint?: string;
 }
 
-export let repositories = writable<Repository[]>([]);
+export const repositories = writable<Repository[]>([]);
 
 export class RepositoryService {
     store: Store;
