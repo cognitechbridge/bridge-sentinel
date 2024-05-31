@@ -10,7 +10,7 @@
     DialogFooter
   } from '$lib/components/ui/dialog/index.js';
   import { toast } from 'svelte-sonner';
-  import { generateRootKey } from '$api/crypto';
+  import { generateRootKey } from '$lib/crypto/crypto';
   export let open = false;
   let mnemonic = '';
   export let key: string = '';
