@@ -1,9 +1,9 @@
 import { get, writable } from 'svelte/store';
 
-import { AppCloudClient } from '../../app/app_cloud_client';
+import { BackendService } from '../services/backend';
 import { BridgeCli } from '$lib/services/bridge-cli';
 import type { Store } from "tauri-plugin-store-api";
-import type { Tokens } from '../../app/app_cloud_client';
+import type { Tokens } from '../services/backend';
 import { invoke } from '@tauri-apps/api/tauri';
 import { store } from "$lib/stores/store";
 
@@ -20,13 +20,13 @@ class UserService {
     // Store object to save and load data
     store: Store;
     // Cloud client object to interact with the cloud
-    private client: AppCloudClient;
+    private client: BackendService;
     // Bridge CLI object to interact with the bridge CLI
     cli: BridgeCli;
 
     constructor(store: Store) {
         this.store = store;
-        this.client = new AppCloudClient(store);
+        this.client = new BackendService(store);
         this.cli = new BridgeCli();
     }
 

@@ -2,7 +2,7 @@ import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
-import { user_email } from '../lib/stores/user';
+import { user_email } from '../stores/user';
 
 export interface Tokens {
     access_token: string;
@@ -10,7 +10,7 @@ export interface Tokens {
     id_token?: string;
 }
 
-export class AppCloudClient {
+export class BackendService {
     private baseURL: string = '';
     private token: string = '';
     private refresh_token: string = '';
@@ -315,4 +315,4 @@ function is_valid_jwt(token: string): boolean {
     }
 }
 
-export const appCloudClient = new AppCloudClient(store);
+export const backendService = new BackendService(store);

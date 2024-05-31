@@ -1,10 +1,8 @@
+import { backendService, type BackendService } from '$lib/services/backend';
 import type { AccessList, AppResult, MountResult, RepositoryStatus } from '../services/bridge-cli';
 import { get, writable } from 'svelte/store';
-
-import type { AppCloudClient } from '$api/app_cloud_client';
 import { BridgeCli } from './../services/bridge-cli';
 import type { Store } from "tauri-plugin-store-api";
-import { appCloudClient } from '$api/app_cloud_client';
 import { invoke } from '@tauri-apps/api/tauri';
 import { shortenFilePath } from '../../app/utils';
 import { store } from "./store";
@@ -29,9 +27,9 @@ export let repositories = writable<Repository[]>([]);
 export class RepositoryService {
     store: Store;
     cli: BridgeCli = new BridgeCli();
-    cloud: AppCloudClient;
+    cloud: BackendService;
 
-    constructor(store: Store, cloud: AppCloudClient) {
+    constructor(store: Store, cloud: BackendService) {
         this.store = store;
         this.cloud = cloud;
     }
@@ -153,4 +151,4 @@ export class RepositoryService {
     }
 }
 
-export let repositoryService: RepositoryService = new RepositoryService(store, appCloudClient);
+export let repositoryService: RepositoryService = new RepositoryService(store, backendService);

@@ -6,7 +6,7 @@
   import { userService } from '$lib/stores/user';
   import { Button } from '$components/ui/button';
   import { goto } from '$app/navigation';
-  import { get_api_base_url } from '$api/app_cloud_client';
+  import { get_api_base_url } from '$lib/services/backend';
 
   let state = '';
   let verifier = '';
