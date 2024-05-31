@@ -12,7 +12,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { userService } from '$lib/stores/user';
-  import { isDev } from '$api/utils';
+  import { isDev } from '$lib/utils';
 
   import { getMatches } from '@tauri-apps/api/cli';
   import Button from '$components/ui/button/button.svelte';

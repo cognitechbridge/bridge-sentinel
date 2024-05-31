@@ -4,11 +4,8 @@ import { get, writable } from 'svelte/store';
 import { BridgeCli } from './../services/bridge-cli';
 import type { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
-import { shortenFilePath } from '../../app/utils';
+import { shortenFilePath } from '$lib/utils';
 import { store } from "./store";
-
-//TODO Fix the path for shortenFilePath
-
 
 type RepositoryCore = {
     name: string;
