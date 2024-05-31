@@ -13,7 +13,7 @@ type UserData = {
     encrypted_key?: string;
 }
 
-export let user_email = writable<string | null>(null);
+export const user_email = writable<string | null>(null);
 
 class UserService {
 
