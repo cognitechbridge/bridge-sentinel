@@ -51,13 +51,11 @@ export class RepositoryService {
     // Function to unmount a repository using termination child process
     async unmount(repositoryPath: string): Promise<void> {
         await invoke('unmount', { path: repositoryPath });
-        return;
     }
 
     // Function to initialize an empty repository using App CLI
     async initRepository(repositoryPath: string): Promise<void> {
         await invoke('init', { path: repositoryPath });
-        return;
     }
 
 
