@@ -166,6 +166,11 @@ class UserService {
         await this.store.save();
     }
 
+    // Get the public key of the user from the cloud
+    async get_email_from_public_key(publicKey: string): Promise<string> {
+        return await this.client.get_email_from_public_key(publicKey);
+    }
+
 }
 
 export const userService = new UserService(store);

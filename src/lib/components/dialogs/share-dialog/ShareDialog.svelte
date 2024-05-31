@@ -98,7 +98,7 @@
         let removable = access.PublicKey != repository?.status.public_key;
         let email = '';
         if (await userService.get_use_cloud()) {
-          email = await userService.client.get_email_from_public_key(access.PublicKey);
+          email = await userService.get_email_from_public_key(access.PublicKey);
         }
         // Check if the access is yours
         let isYou = access.PublicKey == repository?.status.public_key;
