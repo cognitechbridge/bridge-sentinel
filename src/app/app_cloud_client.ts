@@ -2,7 +2,7 @@ import type { Store } from "tauri-plugin-store-api";
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
-import { user_email } from './app';
+import { user_email } from '../lib/stores/user';
 
 interface Tokens {
     access_token: string;

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { app, type AccessList, type Repository, type AppResult } from '$api/app';
+  import { userService } from '$lib/stores/user';
+  import { repositoryService, type Repository } from '$lib/stores/repository';
+  import type { AppResult, AccessList } from '$lib/services/bridge-cli';
   import ValidatedInput from '$components/ui/input/ValidatedInput.svelte';
   import Separator from '$components/ui/separator/Separator.svelte';
   import {
@@ -35,12 +37,12 @@
   let use_cloud = false;
 
   onMount(async () => {
-    use_cloud = await app.get_use_cloud();
+    use_cloud = await userService.get_use_cloud();
   });
 
   async function list_access(path: string) {
     if (!repository) return;
-    let accessList = await app.listAccess(repository.path, path);
+    let accessList = await repositoryService.listAccess(repository.path, path);
     return accessList;
   }
 
@@ -48,9 +50,9 @@
     if (!repository) return;
     let res: AppResult<void>;
     if (isValidEmail(recipient)) {
-      res = await app.sharePathWithEmail(repository?.path, path, recipient);
+      res = await repositoryService.sharePathWithEmail(repository?.path, path, recipient);
     } else {
-      res = await app.sharePathWithPublicKey(repository?.path, path, recipient);
+      res = await repositoryService.sharePathWithPublicKey(repository?.path, path, recipient);
     }
     if (res.ok) {
       open = false;
@@ -73,7 +75,7 @@
 
   async function unshare() {
     if (!repository) return;
-    let res = await app.unsharePath(repository?.path, path, unsharePublicKey);
+    let res = await repositoryService.unsharePath(repository?.path, path, unsharePublicKey);
     if (res.ok) {
       toast.success('Path unshared successfully', {
         description: 'The path has been unshared with the user'
@@ -95,8 +97,8 @@
         let publickey = access.PublicKey;
         let removable = access.PublicKey != repository?.status.public_key;
         let email = '';
-        if (await app.get_use_cloud()) {
-          email = await app.client.get_email_from_public_key(access.PublicKey);
+        if (await userService.get_use_cloud()) {
+          email = await userService.client.get_email_from_public_key(access.PublicKey);
         }
         // Check if the access is yours
         let isYou = access.PublicKey == repository?.status.public_key;

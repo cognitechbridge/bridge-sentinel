@@ -9,7 +9,7 @@
   import { cn } from '$lib/utils';
   import { goto } from '$app/navigation';
   import { toast } from 'svelte-sonner';
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import GenerateKeyDialog from '$components/GenerateKeyDialog.svelte';
 
   let className: string | undefined | null = undefined;
@@ -29,7 +29,7 @@
 
   async function onSubmit() {
     isLoading = true;
-    let res = await app.registerUserCloud(password, key);
+    let res = await userService.registerUserCloud(password, key);
     isLoading = false;
     if (res == true) {
       toast.info('Registered Successfully', {

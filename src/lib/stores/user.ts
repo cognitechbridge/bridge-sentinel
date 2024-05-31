@@ -1,6 +1,6 @@
 import { get, writable } from 'svelte/store';
 
-import { AppCloudClient } from './app_cloud_client';
+import { AppCloudClient } from '../../app/app_cloud_client';
 import { BridgeCli } from '$lib/services/bridge-cli';
 import type { Store } from "tauri-plugin-store-api";
 import { invoke } from '@tauri-apps/api/tauri';
@@ -14,7 +14,7 @@ type UserData = {
 
 export let user_email = writable<string | null>(null);
 
-class App {
+class UserService {
 
     // Store object to save and load data
     store: Store;
@@ -131,10 +131,10 @@ class App {
 
     // Check if the user is required to login to the cloud (if the cloud is enabled and the user is not logged in)
     async needs_login_to_cloud(): Promise<boolean> {
-        if (!await app.get_use_cloud()) {
+        if (!await userService.get_use_cloud()) {
             return false;
         }
-        return await app.client.is_user_logged_in();
+        return await userService.client.is_user_logged_in();
     }
 
     // Check if the user is registered on (local or cloud)
@@ -168,4 +168,4 @@ class App {
 
 }
 
-export let app = new App(store);
+export const userService = new UserService(store);

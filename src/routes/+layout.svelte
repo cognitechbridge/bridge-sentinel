@@ -11,7 +11,7 @@
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { app } from '$api/app';
+  import { userService } from '$lib/stores/user';
   import { isDev } from '$api/utils';
 
   import { getMatches } from '@tauri-apps/api/cli';
@@ -24,11 +24,11 @@
 
   onMount(async () => {
     development = isDev();
-    user_email = await app.get_user_email();
+    user_email = await userService.get_user_email();
     const matches = await getMatches();
     if (matches.args.secret?.value) {
       let secret = matches.args.secret.value as string;
-      let res = await app.login(secret);
+      let res = await userService.login(secret);
       if (res === false) {
         toast.error('Invlid secret', {
           description: 'Please try again'
