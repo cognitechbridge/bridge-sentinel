@@ -145,4 +145,4 @@ export class RepositoryService {
     }
 }
 
-export let repositoryService: RepositoryService = new RepositoryService(store, backendService);
+export const repositoryService: RepositoryService = new RepositoryService(store, backendService);
