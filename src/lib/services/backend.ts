@@ -182,11 +182,11 @@ export class BackendService {
     }
 
     // Get access token directly from memory or using refresh token
-    async get_token(): Promise<String> {
+    async get_token(): Promise<string> {
         if (this.token.length > 0 && is_valid_jwt(this.token)) {
             return this.token;
         }
-        if (!(this.refresh_token.length > 0)) {
+        if (this.refresh_token.length == 0) {
             await this.load_refresh_token_from_store();
         }
         if (this.refresh_token.length > 0) {
