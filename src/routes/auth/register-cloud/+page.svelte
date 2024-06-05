@@ -35,7 +35,7 @@
       toast.info('Registered Successfully', {
         description: 'Please Login Now'
       });
-      goto('/login');
+      goto('/auth/login');
     } else {
       toast.error('Failed to register', {
         description: 'Please try again'
