@@ -30,6 +30,7 @@ chacha20poly1305 = "0.10.1"
 hkdf = "0.12.4"
 sha2 = "0.10.8"
 ed25519-bip32-core = "0.1.1"
+sentry-tauri = "0.3"
 
 [features]
 # by default Tauri runs in production mode

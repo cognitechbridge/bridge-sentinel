@@ -174,6 +174,17 @@ where
 
 /// Runs the Tauri application.
 pub fn run() {
+    let sentry_client = sentry_tauri::sentry::init((
+        "https://b2f6fe8cc54c1b3364bb5a48bf64ad90@o4507380561018880.ingest.us.sentry.io/4507380563836928",
+        sentry_tauri::sentry::ClientOptions {
+            release: sentry_tauri::sentry::release_name!(),
+            traces_sample_rate: 1.0,
+            ..Default::default()
+        },
+    ));
+
+    let _guard = sentry_tauri::minidump::init(&sentry_client);
+
     tauri::Builder::default()
         .setup(|_app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
@@ -189,6 +200,7 @@ pub fn run() {
             app.emit_all("new-instance", app::NewInstancePayload::new(argv, cwd))
                 .unwrap();
         }))
+        .plugin(sentry_tauri::plugin())
         .invoke_handler(tauri::generate_handler![
             set_new_secret,
             encrypt_by_secret,
