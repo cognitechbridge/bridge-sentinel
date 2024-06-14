@@ -174,11 +174,11 @@ where
 
 /// Runs the Tauri application.
 pub fn run() {
-
     let sentry_client = sentry_tauri::sentry::init((
         "https://b2f6fe8cc54c1b3364bb5a48bf64ad90@o4507380561018880.ingest.us.sentry.io/4507380563836928",
         sentry_tauri::sentry::ClientOptions {
             release: sentry_tauri::sentry::release_name!(),
+            traces_sample_rate: 1.0,
             ..Default::default()
         },
     ));
