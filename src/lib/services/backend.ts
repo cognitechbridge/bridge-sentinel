@@ -3,6 +3,7 @@ import axios, { AxiosError, type AxiosInstance, type AxiosResponse } from 'axios
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
 import { user_email } from '../stores/user';
+import { Mutex } from 'async-mutex';
 
 
 export interface Tokens {
@@ -17,6 +18,8 @@ export class BackendService {
     private refresh_token: string = '';
     private id_token: string = '';
 
+    token_mutex = new Mutex();
+
     private store: Store;
 
     constructor(store: Store) {
@@ -28,24 +31,7 @@ export class BackendService {
         const axiosInstance = axios.create({
             baseURL: this.baseURL,
         });
-        axiosInstance.interceptors.response.use(
-            response => response,
-            error => {
-                this.capture_axios_error(error);
-                return Promise.reject(error);
-            }
-        );
         return axiosInstance;
-    }
-
-    capture_axios_error(error: AxiosError) {
-
-        window.Sentry.withScope(scope => {
-            scope.setTag("http_request_url", error.config?.url);
-            scope.setTag("http_request_method", error.config?.method);
-            scope.setLevel("error");
-            window.Sentry.captureException(error);
-        });
     }
 
     async is_user_registered(email: string): Promise<boolean> {
@@ -97,6 +83,7 @@ export class BackendService {
 
     // Get user tokens using code and verifier after login redirect
     async get_tokens(code: string, verifier: string): Promise<Tokens | null> {
+
         var options = {
             method: 'POST',
             url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
@@ -111,7 +98,6 @@ export class BackendService {
         };
 
         let token_res = await axios.request(options).catch((error) => {
-            this.capture_axios_error(error);
             return Promise.reject(error);
         });
 
@@ -155,7 +141,8 @@ export class BackendService {
         };
 
         let token_res = await this.instance().request(options).catch((error) => {
-            this.capture_axios_error(error);
+            console.warn('Using refresh token error: ' + error);
+            this.save_refresh_token_to_store('');
             return Promise.reject(error);
         });
 
@@ -175,8 +162,6 @@ export class BackendService {
 
         user_email.set(await this.get_email());
 
-        console.log('Token (By Refresh): ' + this.token);
-
         await this.save_refresh_token_to_store(this.refresh_token);
 
         return result;
@@ -187,6 +172,7 @@ export class BackendService {
     }
 
     private async save_refresh_token_to_store(refresh_token: string) {
+        this.refresh_token = refresh_token;
         await this.store.set('refresh_token', this.refresh_token);
         await this.store.save();
     }
@@ -210,17 +196,19 @@ export class BackendService {
 
     // Get access token directly from memory or using refresh token
     async get_token(): Promise<string> {
-        if (this.token.length > 0 && is_valid_jwt(this.token)) {
-            return this.token;
-        }
-        if (this.refresh_token.length == 0) {
-            await this.load_refresh_token_from_store();
-        }
-        if (this.refresh_token.length > 0) {
-            await this.use_refresh_token(this.refresh_token);
-            return this.token;
-        }
-        return '';
+        return await this.token_mutex.runExclusive(async () => {
+            if (this.token.length > 0 && is_valid_jwt(this.token)) {
+                return this.token;
+            }
+            if (this.refresh_token.length == 0) {
+                await this.load_refresh_token_from_store();
+            }
+            if (this.refresh_token.length > 0) {
+                await this.use_refresh_token(this.refresh_token);
+                return this.token;
+            }
+            return '';
+        });
     }
 
     // Register a user using email, public key, private key and salt
