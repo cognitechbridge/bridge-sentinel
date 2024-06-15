@@ -1,8 +1,9 @@
 import type { Store } from "tauri-plugin-store-api";
-import axios from 'axios';
+import axios, { AxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
 import { user_email } from '../stores/user';
+
 
 export interface Tokens {
     access_token: string;
@@ -20,7 +21,31 @@ export class BackendService {
 
     constructor(store: Store) {
         this.store = store;
-        this.baseURL = get_api_base_url();
+        this.baseURL = `${get_api_base_url()}/`;
+    }
+
+    instance(): AxiosInstance {
+        const axiosInstance = axios.create({
+            baseURL: this.baseURL,
+        });
+        axiosInstance.interceptors.response.use(
+            response => response,
+            error => {
+                this.capture_axios_error(error);
+                return Promise.reject(error);
+            }
+        );
+        return axiosInstance;
+    }
+
+    capture_axios_error(error: AxiosError) {
+
+        window.Sentry.withScope(scope => {
+            scope.setTag("http_request_url", error.config?.url);
+            scope.setTag("http_request_method", error.config?.method);
+            scope.setLevel("error");
+            window.Sentry.captureException(error);
+        });
     }
 
     async is_user_registered(email: string): Promise<boolean> {
@@ -30,7 +55,7 @@ export class BackendService {
         };
         let response;
         try {
-            response = await axios.get(`${this.baseURL}/user/salt`, {
+            response = await this.instance().get(`user/salt`, {
                 headers: headers,
                 params: {
                     email: email
@@ -47,7 +72,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/salt`, {
+        const response = await this.instance().get(`user/salt`, {
             headers: headers,
             params: {
                 email: email
@@ -61,7 +86,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/priv`, {
+        const response = await this.instance().get(`user/priv`, {
             headers: headers,
             params: {
                 email: email
@@ -86,7 +111,8 @@ export class BackendService {
         };
 
         let token_res = await axios.request(options).catch((error) => {
-            console.log(error);
+            this.capture_axios_error(error);
+            return Promise.reject(error);
         });
 
         if (!token_res) {
@@ -128,8 +154,9 @@ export class BackendService {
             })
         };
 
-        let token_res = await axios.request(options).catch((error) => {
-            console.log(error);
+        let token_res = await this.instance().request(options).catch((error) => {
+            this.capture_axios_error(error);
+            return Promise.reject(error);
         });
 
         if (!token_res) {
@@ -202,7 +229,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.post(`${this.baseURL}/user/register`, {
+        const response = await this.instance().post(`/user/register`, {
             email: email,
             pub_key: pub_key,
             priv_key: priv_key,
@@ -239,7 +266,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/pub`, {
+        const response = await this.instance().get(`/user/pub`, {
             headers: headers,
             params: {
                 email: email
@@ -255,7 +282,7 @@ export class BackendService {
             Authorization: `Bearer ${token}`
         };
         try {
-            const response = await axios.get(`${this.baseURL}/user/email`, {
+            const response = await this.instance().get(`/user/email`, {
                 headers: headers,
                 params: {
                     pub_key: pub_key
@@ -287,7 +314,7 @@ export class BackendService {
 
 export function get_api_base_url(): string {
     let base_url =
-        import.meta.env.MODE === 'development'
+        import.meta.env.MODE === 'development-2'
             ? 'http://localhost:80'
             : 'https://api.cognitechbridge.com';
     return base_url;
