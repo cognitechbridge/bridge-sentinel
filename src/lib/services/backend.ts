@@ -1,8 +1,10 @@
 import type { Store } from "tauri-plugin-store-api";
-import axios from 'axios';
+import axios, { AxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
 import { user_email } from '../stores/user';
+import { Mutex } from 'async-mutex';
+
 
 export interface Tokens {
     access_token: string;
@@ -16,11 +18,20 @@ export class BackendService {
     private refresh_token: string = '';
     private id_token: string = '';
 
+    token_mutex = new Mutex();
+
     private store: Store;
 
     constructor(store: Store) {
         this.store = store;
-        this.baseURL = get_api_base_url();
+        this.baseURL = `${get_api_base_url()}/`;
+    }
+
+    instance(): AxiosInstance {
+        const axiosInstance = axios.create({
+            baseURL: this.baseURL,
+        });
+        return axiosInstance;
     }
 
     async is_user_registered(email: string): Promise<boolean> {
@@ -30,7 +41,7 @@ export class BackendService {
         };
         let response;
         try {
-            response = await axios.get(`${this.baseURL}/user/salt`, {
+            response = await this.instance().get(`user/salt`, {
                 headers: headers,
                 params: {
                     email: email
@@ -47,7 +58,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/salt`, {
+        const response = await this.instance().get(`user/salt`, {
             headers: headers,
             params: {
                 email: email
@@ -61,7 +72,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/priv`, {
+        const response = await this.instance().get(`user/priv`, {
             headers: headers,
             params: {
                 email: email
@@ -72,6 +83,7 @@ export class BackendService {
 
     // Get user tokens using code and verifier after login redirect
     async get_tokens(code: string, verifier: string): Promise<Tokens | null> {
+
         var options = {
             method: 'POST',
             url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
@@ -86,7 +98,7 @@ export class BackendService {
         };
 
         let token_res = await axios.request(options).catch((error) => {
-            console.log(error);
+            return Promise.reject(error);
         });
 
         if (!token_res) {
@@ -128,8 +140,10 @@ export class BackendService {
             })
         };
 
-        let token_res = await axios.request(options).catch((error) => {
-            console.log(error);
+        let token_res = await this.instance().request(options).catch((error) => {
+            console.warn('Using refresh token error: ' + error);
+            this.save_refresh_token_to_store('');
+            return Promise.reject(error);
         });
 
         if (!token_res) {
@@ -148,8 +162,6 @@ export class BackendService {
 
         user_email.set(await this.get_email());
 
-        console.log('Token (By Refresh): ' + this.token);
-
         await this.save_refresh_token_to_store(this.refresh_token);
 
         return result;
@@ -160,6 +172,7 @@ export class BackendService {
     }
 
     private async save_refresh_token_to_store(refresh_token: string) {
+        this.refresh_token = refresh_token;
         await this.store.set('refresh_token', this.refresh_token);
         await this.store.save();
     }
@@ -183,17 +196,19 @@ export class BackendService {
 
     // Get access token directly from memory or using refresh token
     async get_token(): Promise<string> {
-        if (this.token.length > 0 && is_valid_jwt(this.token)) {
-            return this.token;
-        }
-        if (this.refresh_token.length == 0) {
-            await this.load_refresh_token_from_store();
-        }
-        if (this.refresh_token.length > 0) {
-            await this.use_refresh_token(this.refresh_token);
-            return this.token;
-        }
-        return '';
+        return await this.token_mutex.runExclusive(async () => {
+            if (this.token.length > 0 && is_valid_jwt(this.token)) {
+                return this.token;
+            }
+            if (this.refresh_token.length == 0) {
+                await this.load_refresh_token_from_store();
+            }
+            if (this.refresh_token.length > 0) {
+                await this.use_refresh_token(this.refresh_token);
+                return this.token;
+            }
+            return '';
+        });
     }
 
     // Register a user using email, public key, private key and salt
@@ -202,7 +217,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.post(`${this.baseURL}/user/register`, {
+        const response = await this.instance().post(`/user/register`, {
             email: email,
             pub_key: pub_key,
             priv_key: priv_key,
@@ -239,7 +254,7 @@ export class BackendService {
         const headers = {
             Authorization: `Bearer ${token}`
         };
-        const response = await axios.get(`${this.baseURL}/user/pub`, {
+        const response = await this.instance().get(`/user/pub`, {
             headers: headers,
             params: {
                 email: email
@@ -255,7 +270,7 @@ export class BackendService {
             Authorization: `Bearer ${token}`
         };
         try {
-            const response = await axios.get(`${this.baseURL}/user/email`, {
+            const response = await this.instance().get(`/user/email`, {
                 headers: headers,
                 params: {
                     pub_key: pub_key
@@ -287,7 +302,7 @@ export class BackendService {
 
 export function get_api_base_url(): string {
     let base_url =
-        import.meta.env.MODE === 'development'
+        import.meta.env.MODE === 'development-2'
             ? 'http://localhost:80'
             : 'https://api.cognitechbridge.com';
     return base_url;
