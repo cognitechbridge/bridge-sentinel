@@ -1,5 +1,5 @@
 import type { Store } from "tauri-plugin-store-api";
-import axios, { AxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { store } from "$lib/stores/store";
 import { user_email } from '../stores/user';
