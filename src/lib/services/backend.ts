@@ -117,8 +117,6 @@ export class BackendService {
 
         user_email.set(await this.get_email());
 
-        console.log('Token: ' + this.token);
-
         await this.save_refresh_token_to_store(this.refresh_token);
 
         return result;
@@ -126,7 +124,6 @@ export class BackendService {
 
     // Get user tokens using refresh token
     async use_refresh_token(refresh_token: string): Promise<Tokens | null> {
-        console.log('Using refresh token: ' + refresh_token);
         var options = {
             method: 'POST',
             url: 'https://dev-65toamv7157f23vq.us.auth0.com/oauth/token',
@@ -141,7 +138,6 @@ export class BackendService {
         };
 
         let token_res = await this.instance().request(options).catch((error) => {
-            console.warn('Using refresh token error: ' + error);
             this.save_refresh_token_to_store('');
             return Promise.reject(error);
         });
