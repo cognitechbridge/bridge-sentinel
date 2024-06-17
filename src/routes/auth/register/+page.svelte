@@ -9,6 +9,7 @@
   import InputPassword from '$components/InputPassword.svelte';
   import { userService } from '$lib/stores/user';
   import GenerateKeyDialog from '$components/GenerateKeyDialog.svelte';
+  import { toast } from 'svelte-sonner';
 
   let className: string | undefined | null = undefined;
   export { className as class };
@@ -28,7 +29,13 @@
 
   async function onSubmit() {
     isLoading = true;
-    await userService.saveUserData(email, password, key);
+    let res = await userService.saveUserData(email, password, key).catch((e) => {
+      toast.error('Failed to save user data', {
+        description: e.message
+      });
+      isLoading = false;
+      throw e;
+    });
     isLoading = false;
   }
 
