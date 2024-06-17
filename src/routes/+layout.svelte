@@ -13,6 +13,7 @@
   import { onMount } from 'svelte';
   import { userService } from '$lib/stores/user';
   import { isDev } from '$lib/utils';
+  import { emit, listen } from '@tauri-apps/api/event';
 
   import { getMatches } from '@tauri-apps/api/cli';
   import Button from '$components/ui/button/button.svelte';
@@ -37,6 +38,11 @@
         goto('/dashboard');
       }
     }
+    const unlisten = await listen('error', (event) => {
+      toast.error('Error', {
+        description: (event.payload as any).message
+      });
+    });
   });
 </script>
 

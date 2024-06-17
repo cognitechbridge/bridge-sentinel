@@ -49,14 +49,16 @@ class UserService {
     // Function to register a user using email, public key, private key and salt
     async registerUserCloud(secret: string, rootKey: string): Promise<boolean> {
         let email = await this.get_user_email();
-
         let salt = this.generateRandomString(32);
         let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
         if (encrypted_key.length === 0) {
-            console.error("Failed to set secret");
+            throw new Error("Failed to set secret");
         }
-        let publicKey = (await this.cli.getPublicKey(rootKey)).result;
-        return await this.client.register_user(email, publicKey, encrypted_key, salt);
+        let public_key_result = (await this.cli.getPublicKey(rootKey));
+        if (!public_key_result.ok) {
+            throw new Error("Failed to generate public key");
+        }
+        return await this.client.register_user(email, public_key_result.result, encrypted_key, salt);
     }
 
     // Function to login the user using a secret

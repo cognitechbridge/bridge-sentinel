@@ -29,7 +29,13 @@
 
   async function onSubmit() {
     isLoading = true;
-    let res = await userService.registerUserCloud(password, key);
+    let res = await userService.registerUserCloud(password, key).catch((e) => {
+      toast.error('Failed to register', {
+        description: e.message
+      });
+      isLoading = false;
+      throw e;
+    });
     isLoading = false;
     if (res == true) {
       toast.info('Registered Successfully', {
