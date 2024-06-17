@@ -35,7 +35,7 @@ class UserService {
         let salt = this.generateRandomString(32);
         let encrypted_key = await invoke('set_new_secret', { secret: secret, salt: salt, rootKey: rootKey }) as string;
         if (encrypted_key.length === 0) {
-            console.error("Failed to set secret");
+            throw new Error("Failed to set secret");
         }
         let userData: UserData = {
             email: email,
