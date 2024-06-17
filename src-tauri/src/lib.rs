@@ -1,9 +1,14 @@
 use tauri::{
     api::process::{Command, CommandEvent},
-    Manager,
+    AppHandle, Manager,
 };
 
 pub mod app;
+
+/// Sends the provided `error` to the front-end asynchronously.
+fn send_error_to_front(app_handle: AppHandle, error: &str) {
+    app_handle.emit_all("error", error).unwrap();
+}
 
 /// Sets a new secret using the provided `secret` and `salt`.
 /// Returns the hashed secret as a `String`.
@@ -151,9 +156,9 @@ async fn list_access(repo_path: String, path: String) -> String {
 /// Gets the public key of the specified `root_key` asynchronously.
 /// Returns the status as a `String`.
 #[tauri::command]
-async fn get_public_key(private_key: String) -> String {
+async fn get_public_key(private_key: String) -> Result<String, String> {
     let (res, _) = spawn_sidecar(["pubkey", "-k", &private_key, "-o", "json"]).await;
-    res
+    Ok(res)
 }
 
 /// Spawns a sidecar process with the provided arguments asynchronously.
