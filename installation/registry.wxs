@@ -11,23 +11,25 @@
                 <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string" Value="Share With CTB" />
-                    <RegistryValue Type="string" Name="Icon" Value="[INSTALLDIR]storage-ui.exe,0" />
+                    <RegistryValue Type="string" Name="Icon"
+                        Value="[INSTALLDIR]bridge-sentinel.exe,0" />
                 </RegistryKey>
                 <RegistryKey Root="HKCR" Key="Directory\Background\shell\CTB\Command"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string"
-                        Value='"[INSTALLDIR]storage-ui.exe" "share" "%V"' />
+                        Value='"[INSTALLDIR]bridge-sentinel.exe" "share" "%V"' />
                 </RegistryKey>
                 <!-- Share command (Context Menu) -->
                 <RegistryKey Root="HKCR" Key="Directory\shell\CTB"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string" Value="Share With CTB" />
-                    <RegistryValue Type="string" Name="Icon" Value="[INSTALLDIR]storage-ui.exe,0" />
+                    <RegistryValue Type="string" Name="Icon"
+                        Value="[INSTALLDIR]bridge-sentinel.exe,0" />
                 </RegistryKey>
                 <RegistryKey Root="HKCR" Key="Directory\shell\CTB\Command"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string"
-                        Value='"[INSTALLDIR]storage-ui.exe" "share" "%V"' />
+                        Value='"[INSTALLDIR]bridge-sentinel.exe" "share" "%V"' />
                 </RegistryKey>
                 <!-- Custom URI -->
                 <RegistryKey Root="HKCR" Key="ctb" Action="createAndRemoveOnUninstall">
@@ -36,7 +38,7 @@
                 <RegistryKey Root="HKCR" Key="ctb\shell\open\command"
                     Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string"
-                        Value='"[INSTALLDIR]storage-ui.exe" login-callback "%1"' />
+                        Value='"[INSTALLDIR]bridge-sentinel.exe" login-callback "%1"' />
                 </RegistryKey>
             </Component>
         </DirectoryRef>
