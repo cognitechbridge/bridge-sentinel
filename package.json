@@ -1,5 +1,5 @@
 {
-  "name": "storage-ui",
+  "name": "bridge-sentinel",
   "private": true,
   "type": "module",
   "scripts": {
