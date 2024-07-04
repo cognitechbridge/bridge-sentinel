@@ -1,6 +1,6 @@
 [package]
 name = "ui"
-version = "0.1.6"
+version = "0.1.7"
 description = "An efficient and secure Tauri-based application for managing and sharing files with advanced encryption features."
 authors = ["Mohammd Saadatfar <mh.saadatfar@gmail.com>"]
 license = "MIT"
