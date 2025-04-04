@@ -109,7 +109,7 @@ importers:
         version: 0.2.1(tailwindcss@3.4.4)
       tauri-plugin-store-api:
         specifier: github:tauri-apps/tauri-plugin-store#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/51717bbde4101f44d3e2191907419f6f7085e2ef
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/8adc771354df0a99bc55893525676433f0f4d646
       unified:
         specifier: ^10.1.2
         version: 10.1.2
@@ -122,13 +122,13 @@ importers:
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^2.1.0
-        version: 2.1.1(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))
+        version: 2.1.1(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))
       '@sveltejs/adapter-static':
         specifier: 2.0.3
-        version: 2.0.3(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))
+        version: 2.0.3(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))
       '@sveltejs/kit':
         specifier: ^1.22.4
-        version: 1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+        version: 1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
       '@tauri-apps/cli':
         specifier: ^1.5.11
         version: 1.5.14
@@ -208,8 +208,8 @@ importers:
         specifier: ^5.1.6
         version: 5.4.5
       vite:
-        specifier: ^4.5.3
-        version: 4.5.3(@types/node@20.14.2)
+        specifier: ^4.5.12
+        version: 4.5.12(@types/node@20.14.2)
       vitest:
         specifier: ^0.34.1
         version: 0.34.6
@@ -556,6 +556,10 @@ packages:
 
   '@tauri-apps/api@1.5.6':
     resolution: {integrity: sha512-LH5ToovAHnDVe5Qa9f/+jW28I6DeMhos8bNDtBOmmnaDpPmJmYLyHdeDblAWWWYc7KKRDg9/66vMuKyq0WIeFA==}
+    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+
+  '@tauri-apps/api@1.6.0':
+    resolution: {integrity: sha512-rqI++FWClU5I2UBp4HXFvl+sBWkdigBkxnpJDQUWttNyG7IZP4FwQGhTNL5EOw0vI8i6eSAJ5frLqO7n7jbJdg==}
     engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
 
   '@tauri-apps/cli-darwin-arm64@1.5.14':
@@ -1140,6 +1144,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   esm-env@1.0.0:
@@ -2029,8 +2034,8 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rollup@3.29.4:
-    resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}
+  rollup@3.29.5:
+    resolution: {integrity: sha512-GVsDdsbJzzy4S/v3dqWPJ7EfvZJfCHiDqe80IyrF59LYuP+e6U1LJoUqeuqRbwAWoMNoXivMNeNAOf5E22VA1w==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -2259,8 +2264,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/51717bbde4101f44d3e2191907419f6f7085e2ef:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/51717bbde4101f44d3e2191907419f6f7085e2ef}
+  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/8adc771354df0a99bc55893525676433f0f4d646:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/8adc771354df0a99bc55893525676433f0f4d646}
     version: 0.0.0
 
   text-table@0.2.0:
@@ -2421,8 +2426,8 @@ packages:
     engines: {node: '>=v14.18.0'}
     hasBin: true
 
-  vite@4.5.3:
-    resolution: {integrity: sha512-kQL23kMeX92v3ph7IauVkXkikdDRsYMGTVl5KY2E9OY4ONLvkHf04MDTbnfo6NKxZiDLWzVpP5oTa8hQD8U3dg==}
+  vite@4.5.12:
+    resolution: {integrity: sha512-qrMwavANtSz91nDy3zEiUHMtL09x0mniQsSMvDkNxuCBM1W5vriJ22hEmwTth6DhLSWsZnHBT0yHFAQXt6efGA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -2798,18 +2803,18 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sveltejs/adapter-auto@2.1.1(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))':
+  '@sveltejs/adapter-auto@2.1.1(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))':
     dependencies:
-      '@sveltejs/kit': 1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+      '@sveltejs/kit': 1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
       import-meta-resolve: 4.1.0
 
-  '@sveltejs/adapter-static@2.0.3(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))':
+  '@sveltejs/adapter-static@2.0.3(@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))':
     dependencies:
-      '@sveltejs/kit': 1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+      '@sveltejs/kit': 1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
 
-  '@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))':
+  '@sveltejs/kit@1.30.4(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
       '@types/cookie': 0.5.4
       cookie: 0.5.0
       devalue: 4.3.3
@@ -2823,30 +2828,30 @@ snapshots:
       svelte: 4.2.18
       tiny-glob: 0.2.9
       undici: 5.28.4
-      vite: 4.5.3(@types/node@20.14.2)
+      vite: 4.5.12(@types/node@20.14.2)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte-inspector@1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))':
+  '@sveltejs/vite-plugin-svelte-inspector@1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+      '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
       debug: 4.3.5
       svelte: 4.2.18
-      vite: 4.5.3(@types/node@20.14.2)
+      vite: 4.5.12(@types/node@20.14.2)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))':
+  '@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2)))(svelte@4.2.18)(vite@4.5.3(@types/node@20.14.2))
+      '@sveltejs/vite-plugin-svelte-inspector': 1.0.4(@sveltejs/vite-plugin-svelte@2.5.3(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2)))(svelte@4.2.18)(vite@4.5.12(@types/node@20.14.2))
       debug: 4.3.5
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.10
       svelte: 4.2.18
       svelte-hmr: 0.15.3(svelte@4.2.18)
-      vite: 4.5.3(@types/node@20.14.2)
-      vitefu: 0.2.5(vite@4.5.3(@types/node@20.14.2))
+      vite: 4.5.12(@types/node@20.14.2)
+      vitefu: 0.2.5(vite@4.5.12(@types/node@20.14.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -2862,6 +2867,8 @@ snapshots:
   '@tanstack/table-core@8.17.3': {}
 
   '@tauri-apps/api@1.5.6': {}
+
+  '@tauri-apps/api@1.6.0': {}
 
   '@tauri-apps/cli-darwin-arm64@1.5.14':
     optional: true
@@ -4453,7 +4460,7 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rollup@3.29.4:
+  rollup@3.29.5:
     optionalDependencies:
       fsevents: 2.3.3
 
@@ -4709,9 +4716,9 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/51717bbde4101f44d3e2191907419f6f7085e2ef:
+  tauri-plugin-store-api@https://codeload.github.com/tauri-apps/tauri-plugin-store/tar.gz/8adc771354df0a99bc55893525676433f0f4d646:
     dependencies:
-      '@tauri-apps/api': 1.5.6
+      '@tauri-apps/api': 1.6.0
 
   text-table@0.2.0: {}
 
@@ -4898,7 +4905,7 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
       picocolors: 1.0.1
-      vite: 4.5.3(@types/node@20.14.2)
+      vite: 4.5.12(@types/node@20.14.2)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4909,18 +4916,18 @@ snapshots:
       - supports-color
       - terser
 
-  vite@4.5.3(@types/node@20.14.2):
+  vite@4.5.12(@types/node@20.14.2):
     dependencies:
       esbuild: 0.18.20
       postcss: 8.4.38
-      rollup: 3.29.4
+      rollup: 3.29.5
     optionalDependencies:
       '@types/node': 20.14.2
       fsevents: 2.3.3
 
-  vitefu@0.2.5(vite@4.5.3(@types/node@20.14.2)):
+  vitefu@0.2.5(vite@4.5.12(@types/node@20.14.2)):
     optionalDependencies:
-      vite: 4.5.3(@types/node@20.14.2)
+      vite: 4.5.12(@types/node@20.14.2)
 
   vitest@0.34.6:
     dependencies:
@@ -4945,7 +4952,7 @@ snapshots:
       strip-literal: 1.3.0
       tinybench: 2.8.0
       tinypool: 0.7.0
-      vite: 4.5.3(@types/node@20.14.2)
+      vite: 4.5.12(@types/node@20.14.2)
       vite-node: 0.34.6(@types/node@20.14.2)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
